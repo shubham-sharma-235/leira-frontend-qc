@@ -86,7 +86,7 @@ function useCountdown(target: Date) {
 }
 
 export function SaleCountdownStrip() {
-  const enabled = isSaleCountdownEnabled();
+  const enabled = false;
   const target = React.useMemo(() => getSaleEndDate(), []);
   const headline =
     process.env.NEXT_PUBLIC_SALE_COUNTDOWN_HEADLINE?.trim() ||
