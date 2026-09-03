@@ -633,7 +633,7 @@ export default function LeiraHowToUse({
   const stageRef = useRef<HTMLDivElement | null>(null);
   const countRef = useRef<HTMLSpanElement | null>(null);
   const shotsRef = useRef<HTMLDivElement | null>(null);
-  const stepsRef = useRef<HTMLOListElement | null>(null);
+  const stepsRef = useRef<HTMLDivElement | null>(null);
   const badgeRef = useRef<HTMLSpanElement | null>(null);
   const dotsRef = useRef<HTMLDivElement | null>(null);
 

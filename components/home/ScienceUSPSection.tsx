@@ -102,8 +102,8 @@ const bodyFont =
 /* Scroll Reveal Hook                                                 */
 /* ------------------------------------------------------------------ */
 
-function useScrollReveal(threshold = 0.18) {
-  const ref = useRef<HTMLElement>(null);
+function useScrollReveal<T extends HTMLElement>(threshold = 0.18) {
+  const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -144,7 +144,7 @@ function UspItem({
   const Icon = usp.icon;
   const isLeft = side === "left";
 
-  const { ref, isVisible } = useScrollReveal(0.2);
+  const { ref, isVisible } = useScrollReveal<HTMLLIElement>(0.2);
 
   return (
     <li
@@ -319,9 +319,9 @@ export default function ScienceUSPSection({
   const sectionRef = useRef<HTMLElement>(null);
 
   const {
-    ref: videoRef,
-    isVisible: videoVisible,
-  } = useScrollReveal(0.15);
+   ref: videoRef,
+   isVisible: videoVisible,
+  } = useScrollReveal<HTMLDivElement>(0.15);
 
   return (
     <section
