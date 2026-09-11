@@ -1,60 +1,89 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Heart, ShoppingBag, Minus, Plus, Star, ChevronDown, Tag, PackageCheck } from "lucide-react";
+
 import { MiniNavbar } from "@/components/ui/mini-navbar";
 import Footer from "@/components/Footer";
 import { useProduct } from "@/hooks/useProduct";
+import { useProducts } from "@/hooks/useProducts";
+import { useProductReviews } from "@/hooks/useProductReviews";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/components/ui/toast";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, Minus, Plus, Star, Zap, Leaf, Eye, ShieldCheck, Droplet, Scale, Stethoscope } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { cn, strikethroughPriceIfHigher } from "@/lib/utils";
-import { useProducts } from "@/hooks/useProducts";
-import { useProductReviews } from "@/hooks/useProductReviews";
 import { reviewAPI } from "@/lib/api";
+import { cn, strikethroughPriceIfHigher } from "@/lib/utils";
 import { resolvePdpHeroLine, resolveProductSeoCopy } from "@/lib/seo/productCopy";
-import { parseInrPrice } from "@/lib/analytics/metaPixel";
+import { parseInrPrice, trackMetaEvent } from "@/lib/analytics/metaPixel";
+import { trackViewItem } from "@/lib/analytics/ecommerce";
 import { isRecommendableProduct } from "@/lib/product-filters";
 import { getFlagshipSiblingsExcluding } from "@/lib/shop-flagship-discovery";
 import { pickShopCardPath } from "@/lib/product-card-images";
 import { getImageUrl } from "@/lib/imageUtils";
 import { canonicalProductSlug, getProductShopPath } from "@/lib/product-slugs";
-import { trackViewItem } from "@/lib/analytics/ecommerce";
-import { trackMetaEvent } from "@/lib/analytics/metaPixel";
+import ScienceUSPSection from "@/components/home/ScienceUSPSection";
+import HowToUse from "@/components/home/Howtouse";
 
-/** Public asset — spaces encoded for Next/Image `src` */
 const HOW_TO_USE_INFOGRAPHIC_SRC = encodeURI("/How to use leira.png");
 
-/** Match hero + shop cards — smaller optimized payloads */
-const PDP_IMAGE_QUALITY = 82;
+/* ---- site palette, restored ---- */
+const INK = "text-[#7a2c4e]";
+const INK_SOFT = "text-[#7a2c4e]/55";
+const BODY = "text-[#6b5560]";
+const HAIR = "border-[#7a2c4e]/[0.12]";
+const PINK = "#ec4899";
+const GOLD = "#d8b06a";
+const EASE = [0.22, 1, 0.36, 1] as const;
 
-const pseudoCount = (seed: string, min = 1, max = 50) => {
-    const normalized = String(seed || "leira");
-    let hash = 0;
-    for (let i = 0; i < normalized.length; i++) {
-        hash = (hash * 31 + normalized.charCodeAt(i)) >>> 0;
+const GRAIN =
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+function Grain({ opacity = 0.03 }: { opacity?: number }) {
+    return <span aria-hidden className="pointer-events-none absolute inset-0 -z-10" style={{ backgroundImage: GRAIN, opacity }} />;
+}
+
+function Mark({ className = "" }: { className?: string }) {
+    return <span aria-hidden className={cn("inline-block h-1.5 w-1.5 rotate-[-45deg] rounded-[50%_50%_50%_0] bg-[#ec4899]", className)} />;
+}
+
+/* ------------------------------------------------------------------
+   SafeImg — a plain <img>, not next/image, for product photography.
+   Next/Image's optimizer needs whitelisted remote domains; a native
+   <img> has none of that, so it either shows the real photo or falls
+   back to this monogram tile — never a broken-image icon.
+------------------------------------------------------------------- */
+function SafeImg({
+    src,
+    alt,
+    label,
+    className,
+    style,
+}: {
+    src: string;
+    alt: string;
+    label?: string;
+    className?: string;
+    style?: React.CSSProperties;
+}) {
+    const [broken, setBroken] = useState(false);
+    if (!src || broken) {
+        return (
+            <div className={cn("flex h-full w-full items-center justify-center bg-[#f7e6ee]", className)} style={style}>
+                <span className="font-serif text-[26px] font-light italic text-[#7a2c4e]/25">
+                    {(label || alt || "L").trim().charAt(0).toUpperCase()}
+                </span>
+            </div>
+        );
     }
-    return (hash % (max - min + 1)) + min;
-};
-
-const renderFormattedDescription = (value: string) => {
-    const parts = String(value || "").split(/(\*\*[^*]+\*\*)/g);
-
-    return parts.map((part, index) => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-            return (
-                <strong key={index} className="font-semibold text-gray-950">
-                    {part.slice(2, -2)}
-                </strong>
-            );
-        }
-        return part;
-    });
-};
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} loading="lazy" className={className} style={style} onError={() => setBroken(true)} />
+    );
+}
 
 function isLoggedInCustomer(): boolean {
     if (typeof window === "undefined") return false;
@@ -69,6 +98,93 @@ function isLoggedInCustomer(): boolean {
     }
 }
 
+const renderFormattedDescription = (value: string) => {
+    const parts = String(value || "").split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, index) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+            <strong key={index} className="font-medium text-[#7a2c4e]">{part.slice(2, -2)}</strong>
+        ) : (
+            part
+        )
+    );
+};
+
+const TRUST = ["Alcohol-free", "pH-balanced", "Dermatologically tested", "100% natural oils"];
+
+/* NOTE: placeholder offers — wire these to your real coupon/offer API
+   when available; shown only in the info column, never in the gallery. */
+const OFFERS = [
+    "Flat 10% off on prepaid orders",
+    "Free shipping on orders above ₹999",
+    "Extra 5% off on your first order — code WELCOME5",
+];
+
+const PILLARS = [
+    { n: "01", title: "India's first", body: "The first essential-oil intimate perfume made in India, for the external intimate area specifically." },
+    { n: "02", title: "Clinically tested", body: "Every batch is tested for skin safety before it reaches you." },
+    { n: "03", title: "Nothing synthetic", body: "No alcohol, no parabens, no synthetic fragrance — only essential oils." },
+];
+
+const INGREDIENTS = [
+    { name: "Damask Rose", note: "Anti-inflammatory, softening, deeply hydrating." },
+    { name: "Jasmine", note: "Calming, antibacterial, naturally uplifting." },
+    { name: "Ylang Ylang", note: "Balancing, antioxidant-rich, quietly grounding." },
+];
+
+const RIBBON = ["Damask Rose", "Jasmine", "Ylang Ylang", "Alcohol-free", "pH-balanced", "100% organic", "Made in India"];
+
+const FAQS = [
+    { q: "Is this safe for daily use?", a: "Yes. Leira is dermatologically tested and pH-balanced for daily use on the external intimate area." },
+    { q: "Can I use it after shaving or waxing?", a: "Wait 24 hours after shaving or waxing before applying, to avoid irritation on freshly exposed skin." },
+    { q: "How long does one bottle last?", a: "With one or two drops per use, a bottle typically lasts 6–8 weeks." },
+    { q: "Is it safe during pregnancy?", a: "As with any intimate care product, check with your doctor before use during pregnancy." },
+];
+
+/** Follows scroll direction so the sticky rail/gallery closes the gap a
+    hide-on-scroll navbar leaves behind. Returns a top offset in px. */
+function useStickyTopOffset(shown = 96, hidden = 16) {
+    const [top, setTop] = useState(shown);
+    useEffect(() => {
+        let lastY = typeof window !== "undefined" ? window.scrollY : 0;
+        let raf = 0;
+        const onScroll = () => {
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+                const y = window.scrollY;
+                const goingDown = y > lastY;
+                if (y < 8) setTop(shown);
+                else if (goingDown && y > shown) setTop(hidden);
+                else if (!goingDown) setTop(shown);
+                lastY = y;
+                raf = 0;
+            });
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            if (raf) cancelAnimationFrame(raf);
+        };
+    }, [shown, hidden]);
+    return top;
+}
+
+function Section({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+    const [open, setOpen] = useState(defaultOpen);
+    return (
+        <div className={cn("border-b", HAIR)}>
+            <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center justify-between py-5 text-left">
+                <span className={cn("font-serif text-[19px] font-light", INK)}>{title}</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 text-[#ec4899]/70 transition-transform duration-500", open && "rotate-180")} strokeWidth={1.4} />
+            </button>
+            <div className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" style={{ gridTemplateRows: open ? "1fr" : "0fr" }}>
+                <div className="overflow-hidden">
+                    <div className="pb-6">{children}</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function ProductDetailPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -79,6 +195,7 @@ export default function ProductDetailPage() {
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const { success, error } = useToast();
 
+    const stickyTop = useStickyTopOffset();
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState(0);
     const [reviewRating, setReviewRating] = useState(5);
@@ -87,22 +204,14 @@ export default function ProductDetailPage() {
     const currentParam = String(id || "");
 
     const toSlug = (value: string) =>
-        String(value || "")
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
-            .replace(/-{2,}/g, "-");
+        String(value || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").replace(/-{2,}/g, "-");
 
-    const getProductPath = (item: { id?: string; _id?: string; name?: string }) =>
-        getProductShopPath(item);
+    const getProductPath = (item: { id?: string; _id?: string; name?: string }) => getProductShopPath(item);
 
     useEffect(() => {
         if (!product) return;
         const canonical = canonicalProductSlug(product.id, product.name);
-        if (canonical && currentParam && currentParam !== canonical) {
-            router.replace(`/shop/${canonical}`);
-        }
+        if (canonical && currentParam && currentParam !== canonical) router.replace(`/shop/${canonical}`);
     }, [product, currentParam, router]);
 
     useEffect(() => {
@@ -110,23 +219,11 @@ export default function ProductDetailPage() {
         const pid = String(product._id || product.id || "");
         if (!pid) return;
         const price = parseInrPrice(product.price);
-        trackViewItem({
-            item_id: pid,
-            item_name: product.name,
-            price,
-            quantity: 1,
-        });
-        trackMetaEvent("ViewContent", {
-            content_ids: [pid],
-            content_name: product.name,
-            content_type: "product",
-            currency: "INR",
-            value: price,
-        });
+        trackViewItem({ item_id: pid, item_name: product.name, price, quantity: 1 });
+        trackMetaEvent("ViewContent", { content_ids: [pid], content_name: product.name, content_type: "product", currency: "INR", value: price });
     }, [product?._id, product?.id]);
 
-    const unitPrice = React.useMemo(() => parseInrPrice(product?.price), [product?.price]);
-    const detailMrp = React.useMemo(
+    const detailMrp = useMemo(
         () => strikethroughPriceIfHigher(product?.price ?? "", product?.originalPrice),
         [product?.price, product?.originalPrice]
     );
@@ -141,12 +238,9 @@ export default function ProductDetailPage() {
         try {
             const thumbPath = pickShopCardPath(product);
             const productImage = getImageUrl(thumbPath || product.images?.[0] || "");
-            const snapshot = {
-                name: product.name,
-                price: product.price,
-                imageUrl: productImage
-            };
+            const snapshot = { name: product.name, price: product.price, imageUrl: productImage };
             await addToCart(product._id || product.id, quantity, snapshot);
+            success("Added to your bag");
         } catch (e: any) {
             if (e.message?.includes("log in")) {
                 error("Please log in to shop");
@@ -199,9 +293,9 @@ export default function ProductDetailPage() {
         return (
             <>
                 <MiniNavbar />
-                <div className="min-h-screen bg-white leira-underlap-nav-spacer flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin" />
-                    <p className="mt-4 text-gray-500 font-serif italic text-lg">Preparing your fragrance experience...</p>
+                <div className="leira-underlap-nav-spacer flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#fdf1f5] to-[#fffdfc]">
+                    <span className="block h-9 w-9 animate-spin rounded-full border border-[#7a2c4e]/15 border-t-[#ec4899]" />
+                    <p className={cn("mt-6 font-serif text-[19px] font-light italic", INK)}>Preparing your fragrance…</p>
                 </div>
             </>
         );
@@ -211,529 +305,495 @@ export default function ProductDetailPage() {
         return (
             <>
                 <MiniNavbar />
-                <div className="min-h-screen bg-white leira-underlap-nav-spacer flex flex-col items-center justify-center p-6">
-                <h2 className="text-3xl font-serif italic text-gray-900 mb-4">Fragrance Not Found</h2>
-                <p className="text-gray-500 mb-8">This exclusive scent might be unavailable or removed.</p>
-                <Link href="/shop" className="px-10 py-4 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
-                    Return to Shop
-                </Link>
+                <div className="leira-underlap-nav-spacer flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#fdf1f5] to-[#fffdfc] px-6 text-center">
+                    <h2 className={cn("font-serif text-[clamp(28px,4vw,44px)] font-light", INK)}>Fragrance not found</h2>
+                    <p className={cn("mt-4 max-w-[42ch] text-[15px] font-light leading-[1.8]", BODY)}>This scent may be unavailable or has been removed.</p>
+                    <Link
+                        href="/shop"
+                        className="group relative mt-9 inline-block overflow-hidden rounded-full bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] px-9 py-4 text-[11px] uppercase tracking-[0.22em] text-white transition-transform duration-500 hover:-translate-y-0.5"
+                    >
+                        <span className="relative z-10">Return to shop</span>
+                        <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover:translate-y-0" />
+                    </Link>
                 </div>
             </>
         );
     }
 
-    const images =
-        Array.isArray(product.images) && product.images.length > 0
-            ? product.images
-            : [getImageUrl(pickShopCardPath(product) || "")];
+    const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [getImageUrl(pickShopCardPath(product) || "")];
     const isOutOfStock = product.status === "inactive" || Number(product.stock ?? 0) <= 0;
-    const viewersCount = pseudoCount(`${product._id || product.id || product.name}`);
-    const seoCopy = resolveProductSeoCopy(
-        currentParam,
-        String(product?.id || ""),
-        String(product?.name || "")
-    );
-    const benefitH2 = resolvePdpHeroLine(
-        String(product?.name || ""),
-        product?.detailTagline,
-        currentParam,
-        String(product?.id || ""),
-        String(product?.name || "")
-    );
+    const seoCopy = resolveProductSeoCopy(currentParam, String(product?.id || ""), String(product?.name || ""));
+    const benefitH2 = resolvePdpHeroLine(String(product?.name || ""), product?.detailTagline, currentParam, String(product?.id || ""), String(product?.name || ""));
     const productDescription =
-        (product.description && product.description.trim().length > 3
+        product.description && product.description.trim().length > 3
             ? product.description
-            : seoCopy?.longDescription || "Experience the essence of luxury with this exclusive fragrance.");
-    const descriptionParagraphs = String(productDescription)
-        .split(/\n{2,}/)
-        .map((p) => p.trim())
-        .filter(Boolean);
+            : seoCopy?.longDescription || "Experience the essence of luxury with this exclusive fragrance.";
+    const descriptionParagraphs = String(productDescription).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 
     return (
-        <div className="min-h-screen bg-[#FAF9F6] leira-underlap-nav-spacer">
+        <div className="leira-underlap-nav-spacer min-h-screen bg-white pb-24 lg:pb-0">
             <MiniNavbar />
 
-            <main className="pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                {/* Breadcrumbs */}
-                <nav className="flex items-center gap-2 mb-12">
-                    <Link href="/shop" className="text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-pink-600 transition-colors">Shop</Link>
-                    <span className="text-gray-300">/</span>
-                    <span className="text-xs font-bold text-gray-900 uppercase tracking-widest">{product.name}</span>
-                </nav>
+            {/* ================= HERO ================= */}
+            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-5 py-8 sm:px-8 md:py-12 lg:px-14">
+                <Grain />
+                <motion.span
+                    aria-hidden
+                    animate={{ x: [0, 30, 0], y: [0, -26, 0], scale: [1, 1.08, 1] }}
+                    transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+                    className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[34vw] max-h-[440px] w-[34vw] max-w-[440px] rounded-full bg-[#f9a8d4]/25 blur-[95px]"
+                />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
-                    {/* Left: Image Gallery */}
-                    <div className="space-y-6">
-                        <motion.div
-                            layoutId="product-image"
-                            className="relative w-full overflow-hidden rounded-3xl bg-[#ebe5df] shadow-2xl shadow-gray-200 border border-gray-100"
-                        >
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={activeImage}
-                                    initial={{ opacity: 0, scale: 1.02 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="relative w-full"
-                                >
-                                    <Image
-                                        src={images[activeImage]}
-                                        alt={product.name}
-                                        width={1200}
-                                        height={1500}
-                                        className="h-auto w-full max-w-full object-contain object-center"
-                                        style={{ width: "100%", height: "auto" }}
-                                        priority={activeImage === 0}
-                                        fetchPriority={activeImage === 0 ? "high" : undefined}
-                                        sizes="(max-width: 1024px) 100vw, min(50vw, 42rem)"
-                                        quality={PDP_IMAGE_QUALITY}
-                                    />
-                                </motion.div>
-                            </AnimatePresence>
+                <div className="mx-auto max-w-[1440px]">
+                    <nav className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]">
+                        <Link href="/shop" className={cn(BODY, "transition-colors hover:text-[#ec4899]")}>Shop</Link>
+                        <Mark className="opacity-50" />
+                        <span className={INK}>{product.name}</span>
+                    </nav>
 
-                            <button
-                                onClick={toggleWishlist}
-                                className={cn(
-                                    "absolute top-6 right-6 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90",
-                                    isInWishlist(product._id || product.id)
-                                        ? "bg-pink-500 text-white"
-                                        : "bg-white/80 backdrop-blur-md text-gray-400 hover:text-pink-500"
+                    <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:gap-16">
+                        {/* ---- gallery: rail + image travel together, sticky as one
+                              unit, and release once the info column finishes ---- */}
+                        <div className="lg:sticky lg:self-start" style={{ top: stickyTop }}>
+                            <div className="flex gap-4 sm:gap-6">
+                                {images.length > 1 && (
+                                    <div className="hidden w-[72px] shrink-0 flex-col items-center gap-3 lg:flex">
+                                        {images.map((img, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => setActiveImage(i)}
+                                                aria-label={`View image ${i + 1}`}
+                                                className={cn(
+                                                    "relative h-[64px] w-[64px] shrink-0 overflow-hidden rounded-full border-2 transition-all duration-400",
+                                                    activeImage === i ? "border-[#ec4899]" : "border-transparent opacity-45 hover:opacity-90"
+                                                )}
+                                            >
+                                                <SafeImg src={img} alt={`${product.name} ${i + 1}`} label={product.name} className="h-full w-full object-cover" />
+                                            </button>
+                                        ))}
+                                    </div>
                                 )}
-                            >
-                                <Heart className={cn("w-6 h-6", isInWishlist(product._id || product.id) && "fill-current")} />
-                            </button>
-                        </motion.div>
 
-                        {/* Thumbnails */}
-                        {images.length > 1 && (
-                            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                                {images.map((img, i) => (
+                                <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[24px] bg-[#f7e6ee] shadow-[0_40px_80px_-52px_rgba(122,44,78,0.5)]">
+                                    <SafeImg src={images[activeImage]} alt={product.name} label={product.name} className="h-full w-full object-cover" />
+
+                                    {isOutOfStock && (
+                                        <div className="absolute left-5 top-5 rounded-full bg-[#7a2c4e] px-4 py-1.5 text-[10.5px] uppercase tracking-[0.16em] text-white">Out of stock</div>
+                                    )}
+
                                     <button
-                                        key={i}
-                                        onClick={() => setActiveImage(i)}
+                                        onClick={toggleWishlist}
+                                        aria-label={isInWishlist(product._id || product.id) ? "Remove from wishlist" : "Add to wishlist"}
                                         className={cn(
-                                            "relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 border-2 transition-all",
-                                            activeImage === i ? "border-pink-500 shadow-md scale-95" : "border-transparent opacity-60 hover:opacity-100"
+                                            "absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur-md transition-all duration-500 active:scale-90",
+                                            isInWishlist(product._id || product.id)
+                                                ? "border-transparent bg-[#ec4899] text-white"
+                                                : "border-white/70 bg-white/70 text-[#7a2c4e]/60 hover:border-[#ec4899]/50 hover:text-[#ec4899]"
                                         )}
                                     >
-                                        <Image
-                                            src={img}
-                                            alt={`${product.name} ${i}`}
-                                            fill
-                                            className="object-cover"
-                                            sizes="96px"
-                                            quality={PDP_IMAGE_QUALITY}
-                                        />
+                                        <Heart className={cn("h-[18px] w-[18px]", isInWishlist(product._id || product.id) && "fill-current")} strokeWidth={1.6} />
                                     </button>
-                                ))}
-                            </div>
-                        )}
 
-                        {/* Premium "How to use" filler under gallery (fills blank space on wide layouts) */}
-                        <div className="mt-6">
-                            <div className="mx-auto max-w-[520px] rounded-3xl border border-[#e8ddd4]/70 bg-[#faf8f4] p-2 shadow-[0_18px_38px_-18px_rgba(74,44,42,0.18),0_10px_26px_-18px_rgba(139,74,92,0.12)] lg:mx-0">
-                                <div className="overflow-hidden rounded-2xl ring-1 ring-black/4">
-                                    <Image
-                                        src={HOW_TO_USE_INFOGRAPHIC_SRC}
-                                        alt="Leira — how to use (clean, drop, apply, glow)"
-                                        width={1125}
-                                        height={1398}
-                                        className="h-auto w-full object-contain object-top"
-                                        sizes="(max-width: 1024px) 100vw, 520px"
-                                        quality={PDP_IMAGE_QUALITY}
-                                    />
+                                    {images.length > 1 && (
+                                        <div className="absolute inset-x-4 bottom-4 flex gap-2 lg:hidden">
+                                            {images.map((img, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setActiveImage(i)}
+                                                    aria-label={`View image ${i + 1}`}
+                                                    className={cn(
+                                                        "relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 backdrop-blur-sm transition-all duration-400",
+                                                        activeImage === i ? "border-[#ec4899]" : "border-white/60 opacity-70"
+                                                    )}
+                                                >
+                                                    <SafeImg src={img} alt={`${product.name} ${i + 1}`} label={product.name} className="h-full w-full object-cover" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+                        </div>
+
+                        {/* ---- info panel ---- */}
+                        <div>
+                            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: EASE }}>
+                                <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
+                                    <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />
+                                    Leira exclusive
+                                </span>
+
+                                <h1 className={cn("mt-5 font-serif text-[clamp(32px,3.6vw,48px)] font-light capitalize leading-[1.06] tracking-tight", INK)}>
+                                    {product.name}
+                                </h1>
+
+                                {benefitH2 ? (
+                                    <p className="mt-3 max-w-[38ch] font-serif text-[16px] font-light italic leading-[1.6] text-[#7a2c4e]/55">{benefitH2}</p>
+                                ) : null}
+
+                                <div className="mt-5 flex items-center gap-2">
+                                    <span className="flex items-center gap-0.5">
+                                        {[1, 2, 3, 4, 5].map((r) => (
+                                            <Star
+                                                key={r}
+                                                className={cn("h-[14px] w-[14px]", reviewStats.totalCount > 0 && r <= Math.round(reviewStats.avgRating) ? "fill-[#ec4899] text-[#ec4899]" : "text-[#7a2c4e]/20")}
+                                                strokeWidth={1.4}
+                                            />
+                                        ))}
+                                    </span>
+                                    <span className={cn("text-[12.5px] font-light", BODY)}>
+                                        {reviewStats.totalCount === 0 ? "No reviews yet" : `${reviewStats.avgRating.toFixed(1)} · ${reviewStats.totalCount} reviews`}
+                                    </span>
+                                </div>
+
+                                <div className={cn("mt-6 flex items-end gap-3 border-t pt-6", HAIR)}>
+                                    <span className="font-serif text-[clamp(28px,3vw,36px)] font-light leading-none text-[#ec4899] tabular-nums">{product.price}</span>
+                                    {detailMrp ? <span className="text-[15px] font-light tabular-nums text-[#6b5560]/60 line-through">{detailMrp}</span> : null}
+                                    <span className="pb-0.5 text-[11px] font-light uppercase tracking-[0.06em] text-[#6b5560]/50">Incl. taxes</span>
+                                </div>
+
+                                <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                                    <div className={cn("flex h-14 items-center rounded-full border bg-white/70", HAIR)}>
+                                        <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="flex h-full w-12 items-center justify-center text-[#7a2c4e]/60 hover:text-[#ec4899]" aria-label="Decrease quantity">
+                                            <Minus className="h-4 w-4" strokeWidth={1.6} />
+                                        </button>
+                                        <span className={cn("min-w-9 text-center font-serif text-[18px] tabular-nums", INK)}>{quantity}</span>
+                                        <button type="button" onClick={() => setQuantity((q) => q + 1)} className="flex h-full w-12 items-center justify-center text-[#7a2c4e]/60 hover:text-[#ec4899]" aria-label="Increase quantity">
+                                            <Plus className="h-4 w-4" strokeWidth={1.6} />
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        onClick={handleAddToCart}
+                                        disabled={isOutOfStock}
+                                        className={cn(
+                                            "group relative flex h-14 flex-1 items-center justify-center gap-3 overflow-hidden rounded-full text-[11px] uppercase tracking-[0.22em] transition-transform duration-500",
+                                            isOutOfStock
+                                                ? "cursor-not-allowed bg-[#7a2c4e]/15 text-[#7a2c4e]/50"
+                                                : "bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] text-white shadow-[0_18px_34px_-20px_rgba(236,72,153,0.9)] hover:-translate-y-0.5"
+                                        )}
+                                    >
+                                        <span className="relative z-10 flex items-center gap-3">
+                                            <ShoppingBag className="h-4 w-4" strokeWidth={1.6} />
+                                            {isOutOfStock ? "Out of stock" : "Add to bag"}
+                                        </span>
+                                        {!isOutOfStock && <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover:translate-y-0" />}
+                                    </button>
+                                </div>
+
+                                <ul className={cn("mt-7 flex flex-wrap items-center gap-x-2 gap-y-2 border-t pt-5 text-[11px] font-light uppercase tracking-[0.06em]", HAIR, BODY)}>
+                                    {TRUST.map((t, i) => (
+                                        <li key={t} className="flex items-center gap-2">
+                                            {i > 0 && <Mark className="scale-75 opacity-40" />}
+                                            {t}
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {/* ---- offers — right column only ---- */}
+                                <div className={cn("mt-6 rounded-[16px] border bg-[#fdeef4]/50 p-5", HAIR)}>
+                                    <div className="flex items-center gap-2">
+                                        <Tag className="h-[15px] w-[15px] text-[#ec4899]" strokeWidth={1.6} />
+                                        <span className={cn("text-[12px] font-light uppercase tracking-[0.14em]", INK)}>Available offers</span>
+                                    </div>
+                                    <ul className="mt-3 space-y-2">
+                                        {OFFERS.map((offer) => (
+                                            <li key={offer} className={cn("flex items-start gap-2.5 text-[13px] font-light leading-[1.6]", BODY)}>
+                                                <Mark className="mt-1.5 shrink-0 scale-75 opacity-60" />
+                                                {offer}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* ---- discreet packaging note ---- */}
+                                <div className="mt-4 flex items-center gap-2.5">
+                                    <PackageCheck className="h-[15px] w-[15px] shrink-0 text-[#7a2c4e]/45" strokeWidth={1.5} />
+                                    <span className={cn("text-[12px] font-light leading-[1.5]", BODY)}>
+                                        Ships in plain, unmarked packaging — always discreet.
+                                    </span>
+                                </div>
+
+                                <div className="mt-7">
+                                    <Section title="Description">
+                                        <div className={cn("space-y-4 text-[14.5px] font-light leading-[1.85]", BODY)}>
+                                            {descriptionParagraphs.map((paragraph, index) => (
+                                                <p key={`${product._id || product.id}-desc-${index}`}>{renderFormattedDescription(paragraph)}</p>
+                                            ))}
+                                        </div>
+                                    </Section>
+
+                                    <Section title="How to use">
+                                        <div className="overflow-hidden rounded-[16px] border border-[#7a2c4e]/[0.1]">
+                                            <Image
+                                                src={HOW_TO_USE_INFOGRAPHIC_SRC}
+                                                alt="Leira — how to use"
+                                                width={1125}
+                                                height={1398}
+                                                className="h-auto w-full object-contain object-top"
+                                                sizes="(max-width: 1024px) 100vw, 480px"
+                                            />
+                                        </div>
+                                    </Section>
+
+                                    <Section title="Frequently asked questions">
+                                        <div className="space-y-5">
+                                            {FAQS.map((f) => (
+                                                <div key={f.q}>
+                                                    <p className={cn("text-[14.5px] font-medium", INK)}>{f.q}</p>
+                                                    <p className={cn("mt-1.5 text-[13.5px] font-light leading-[1.75]", BODY)}>{f.a}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </Section>
+                                </div>
+                            </motion.div>
                         </div>
                     </div>
-
-                    {/* Right: Info */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="space-y-10"
-                    >
-                        <div className="space-y-4">
-                            <p className="text-xs font-bold text-pink-600 uppercase tracking-[0.3em]">Leira Exclusive</p>
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-semibold text-gray-900 leading-tight tracking-tight">
-                                {product.name}
-                            </h1>
-                            {benefitH2 ? (
-                                <h2 className="text-lg md:text-xl font-serif italic text-neutral-700 leading-snug tracking-tight max-w-2xl">
-                                    {benefitH2}
-                                </h2>
-                            ) : null}
-                            <div className="inline-flex items-center gap-2 rounded-full border border-pink-200 bg-pink-50/80 px-4 py-1.5 text-xs font-medium text-pink-700">
-                                <Eye className="h-3.5 w-3.5" />
-                                {viewersCount} viewing now
-                            </div>
-                            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2">
-                                <div className="flex flex-wrap items-baseline gap-2">
-                                    {detailMrp ? (
-                                        <span className="text-lg md:text-xl font-medium text-neutral-500 line-through tabular-nums decoration-neutral-400">
-                                            {detailMrp}
-                                        </span>
-                                    ) : null}
-                                    <span className="text-3xl md:text-4xl font-bold text-pink-600 tabular-nums tracking-tight">
-                                        {product.price}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    {[1, 2, 3, 4, 5].map((r) => (
-                                        <Star
-                                            key={r}
-                                            className={cn("w-4 h-4", reviewStats.totalCount > 0 && r <= Math.round(reviewStats.avgRating) ? "text-amber-500 fill-amber-500" : "text-gray-300")}
-                                        />
-                                    ))}
-                                    <span className="text-gray-500 text-sm font-medium ml-2">
-                                        {reviewStats.totalCount === 0
-                                            ? "No reviews yet"
-                                            : `${reviewStats.avgRating.toFixed(1)} (${reviewStats.totalCount} reviews)`}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="max-w-2xl space-y-3 text-neutral-700 text-base md:text-lg leading-relaxed font-light text-justify">
-                            {descriptionParagraphs.map((paragraph, index) => (
-                                <p
-                                    key={`${product._id || product.id}-desc-${index}`}
-                                    className={index === descriptionParagraphs.length - 1 ? "font-medium text-gray-900" : undefined}
-                                >
-                                    {renderFormattedDescription(paragraph)}
-                                </p>
-                            ))}
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-                                <div className="flex w-full items-center border border-gray-200 rounded-full h-14 bg-white shadow-sm overflow-hidden sm:w-auto">
-                                    <motion.button
-                                        type="button"
-                                        whileHover={{ scale: 1.03 }}
-                                        whileTap={{ scale: 0.96 }}
-                                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                        className="h-full w-16 shrink-0 text-gray-500 hover:bg-gray-50 transition-colors flex items-center justify-center"
-                                        aria-label="Decrease quantity"
-                                    >
-                                        <Minus className="w-4 h-4" />
-                                    </motion.button>
-                                    <span className="flex-1 text-center font-bold text-lg text-gray-900 tabular-nums">
-                                        {quantity}
-                                    </span>
-                                    <motion.button
-                                        type="button"
-                                        whileHover={{ scale: 1.03 }}
-                                        whileTap={{ scale: 0.96 }}
-                                        onClick={() => setQuantity((q) => q + 1)}
-                                        className="h-full w-16 shrink-0 text-gray-500 hover:bg-gray-50 transition-colors flex items-center justify-center"
-                                        aria-label="Increase quantity"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                    </motion.button>
-                                </div>
-
-                                <button
-                                    onClick={handleAddToCart}
-                                    disabled={isOutOfStock}
-                                    className={cn(
-                                        "h-14 w-full rounded-full font-bold uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 sm:flex-1 sm:max-w-xs",
-                                        isOutOfStock
-                                            ? "bg-neutral-300 text-white cursor-not-allowed"
-                                            : "bg-linear-to-r from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-200 hover:shadow-pink-300 hover:translate-y-[-2px] active:translate-y-0"
-                                    )}
-                                >
-                                    <ShoppingBag className="w-4 h-4" />
-                                    {isOutOfStock ? "Out of Stock" : "Add to Luxury Box"}
-                                </button>
-                            </div>
-
-                            {/* Trust + Shipping cues (pre-checkout) */}
-                            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
-                                <span className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-pink-200 bg-linear-to-r from-pink-50 via-white to-rose-50 px-4 py-2.5 text-[13px] font-extrabold text-pink-700 shadow-sm shadow-pink-200/40 ring-1 ring-pink-200/40 sm:w-auto sm:justify-start sm:px-5">
-                                    Free Shipping
-                                </span>
-                                <span className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-emerald-200 bg-linear-to-r from-emerald-50 via-white to-emerald-50 px-4 py-2.5 text-[13px] font-extrabold text-emerald-800 shadow-sm shadow-emerald-200/40 ring-1 ring-emerald-200/50 sm:w-auto sm:justify-start sm:px-5">
-                                    COD Available
-                                </span>
-                                <span className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-neutral-200 bg-linear-to-r from-white via-white to-neutral-50 px-4 py-2.5 text-[13px] font-extrabold text-neutral-800 shadow-sm ring-1 ring-neutral-200/60 sm:w-auto sm:justify-start sm:px-5">
-                                    Secure Payments
-                                </span>
-                                <span className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-neutral-200 bg-linear-to-r from-white via-white to-neutral-50 px-4 py-2.5 text-[13px] font-extrabold text-neutral-800 shadow-sm ring-1 ring-neutral-200/60 sm:w-auto sm:justify-start sm:px-5">
-                                    Easy Support
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Benefit Grid - from DB features or defaults */}
-                        {((product.features && product.features.length > 0) || true) && (
-                            <div className="grid grid-cols-1 gap-6 pt-10 border-t border-gray-100 sm:grid-cols-2 lg:grid-cols-3">
-                                {[
-                                    {
-                                        title: "Natural Essence",
-                                        description: "Crafted from 100% natural and skin-friendly ingredients.",
-                                        icon: <Leaf className="w-5 h-5 text-pink-500" />,
-                                    },
-                                    {
-                                        title: "Instant Freshness",
-                                        description: "Eliminates odors instantly and lasts up to 12 hours.",
-                                        icon: <Zap className="w-5 h-5 text-pink-500" />,
-                                    },
-                                    {
-                                        title: "External Use Only",
-                                        description:
-                                            "Made exclusively for the outer intimate area to ensure complete safety and comfort.",
-                                        icon: <ShieldCheck className="w-5 h-5 text-pink-500" />,
-                                    },
-                                    {
-                                        title: "100% Safe for Private Area",
-                                        description:
-                                            "Dermatologically tested and crafted for sensitive skin, with zero irritation.",
-                                        icon: <Droplet className="w-5 h-5 text-pink-500" />,
-                                    },
-                                    {
-                                        title: "pH-Balanced Formula",
-                                        description:
-                                            "Designed to support your skin’s natural balance and keep intimate freshness gentle and irritation-free.",
-                                        icon: <Scale className="w-5 h-5 text-pink-500" />,
-                                    },
-                                    {
-                                        title: "Dermatologist Tested",
-                                        description:
-                                            "Verified by experts to be gentle, non-irritating, and safe for daily intimate use.",
-                                        icon: <Stethoscope className="w-5 h-5 text-pink-500" />,
-                                    },
-                                ].map((item) => (
-                                    <div key={item.title} className="flex items-start gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center shrink-0">
-                                            {item.icon}
-                                        </div>
-                                        <div>
-                                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-1">
-                                                {item.title}
-                                            </h4>
-                                            <p className="text-xs text-gray-500 leading-relaxed font-light">
-                                                {item.description}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </motion.div>
                 </div>
+            </main>
 
-                {/* Flagship siblings + benefits — always in HTML for internal linking (SEO) */}
-                <section
-                    className="mt-16 rounded-3xl border border-pink-100/80 bg-white/90 p-6 shadow-sm shadow-pink-100/40 sm:p-8 md:p-10"
-                    aria-labelledby="explore-leira-heading"
-                >
-                    <h2 id="explore-leira-heading" className="text-xl font-serif italic text-gray-900 md:text-2xl">
-                        Explore more from Leira
-                    </h2>
-                    <p className="mt-2 max-w-2xl text-sm text-neutral-600 leading-relaxed">
-                        Try our other intimate perfumes, or read how Leira keeps you fresh safely — every page on our site connects
-                        so you never hit a dead end.
-                    </p>
-                    <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* ================= scent ribbon — a drifting full-width band ================= */}
+            {/* <div className="relative isolate [overflow:clip] border-y border-[#d8b06a]/25 bg-[#fdeef4] py-4">
+                <style
+                    dangerouslySetInnerHTML={{
+                        __html: `@keyframes leiraRibbonPdp{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.leiraRibbonPdp{animation:leiraRibbonPdp 36s linear infinite}
+.leiraRibbonPdp:hover{animation-play-state:paused}
+@media (prefers-reduced-motion: reduce){.leiraRibbonPdp{animation:none}}`,
+                    }}
+                />
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-[#fdeef4] to-transparent" />
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-[#fdeef4] to-transparent" />
+                <div className="leiraRibbonPdp flex w-max items-center gap-9 whitespace-nowrap">
+                    {[...RIBBON, ...RIBBON].map((w, i) => (
+                        <span key={i} className="flex items-center gap-9">
+                            <span className="font-serif text-[18px] font-light italic text-[#7a2c4e]/65">{w}</span>
+                            <Mark className="opacity-60" />
+                        </span>
+                    ))}
+                </div>
+            </div> */}
+
+            <ScienceUSPSection />
+            <HowToUse />
+
+            {/* ================= why leira — dark plum band, full width ================= */}
+            <section className="relative isolate [overflow:clip] bg-gradient-to-br from-[#2b0f1d] via-[#3a1526] to-[#4a1c31] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+                <Grain opacity={0.05} />
+                <span aria-hidden className="pointer-events-none absolute -left-28 top-1/3 -z-10 h-[32vw] max-h-[400px] w-[32vw] max-w-[400px] rounded-full bg-[#ec4899]/18 blur-[110px]" />
+                <div className="mx-auto max-w-6xl">
+                    <dl className="grid gap-x-10 gap-y-10 sm:grid-cols-3">
+                        {PILLARS.map((p) => (
+                            <div key={p.n} className="relative">
+                                <span className="pointer-events-none absolute -top-3 left-0 font-serif text-[64px] font-light leading-none text-white/[0.06]">{p.n}</span>
+                                <span className="relative text-[11px] tracking-[0.2em] text-[#d8b06a]">{p.n}</span>
+                                <dt className="relative mt-3 font-serif text-[19px] font-light leading-[1.25] text-white">{p.title}</dt>
+                                <dd className="relative mt-2 max-w-[32ch] text-[13.5px] font-light leading-[1.75] text-[#f7dfe8]/70">{p.body}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
+            </section>
+
+            {/* ================= ingredients ================= */}
+            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] to-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+                <Grain />
+                <div className="mx-auto max-w-6xl">
+                    <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Crafted with</span>
+                    <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>Three essential oils, nothing else</h2>
+                    <div className={cn("mt-9 grid gap-x-10 gap-y-8 border-t pt-9 sm:grid-cols-3", HAIR)}>
+                        {INGREDIENTS.map((ing) => (
+                            <div key={ing.name}>
+                                <p className={cn("font-serif text-[19px] font-light italic", INK)}>{ing.name}</p>
+                                <p className={cn("mt-2 text-[13.5px] font-light leading-[1.75]", BODY)}>{ing.note}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ================= explore ================= */}
+            <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12" aria-labelledby="explore-leira-heading">
+                <Grain />
+                <div className="mx-auto max-w-6xl">
+                    <div className="max-w-2xl">
+                        <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">The collection</span>
+                        <h2 id="explore-leira-heading" className={cn("mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]", INK)}>Explore more from Leira</h2>
+                    </div>
+
+                    <div className="mt-8 grid gap-px overflow-hidden rounded-[20px] border border-[#7a2c4e]/[0.1] bg-[#7a2c4e]/[0.08] sm:grid-cols-2 xl:grid-cols-4">
                         {getFlagshipSiblingsExcluding({
                             canonicalPath: getProductPath(product),
                             urlParam: currentParam,
                             slugFromProduct: toSlug(product.id || product.name || ""),
                         }).map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className="group flex flex-col justify-between rounded-2xl border border-gray-100 bg-[#FAF9F6] p-5 transition-all hover:border-pink-200 hover:shadow-md"
-                            >
+                            <Link key={item.href} href={item.href} className="group flex flex-col justify-between bg-[#fffdfc] p-6 transition-colors duration-500 hover:bg-[#fff5f9]">
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-pink-600">Fragrance</p>
-                                    <p className="mt-2 font-serif text-lg italic text-gray-900 group-hover:text-pink-700">
-                                        {item.label}
-                                    </p>
-                                    <p className="mt-1 text-xs text-neutral-500">{item.line}</p>
+                                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#ec4899]">Fragrance</span>
+                                    <p className={cn("mt-2.5 font-serif text-[19px] font-light leading-[1.25]", INK)}>{item.label}</p>
+                                    <p className={cn("mt-1.5 text-[12.5px] font-light leading-[1.65]", BODY)}>{item.line}</p>
                                 </div>
-                                <span className="mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-neutral-900">
-                                    View product
-                                    <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-                                        →
-                                    </span>
+                                <span className="mt-5 inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-[#7a2c4e]/70 group-hover:text-[#ec4899]">
+                                    View product <Mark className="transition-transform duration-500 group-hover:translate-x-1" />
                                 </span>
                             </Link>
                         ))}
-                        <Link
-                            href="/benefits"
-                            className="group flex flex-col justify-between rounded-2xl border border-pink-200/70 bg-linear-to-br from-pink-50/90 to-white p-5 transition-all hover:border-pink-300 hover:shadow-md"
-                        >
+                        <Link href="/benefits" className="group flex flex-col justify-between bg-[#fff5f9] p-6 transition-colors duration-500 hover:bg-[#fdeef4]">
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-pink-600">Learn</p>
-                                <p className="mt-2 font-serif text-lg italic text-gray-900 group-hover:text-pink-700">
-                                    Why Leira — benefits
-                                </p>
-                                <p className="mt-1 text-xs text-neutral-600">
-                                    Safety, ingredients, and how intimate perfume fits your daily routine.
-                                </p>
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-[#ec4899]">Learn</span>
+                                <p className={cn("mt-2.5 font-serif text-[19px] font-light leading-[1.25]", INK)}>Why Leira — benefits</p>
+                                <p className={cn("mt-1.5 text-[12.5px] font-light leading-[1.65]", BODY)}>Safety, ingredients, and how it fits your routine.</p>
                             </div>
-                            <span className="mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-neutral-900">
-                                Read benefits
-                                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-                                    →
-                                </span>
+                            <span className="mt-5 inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-[#7a2c4e]/70 group-hover:text-[#ec4899]">
+                                Read benefits <Mark className="transition-transform duration-500 group-hover:translate-x-1" />
                             </span>
                         </Link>
                     </div>
-                    <p className="mt-6 text-center text-xs text-neutral-500">
-                        <Link
-                            href="/shop"
-                            className="font-semibold text-pink-600 underline decoration-pink-200 underline-offset-4 hover:text-pink-700"
-                        >
-                            Browse the full shop
-                        </Link>
-                    </p>
-                </section>
+                </div>
+            </section>
 
-                {/* Customer Reviews */}
-                <section className="mt-20 pt-16 border-t border-gray-100">
-                    <h2 className="text-2xl font-serif italic text-gray-900 mb-8">Customer Reviews</h2>
-
-                    <div className="mb-6 rounded-2xl border border-pink-100 bg-pink-50/50 p-4">
-                        <p className="text-sm text-pink-700 font-medium">
-                            Share your experience with a review — we read every submission. (Review discounts are not offered at this time.)
-                        </p>
-                    </div>
-
-                    {isLoggedInCustomer() && (
-                        <div className="mb-10 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-4">Write a review</h3>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {[1, 2, 3, 4, 5].map((r) => (
-                                    <button
-                                        key={r}
-                                        type="button"
-                                        onClick={() => setReviewRating(r)}
-                                        className={cn(
-                                            "p-1 rounded transition-colors",
-                                            reviewRating >= r ? "text-amber-500" : "text-gray-300 hover:text-amber-400"
-                                        )}
-                                    >
-                                        <Star className={cn("w-8 h-8", reviewRating >= r && "fill-current")} />
-                                    </button>
-                                ))}
-                            </div>
-                            <textarea
-                                placeholder="Share your experience (optional)"
-                                value={reviewComment}
-                                onChange={(e) => setReviewComment(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 resize-none"
-                                rows={3}
-                                maxLength={1000}
-                            />
-                            <button
-                                type="button"
-                                onClick={handleSubmitReview}
-                                disabled={reviewSubmitting}
-                                className="mt-4 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 disabled:opacity-60"
-                            >
-                                {reviewSubmitting ? "Submitting…" : "Submit review"}
-                            </button>
-                            <p className="mt-2 text-xs text-gray-500">Your review will be visible after approval.</p>
+            {/* ================= reviews ================= */}
+            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fffdfc] to-[#fff5f9] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+                <Grain />
+                <div className="mx-auto max-w-6xl">
+                    <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] lg:gap-16">
+                        <div className="lg:sticky lg:self-start" style={{ top: stickyTop }}>
+                            <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">In their words</span>
+                            <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]", INK)}>Customer reviews</h2>
+                            {reviewStats.totalCount > 0 && (
+                                <div className={cn("mt-6 flex items-end gap-4 border-t pt-5", HAIR)}>
+                                    <span className="font-serif text-[40px] font-light leading-none text-[#ec4899]">{reviewStats.avgRating.toFixed(1)}</span>
+                                    <span className={cn("pb-1 text-[12.5px] font-light", BODY)}>from {reviewStats.totalCount} review{reviewStats.totalCount === 1 ? "" : "s"}</span>
+                                </div>
+                            )}
+                            {!isLoggedInCustomer() && (
+                                <p className={cn("mt-5 text-[13.5px] font-light", BODY)}>
+                                    <Link href="/login" className="border-b border-[#ec4899]/40 pb-0.5 text-[#ec4899] hover:border-[#ec4899]">Log in</Link> to leave a review.
+                                </p>
+                            )}
                         </div>
-                    )}
-                    {!isLoggedInCustomer() && (
-                        <p className="mb-8 text-gray-600">
-                            <Link href="/login" className="text-pink-600 font-medium hover:underline">Log in</Link> to leave a review.
-                        </p>
-                    )}
 
-                    {reviews.length === 0 ? (
-                        <p className="text-gray-500 italic">No approved reviews yet.</p>
-                    ) : (
-                        <ul className="space-y-6">
-                            {reviews.map((rev) => (
-                                <li key={rev._id} className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="font-medium text-gray-900">{rev.user?.name || "Customer"}</span>
-                                        <span className="flex items-center gap-0.5 text-amber-500">
-                                            {[1, 2, 3, 4, 5].map((r) => (
-                                                <Star key={r} className={cn("w-4 h-4", r <= rev.rating && "fill-current")} />
-                                            ))}
-                                        </span>
-                                        <span className="text-xs text-gray-400">
-                                            {new Date(rev.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                                        </span>
+                        <div>
+                            {isLoggedInCustomer() && (
+                                <div className="mb-8 rounded-[20px] border border-[#ec4899]/[0.12] bg-white/70 p-6 md:p-8">
+                                    <h3 className={cn("font-serif text-[19px] font-light", INK)}>Write a review</h3>
+                                    <div className="mt-4 flex gap-1.5">
+                                        {[1, 2, 3, 4, 5].map((r) => (
+                                            <button key={r} type="button" onClick={() => setReviewRating(r)} aria-label={`${r} stars`} className={cn("p-1", reviewRating >= r ? "text-[#ec4899]" : "text-[#7a2c4e]/20 hover:text-[#f9a8d4]")}>
+                                                <Star className={cn("h-6 w-6", reviewRating >= r && "fill-current")} strokeWidth={1.4} />
+                                            </button>
+                                        ))}
                                     </div>
-                                    {rev.comment && <p className="text-gray-600 text-sm leading-relaxed">{rev.comment}</p>}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </section>
+                                    <textarea
+                                        value={reviewComment}
+                                        onChange={(e) => setReviewComment(e.target.value)}
+                                        rows={3}
+                                        maxLength={1000}
+                                        placeholder="Share your experience (optional)"
+                                        className={cn("mt-4 w-full resize-none rounded-[12px] border bg-transparent p-3.5 text-[14.5px] font-light leading-[1.75] outline-none focus:border-[#ec4899]/50", HAIR, INK)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleSubmitReview}
+                                        disabled={reviewSubmitting}
+                                        className="mt-4 rounded-full bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] px-7 py-3 text-[11px] uppercase tracking-[0.2em] text-white transition-transform duration-500 hover:-translate-y-0.5 disabled:opacity-55"
+                                    >
+                                        {reviewSubmitting ? "Submitting…" : "Submit review"}
+                                    </button>
+                                </div>
+                            )}
 
-                {/* Related Products */}
-                {(() => {
-                    const currentId = product._id || product.id;
-                    const related = allProducts
-                        .filter((p) => (p._id || p.id) !== currentId)
-                        .filter((p) =>
-                            isRecommendableProduct({
-                                id: p.id,
-                                _id: p._id,
-                                name: p.name,
-                                status: p.status,
-                                showInShopSection: p.showInShopSection,
-                                showInComboSection: p.showInComboSection,
-                            })
-                        )
-                        .slice(0, 4);
-                    if (related.length === 0) return null;
-                    return (
-                        <section className="mt-24 pt-16 border-t border-gray-100">
-                            <h2 className="text-2xl font-serif italic text-gray-900 mb-8">You May Also Like</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                            {reviews.length === 0 ? (
+                                <p className="font-serif text-[18px] font-light italic text-[#7a2c4e]/45">No approved reviews yet.</p>
+                            ) : (
+                                <ul className={cn("border-t", HAIR)}>
+                                    {reviews.map((rev) => (
+                                        <li key={rev._id} className={cn("border-b py-5", HAIR)}>
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                                                <span className={cn("font-serif text-[16px]", INK)}>{rev.user?.name || "Customer"}</span>
+                                                <span className="flex items-center gap-0.5">
+                                                    {[1, 2, 3, 4, 5].map((r) => (
+                                                        <Star key={r} className={cn("h-3.5 w-3.5", r <= rev.rating ? "fill-[#ec4899] text-[#ec4899]" : "text-[#7a2c4e]/20")} strokeWidth={1.4} />
+                                                    ))}
+                                                </span>
+                                                <span className="text-[11px] uppercase tracking-[0.12em] text-[#7a2c4e]/40">
+                                                    {new Date(rev.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                                </span>
+                                            </div>
+                                            {rev.comment && <p className={cn("mt-2.5 max-w-[62ch] text-[13.5px] font-light leading-[1.8]", BODY)}>{rev.comment}</p>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ================= related ================= */}
+            {(() => {
+                const currentId = product._id || product.id;
+                const related = allProducts
+                    .filter((p) => (p._id || p.id) !== currentId)
+                    .filter((p) => isRecommendableProduct({ id: p.id, _id: p._id, name: p.name, status: p.status, showInShopSection: p.showInShopSection, showInComboSection: p.showInComboSection }))
+                    .slice(0, 4);
+                if (related.length === 0) return null;
+                return (
+                    <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+                        <Grain />
+                        <div className="mx-auto max-w-6xl">
+                            <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">You may also like</span>
+                            <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]", INK)}>More to discover</h2>
+                            <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4 md:gap-6">
                                 {related.map((p) => {
                                     const pid = p._id || p.id;
                                     const img = getImageUrl(pickShopCardPath(p) || p.images?.[0] || "");
                                     const relMrp = strikethroughPriceIfHigher(p.price || "", p.originalPrice);
                                     return (
-                                        <Link
-                                            key={pid}
-                                            href={getProductPath(p)}
-                                            className="group block rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm hover:shadow-lg hover:border-pink-100 transition-all"
-                                        >
-                                            <div className="relative w-full overflow-hidden bg-[#ebe5df]">
-                                                <Image
-                                                    src={img}
-                                                    alt={p.name}
-                                                    width={1200}
-                                                    height={1500}
-                                                    className="h-auto w-full max-w-full object-contain object-center"
-                                                    style={{ width: "100%", height: "auto" }}
-                                                    sizes="(max-width: 640px) 50vw, 25vw"
-                                                    quality={PDP_IMAGE_QUALITY}
-                                                />
+                                        <Link key={pid} href={getProductPath(p)} className="group block">
+                                            <div className="relative overflow-hidden rounded-[16px] bg-[#f7e6ee]">
+                                                <SafeImg src={img} alt={p.name} label={p.name} className="aspect-[4/5] w-full object-cover transition-transform duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]" />
                                             </div>
-                                            <div className="p-4">
-                                                <h3 className="font-serif italic text-gray-900 text-sm md:text-base line-clamp-2 group-hover:text-pink-600 transition-colors">{p.name}</h3>
-                                                <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
-                                                    {relMrp ? (
-                                                        <span className="text-xs font-medium text-neutral-500 line-through tabular-nums decoration-neutral-400">
-                                                            {relMrp}
-                                                        </span>
-                                                    ) : null}
-                                                    <span className="text-sm font-bold text-pink-600 tabular-nums">{p.price}</span>
-                                                </div>
+                                            <h3 className={cn("mt-3 line-clamp-2 font-serif text-[15px] font-light capitalize leading-[1.3] group-hover:text-[#ec4899] md:text-[17px]", INK)}>{p.name}</h3>
+                                            <div className="mt-1 flex flex-wrap items-baseline gap-2">
+                                                <span className="text-[14px] font-light tabular-nums text-[#ec4899]">{p.price}</span>
+                                                {relMrp ? <span className="text-[11.5px] font-light tabular-nums text-[#6b5560]/55 line-through">{relMrp}</span> : null}
                                             </div>
                                         </Link>
                                     );
                                 })}
                             </div>
-                        </section>
-                    );
-                })()}
-            </main>
+                        </div>
+                    </section>
+                );
+            })()}
 
             <Footer />
+
+            {/* ================= sticky mobile add-to-cart bar ================= */}
+            <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#7a2c4e]/10 bg-white/95 px-4 py-3 backdrop-blur-md sm:hidden">
+                <div className={cn("flex h-12 items-center rounded-full border bg-white/70", HAIR)}>
+                    <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="flex h-full w-10 items-center justify-center text-[#7a2c4e]/60" aria-label="Decrease quantity">
+                        <Minus className="h-3.5 w-3.5" strokeWidth={1.6} />
+                    </button>
+                    <span className={cn("min-w-7 text-center font-serif text-[15px] tabular-nums", INK)}>{quantity}</span>
+                    <button type="button" onClick={() => setQuantity((q) => q + 1)} className="flex h-full w-10 items-center justify-center text-[#7a2c4e]/60" aria-label="Increase quantity">
+                        <Plus className="h-3.5 w-3.5" strokeWidth={1.6} />
+                    </button>
+                </div>
+                <button
+                    onClick={handleAddToCart}
+                    disabled={isOutOfStock}
+                    className={cn(
+                        "flex h-12 flex-1 items-center justify-center gap-2 rounded-full text-[11px] uppercase tracking-[0.2em] transition-colors duration-400",
+                        isOutOfStock ? "bg-[#7a2c4e]/15 text-[#7a2c4e]/50" : "bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] text-white"
+                    )}
+                >
+                    <ShoppingBag className="h-4 w-4" strokeWidth={1.6} />
+                    {isOutOfStock ? "Out of stock" : `Add · ${product.price}`}
+                </button>
+            </div>
         </div>
     );
 }

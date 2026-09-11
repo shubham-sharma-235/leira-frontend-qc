@@ -85,11 +85,11 @@ const VIDEO_SRC =
 /* ------------------------------------------------------------------ */
 
 const token = {
-  shell: "#FAF7F2",
+  shell: "#fff5fa",
   ink: "#1E1C19",
-  muted: "#807A70",
+  darkPink: "#999",
   sand: "#E4DCCE",
-  bronze: "#8C7346",
+  pink: "#fe3ca2",
 } as const;
 
 const displayFont =
@@ -243,7 +243,7 @@ function UspItem({
               ? "scale-100 rotate-0"
               : "scale-75 rotate-[-12deg]",
           ].join(" ")}
-          style={{ color: token.bronze }}
+          style={{ color: token.pink }}
         />
       </span>
 
@@ -293,7 +293,7 @@ function UspItem({
         ].join(" ")}
         style={{
           fontFamily: bodyFont,
-          color: token.muted,
+          color: token.darkPink,
           transitionDelay: isVisible
             ? `${index * 100 + 300}ms`
             : "0ms",
@@ -342,7 +342,7 @@ export default function ScienceUSPSection({
 
             <span className="h-px w-8 bg-[#B39A70]" />
 
-            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#967B4D]">
+            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#7b1d4e]">
               Why Choose Us
             </p>
 
@@ -549,7 +549,7 @@ export default function ScienceUSPSection({
               ].join(" ")}
               src={VIDEO_SRC}
               autoPlay
-              muted
+              darkPink
               loop
               playsInline
               preload="metadata"

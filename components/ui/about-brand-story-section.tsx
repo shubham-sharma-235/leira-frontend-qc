@@ -402,7 +402,7 @@ const STORY = [
 
 function TheStory() {
   return (
-    <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] px-5 py-20 sm:px-8 md:py-28 lg:px-12">
+    <section className="relative isolate [overflow:clip] bg-gradient-to-t from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] px-5 py-20 sm:px-8 md:py-28 lg:px-12">
       <Grain />
 
       <div className="mx-auto max-w-6xl">
@@ -649,11 +649,11 @@ export function AboutBrandStorySection() {
   return (
     <>
       <TheGap />
-      <ScentRibbon />
+      {/* <ScentRibbon /> */}
       <WhatMakesItDifferent />
       <HowToUse />
       <TheStory />
-      <Credentials />
+      {/* <Credentials /> */}
       <Closing />
     </>
   );

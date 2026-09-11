@@ -12,16 +12,16 @@ const stock = (seed: string, w: number, h: number) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
 const COLLAGE_IMAGES = [
-  "https://images.unsplash.com/photo-1671493229066-f36e86b35841?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1674739375749-7efe56fc8bbb?q=80&w=686&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1679049599490-089b2b0c45ea?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1679931877381-395b08be3c0f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1679049599503-bd8ea14cc47d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1665763630810-e6251bdd392d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://plus.unsplash.com/premium_photo-1661454121594-3c8350f540f1?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1723951174326-2a97221d3b7f?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1782687493430-228efc6a7d37?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "/new-images/ls-1.jpg",
+  "/new-images/ls-2.jpg",
+  "/new-images/ls-3.jpg",
+  "/new-images/ls-4.jpg",
+  "/new-images/ls-5.jpg",
+  "/new-images/ls-6.jpg",
+  "/new-images/ls-7.jpg",
+  "/new-images/ls-8.jpg",
+  "/new-images/pd-2.jpg",
+  "/new-images/pd-2.jpg",
 ];
 
 const REVEAL_IMAGE = "https://images.unsplash.com/photo-1782687493430-228efc6a7d37?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -1188,9 +1188,9 @@ export default function LeiraHero({
             </div>
 
             <div className="title-he" aria-hidden="true">
-              <span className="word left">Intimate</span>
+              <span className="word left">Leira</span>
               <span className="gap" />
-              <span className="word right">Perfume</span>
+              <span className="word right">India</span>
             </div>
 
             <h1 className="sr">
