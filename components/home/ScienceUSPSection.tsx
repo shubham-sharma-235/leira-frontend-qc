@@ -24,54 +24,14 @@ type Usp = {
 };
 
 const usps: Usp[] = [
-  {
-    title: "Clinically Backed",
-    description:
-      "Carefully formulated ingredients supported by scientific research.",
-    icon: FlaskConical,
-  },
-  {
-    title: "Premium Ingredients",
-    description:
-      "Thoughtfully selected ingredients with exceptional quality.",
-    icon: Leaf,
-  },
-  {
-    title: "High Absorption",
-    description:
-      "Designed for efficient absorption and everyday use.",
-    icon: Droplets,
-  },
-  {
-    title: "Clean Formula",
-    description:
-      "A carefully considered formula without unnecessary additions.",
-    icon: Feather,
-  },
-  {
-    title: "Visible Results",
-    description:
-      "Designed to support healthier-looking skin, hair and overall wellness.",
-    icon: Gem,
-  },
-  {
-    title: "Advanced Formula",
-    description:
-      "Modern formulation combining science and premium ingredients.",
-    icon: Atom,
-  },
-  {
-    title: "Everyday Wellness",
-    description:
-      "Simple nutrition designed to fit naturally into your daily routine.",
-    icon: Sun,
-  },
-  {
-    title: "Quality Assured",
-    description:
-      "Produced with rigorous quality and consistency standards.",
-    icon: ShieldCheck,
-  },
+  { title: "Clinically Backed", description: "Carefully formulated ingredients supported by scientific research.", icon: FlaskConical },
+  { title: "Premium Ingredients", description: "Thoughtfully selected ingredients with exceptional quality.", icon: Leaf },
+  { title: "High Absorption", description: "Designed for efficient absorption and everyday use.", icon: Droplets },
+  { title: "Clean Formula", description: "A carefully considered formula without unnecessary additions.", icon: Feather },
+  { title: "Visible Results", description: "Designed to support healthier-looking skin, hair and overall wellness.", icon: Gem },
+  { title: "Advanced Formula", description: "Modern formulation combining science and premium ingredients.", icon: Atom },
+  { title: "Everyday Wellness", description: "Simple nutrition designed to fit naturally into your daily routine.", icon: Sun },
+  { title: "Quality Assured", description: "Produced with rigorous quality and consistency standards.", icon: ShieldCheck },
 ];
 
 const leftUsps = usps.slice(0, 4);
@@ -108,20 +68,16 @@ function useScrollReveal<T extends HTMLElement>(threshold = 0.18) {
 
   useEffect(() => {
     const element = ref.current;
-
     if (!element) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      {
-        threshold,
-      }
+      { threshold }
     );
 
     observer.observe(element);
-
     return () => observer.disconnect();
   }, [threshold]);
 
@@ -129,174 +85,227 @@ function useScrollReveal<T extends HTMLElement>(threshold = 0.18) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Product visual — the video + aperture rings, factored out so it    */
+/* can render both on mobile (always visible, above the slider) and   */
+/* on desktop (inside the two-column layout), instead of only living  */
+/* inside a `hidden lg:grid` block where phones never saw it at all.  */
+/* ------------------------------------------------------------------ */
+
+function ProductVisual({ blendVideo }: { blendVideo: boolean }) {
+  const { ref: videoRef, isVisible: videoVisible } = useScrollReveal<HTMLDivElement>(0.15);
+
+  return (
+    <div
+      ref={videoRef}
+      className={[
+        "relative mx-auto w-full max-w-[360px] lg:max-w-none",
+        "transform-gpu",
+        "transition-all duration-[1200ms]",
+        "ease-[cubic-bezier(0.22,1,0.36,1)]",
+        videoVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-8 scale-[0.965] opacity-0",
+      ].join(" ")}
+      style={{ backgroundColor: token.shell }}
+    >
+      {/* OUTER APERTURE RING */}
+      <div
+        aria-hidden="true"
+        className={[
+          "pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full",
+          "transition-all duration-[1400ms] ease-out",
+          videoVisible ? "scale-100 opacity-100" : "scale-[0.82] opacity-0",
+        ].join(" ")}
+        style={{ boxShadow: `inset 0 0 0 1px ${token.sand}` }}
+      />
+
+      {/* INNER APERTURE RING */}
+      <div
+        aria-hidden="true"
+        className={[
+          "pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[64%] -translate-x-1/2 -translate-y-1/2 rounded-full",
+          "transition-all duration-[1600ms] ease-out",
+          videoVisible ? "scale-100 opacity-100" : "scale-[0.75] opacity-0",
+        ].join(" ")}
+        style={{ boxShadow: "inset 0 0 0 1px rgba(228,220,206,0.55)", transitionDelay: "150ms" }}
+      />
+
+      {/* SOFT RADIAL LIGHT */}
+      <div
+        aria-hidden="true"
+        className={[
+          "pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[110%] -translate-x-1/2 -translate-y-1/2 rounded-full",
+          "transition-all duration-[1800ms] ease-out",
+          videoVisible ? "scale-100 opacity-100" : "scale-[0.7] opacity-0",
+        ].join(" ")}
+        style={{
+          background: "radial-gradient(circle at 50% 45%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 42%, rgba(255,255,255,0) 70%)",
+          transitionDelay: "250ms",
+        }}
+      />
+
+      {/* CONTACT SHADOW */}
+      <div
+        aria-hidden="true"
+        className={[
+          "pointer-events-none absolute bottom-[6%] left-1/2 h-6 w-[46%] -translate-x-1/2 rounded-[50%] blur-xl",
+          "transition-all duration-[1000ms] ease-out",
+          videoVisible ? "scale-100 opacity-100" : "scale-[0.65] opacity-0",
+        ].join(" ")}
+        style={{ backgroundColor: "rgba(30,28,25,0.10)", transitionDelay: "350ms" }}
+      />
+
+      {/* VIDEO — `muted` is required alongside `autoPlay`; browsers
+          block unmuted autoplay outright, especially on mobile. */}
+      <video
+        className={[
+          "relative z-10 aspect-[4/5] w-full object-contain",
+          "[&::-webkit-media-controls]:hidden",
+          blendVideo ? "mix-blend-multiply" : "",
+          "transition-transform duration-[1200ms] ease-out",
+          videoVisible ? "scale-100" : "scale-[0.96]",
+        ].join(" ")}
+        src={VIDEO_SRC}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        controls={false}
+        disablePictureInPicture
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* USP Item                                                           */
+/*                                                                     */
+/* `variant="column"` — desktop: reveal-on-scroll, side-aligned text, */
+/* the little connector line pointing at the video.                  */
+/* `variant="slide"` — mobile slider card: no animation at all, no    */
+/* connector line, just the content, fully visible immediately.      */
 /* ------------------------------------------------------------------ */
 
 function UspItem({
   usp,
   side,
   index,
+  variant = "column",
 }: {
   usp: Usp;
   side: "left" | "right";
   index: number;
+  variant?: "column" | "slide";
 }) {
   const Icon = usp.icon;
   const isLeft = side === "left";
+  const isSlide = variant === "slide";
 
   const { ref, isVisible } = useScrollReveal<HTMLLIElement>(0.2);
+  const shown = isSlide ? true : isVisible;
 
   return (
     <li
       ref={ref}
       className={[
-        "group relative flex w-full max-w-[20rem] flex-col items-center text-center",
-        "mx-auto lg:mx-0 lg:max-w-[17rem]",
+        "group relative flex flex-col items-center text-center",
 
-        isLeft
-          ? "lg:items-end lg:text-right"
-          : "lg:items-start lg:text-left",
+        isSlide
+          ? "w-[240px] shrink-0 snap-start sm:w-[260px]"
+          : "mx-auto w-full max-w-[20rem] lg:mx-0 lg:max-w-[17rem]",
 
-        // Scroll animation
-        "transform-gpu transition-all duration-[850ms]",
-        "ease-[cubic-bezier(0.22,1,0.36,1)]",
+        !isSlide && (isLeft ? "lg:items-end lg:text-right" : "lg:items-start lg:text-left"),
 
-        isVisible
-          ? "translate-x-0 translate-y-0 opacity-100"
-          : isLeft
-            ? "-translate-x-10 translate-y-4 opacity-0"
-            : "translate-x-10 translate-y-4 opacity-0",
-      ].join(" ")}
-      style={{
-        transitionDelay: isVisible ? `${index * 100}ms` : "0ms",
-      }}
+        !isSlide && "transform-gpu transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+        !isSlide &&
+          (shown
+            ? "translate-x-0 translate-y-0 opacity-100"
+            : isLeft
+              ? "-translate-x-10 translate-y-4 opacity-0"
+              : "translate-x-10 translate-y-4 opacity-0"),
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={!isSlide ? { transitionDelay: shown ? `${index * 100}ms` : "0ms" } : undefined}
     >
-      {/* ============================================================
-          CALLOUT LINE
-      ============================================================ */}
-
-      <span
-        aria-hidden="true"
-        className={[
-          "pointer-events-none absolute top-[1.4rem] hidden items-center lg:flex",
-          isLeft
-            ? "left-full ml-4 flex-row"
-            : "right-full mr-4 flex-row-reverse",
-        ].join(" ")}
-      >
+      {!isSlide && (
         <span
+          aria-hidden="true"
           className={[
-            "block h-px origin-center",
-            "transition-all duration-700 ease-out",
-            isVisible ? "w-9" : "w-0",
+            "pointer-events-none absolute top-[1.4rem] hidden items-center lg:flex",
+            isLeft ? "left-full ml-4 flex-row" : "right-full mr-4 flex-row-reverse",
           ].join(" ")}
-          style={{
-            backgroundColor: token.sand,
-            transitionDelay: isVisible ? `${index * 100 + 250}ms` : "0ms",
-          }}
-        />
-
-        <span
-          className={[
-            "block h-[3px] w-[3px] rounded-full",
-            "transition-all duration-500 ease-out",
-            isVisible ? "scale-100 opacity-100" : "scale-0 opacity-0",
-          ].join(" ")}
-          style={{
-            backgroundColor: token.sand,
-            transitionDelay: isVisible ? `${index * 100 + 350}ms` : "0ms",
-          }}
-        />
-      </span>
-
-
-      {/* ============================================================
-          ICON
-      ============================================================ */}
+        >
+          <span
+            className={["block h-px origin-center", "transition-all duration-700 ease-out", shown ? "w-9" : "w-0"].join(" ")}
+            style={{ backgroundColor: token.sand, transitionDelay: shown ? `${index * 100 + 250}ms` : "0ms" }}
+          />
+          <span
+            className={[
+              "block h-[3px] w-[3px] rounded-full",
+              "transition-all duration-500 ease-out",
+              shown ? "scale-100 opacity-100" : "scale-0 opacity-0",
+            ].join(" ")}
+            style={{ backgroundColor: token.sand, transitionDelay: shown ? `${index * 100 + 350}ms` : "0ms" }}
+          />
+        </span>
+      )}
 
       <span
         className={[
           "mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full",
-          "transition-all duration-500 ease-out",
-
-          isVisible
-            ? "translate-y-0 scale-100 rotate-0 opacity-100"
-            : "translate-y-3 scale-75 rotate-[-8deg] opacity-0",
-
-          "group-hover:-translate-y-[3px]",
-        ].join(" ")}
+          !isSlide && "transition-all duration-500 ease-out",
+          !isSlide && (shown ? "translate-y-0 scale-100 rotate-0 opacity-100" : "translate-y-3 scale-75 rotate-[-8deg] opacity-0"),
+          !isSlide && "group-hover:-translate-y-[3px]",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         style={{
           backgroundColor: "#FFFFFF",
           boxShadow: `inset 0 0 0 1px ${token.sand}, 0 1px 2px rgba(30,28,25,0.03)`,
-          transitionDelay: isVisible
-            ? `${index * 100 + 120}ms`
-            : "0ms",
+          transitionDelay: !isSlide && shown ? `${index * 100 + 120}ms` : "0ms",
         }}
       >
         <Icon
           aria-hidden="true"
           strokeWidth={1.25}
-          className={[
-            "h-[18px] w-[18px]",
-            "transition-transform duration-500 ease-out",
-            isVisible
-              ? "scale-100 rotate-0"
-              : "scale-75 rotate-[-12deg]",
-          ].join(" ")}
+          className={["h-[18px] w-[18px]", !isSlide && "transition-transform duration-500 ease-out"].filter(Boolean).join(" ")}
           style={{ color: token.pink }}
         />
       </span>
 
-
-      {/* ============================================================
-          TITLE
-      ============================================================ */}
-
       <h3
         className={[
           "text-[0.95rem] leading-snug tracking-[0.005em]",
-          "transition-all duration-500 ease-out",
-
-          isVisible
-            ? "translate-y-0 opacity-100"
-            : "translate-y-3 opacity-0",
-
-          isLeft
-            ? "lg:group-hover:translate-x-[3px]"
-            : "lg:group-hover:-translate-x-[3px]",
-        ].join(" ")}
+          !isSlide && "transition-all duration-500 ease-out",
+          !isSlide && (shown ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"),
+          !isSlide && (isLeft ? "lg:group-hover:translate-x-[3px]" : "lg:group-hover:-translate-x-[3px]"),
+        ]
+          .filter(Boolean)
+          .join(" ")}
         style={{
           fontFamily: bodyFont,
           fontWeight: 500,
           color: token.ink,
-          transitionDelay: isVisible
-            ? `${index * 100 + 220}ms`
-            : "0ms",
+          transitionDelay: !isSlide && shown ? `${index * 100 + 220}ms` : "0ms",
         }}
       >
         {usp.title}
       </h3>
 
-
-      {/* ============================================================
-          DESCRIPTION
-      ============================================================ */}
-
       <p
         className={[
           "mt-2 text-[0.8125rem] leading-[1.7] [text-wrap:pretty]",
-          "transition-all duration-600 ease-out",
-
-          isVisible
-            ? "translate-y-0 opacity-100"
-            : "translate-y-3 opacity-0",
-        ].join(" ")}
+          !isSlide && "transition-all duration-600 ease-out",
+          !isSlide && (shown ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"),
+        ]
+          .filter(Boolean)
+          .join(" ")}
         style={{
           fontFamily: bodyFont,
           color: token.darkPink,
-          transitionDelay: isVisible
-            ? `${index * 100 + 300}ms`
-            : "0ms",
+          transitionDelay: !isSlide && shown ? `${index * 100 + 300}ms` : "0ms",
         }}
       >
         {usp.description}
@@ -313,15 +322,39 @@ type ScienceUSPSectionProps = {
   blendVideo?: boolean;
 };
 
-export default function ScienceUSPSection({
-  blendVideo = true,
-}: ScienceUSPSectionProps) {
+export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
 
-  const {
-   ref: videoRef,
-   isVisible: videoVisible,
-  } = useScrollReveal<HTMLDivElement>(0.15);
+  const sliderRef = useRef<HTMLUListElement>(null);
+  const slideIndexRef = useRef(0);
+  const pausedUntilRef = useRef(0);
+
+  useEffect(() => {
+    let reduced = false;
+    try {
+      reduced = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    } catch {
+      reduced = false;
+    }
+    if (reduced) return;
+
+    const advance = () => {
+      const el = sliderRef.current;
+      if (!el) return;
+      if (Date.now() < pausedUntilRef.current) return;
+
+      slideIndexRef.current = (slideIndexRef.current + 1) % usps.length;
+      const card = el.children[slideIndexRef.current] as HTMLElement | undefined;
+      card?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    };
+
+    const id = window.setInterval(advance, 3000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const pauseAutoAdvance = () => {
+    pausedUntilRef.current = Date.now() + 4000;
+  };
 
   return (
     <section
@@ -331,25 +364,12 @@ export default function ScienceUSPSection({
       style={{ backgroundColor: token.shell }}
     >
       <div className="mx-auto w-full max-w-[1240px]">
-
-        {/* ==========================================================
-            HEADER
-        ========================================================== */}
-
         <header className="mx-auto mb-16 max-w-3xl text-center md:mb-20">
-
           <div className="flex items-center justify-center gap-4">
-
             <span className="h-px w-8 bg-[#B39A70]" />
-
-            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#7b1d4e]">
-              Why Choose Us
-            </p>
-
+            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#7b1d4e]">Why Choose Us</p>
             <span className="h-px w-8 bg-[#B39A70]" />
-
           </div>
-
 
           <h2
             id="science-usp-heading"
@@ -358,242 +378,66 @@ export default function ScienceUSPSection({
           >
             Intimate care,
             <br />
-            <span className="italic">
-              Science Behind Every Drop
-            </span>
+            <span className="italic">Science Behind Every Drop</span>
           </h2>
 
-
           <p className="mx-auto mt-7 max-w-xl text-[14px] leading-[1.9] tracking-[0.01em] text-[#777168] sm:text-[15px]">
-            Every batch begins in the lab and ends in your daily ritual —
-            researched ingredients, measured doses and nothing along for the
-            ride.
+            Every batch begins in the lab and ends in your daily ritual — researched ingredients, measured doses
+            and nothing along for the ride.
           </p>
-
         </header>
 
+        {/* MOBILE / TABLET — video stays visible, then a single
+            auto-advancing slider carrying all 8 USP cards. Cards have
+            no reveal animation here; only the edge fades and the
+            automatic 3s advance move. */}
+        <div className="lg:hidden">
+          <ProductVisual blendVideo={blendVideo} />
 
-        {/* ==========================================================
-            MAIN COMPOSITION
-        ========================================================== */}
-
-        <div className="mt-16 grid grid-cols-1 gap-y-14 lg:mt-24 lg:grid-cols-[1fr_minmax(320px,460px)_1fr] lg:items-stretch lg:gap-x-12 xl:gap-x-20">
-
-
-          {/* ========================================================
-              LEFT USP COLUMN
-          ======================================================== */}
-
-          <ul
-            role="list"
-            className="
-              order-2
-              grid
-              grid-cols-2
-              gap-x-8
-              gap-y-12
-
-              lg:order-1
-              lg:flex
-              lg:h-full
-              lg:flex-col
-              lg:justify-between
-              lg:gap-y-0
-            "
-          >
-            {leftUsps.map((usp, index) => (
-              <UspItem
-                key={usp.title}
-                usp={usp}
-                side="left"
-                index={index}
-              />
-            ))}
-          </ul>
-
-
-          {/* ========================================================
-              CENTER PRODUCT / GIF
-          ======================================================== */}
-
-          <div
-            ref={videoRef}
-            className={[
-              "relative order-1 mx-auto w-full max-w-[420px] lg:order-2 lg:max-w-none",
-              "transform-gpu",
-              "transition-all duration-[1200ms]",
-              "ease-[cubic-bezier(0.22,1,0.36,1)]",
-
-              videoVisible
-                ? "translate-y-0 scale-100 opacity-100"
-                : "translate-y-8 scale-[0.965] opacity-0",
-            ].join(" ")}
-            style={{ backgroundColor: token.shell }}
-          >
-
-            {/* ======================================================
-                OUTER APERTURE RING
-            ====================================================== */}
-
-            <div
+          <div className="relative mt-14">
+            <span
               aria-hidden="true"
-              className={[
-                "pointer-events-none absolute left-1/2 top-1/2",
-                "aspect-square w-[86%]",
-                "-translate-x-1/2 -translate-y-1/2",
-                "rounded-full",
-
-                "transition-all duration-[1400ms] ease-out",
-
-                videoVisible
-                  ? "scale-100 opacity-100"
-                  : "scale-[0.82] opacity-0",
-              ].join(" ")}
-              style={{
-                boxShadow: `inset 0 0 0 1px ${token.sand}`,
-              }}
+              className="pointer-events-none absolute inset-y-0 left-0 z-10 w-14 sm:w-20"
+              style={{ background: `linear-gradient(90deg, ${token.shell} 0%, ${token.shell}00 100%)` }}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 z-10 w-14 sm:w-20"
+              style={{ background: `linear-gradient(270deg, ${token.shell} 0%, ${token.shell}00 100%)` }}
             />
 
-
-            {/* ======================================================
-                INNER APERTURE RING
-            ====================================================== */}
-
-            <div
-              aria-hidden="true"
-              className={[
-                "pointer-events-none absolute left-1/2 top-1/2",
-                "aspect-square w-[64%]",
-                "-translate-x-1/2 -translate-y-1/2",
-                "rounded-full",
-
-                "transition-all duration-[1600ms] ease-out",
-
-                videoVisible
-                  ? "scale-100 opacity-100"
-                  : "scale-[0.75] opacity-0",
-              ].join(" ")}
-              style={{
-                boxShadow:
-                  "inset 0 0 0 1px rgba(228,220,206,0.55)",
-                transitionDelay: "150ms",
-              }}
-            />
-
-
-            {/* ======================================================
-                SOFT RADIAL LIGHT
-            ====================================================== */}
-
-            <div
-              aria-hidden="true"
-              className={[
-                "pointer-events-none absolute left-1/2 top-1/2",
-                "aspect-square w-[110%]",
-                "-translate-x-1/2 -translate-y-1/2",
-                "rounded-full",
-
-                "transition-all duration-[1800ms] ease-out",
-
-                videoVisible
-                  ? "scale-100 opacity-100"
-                  : "scale-[0.7] opacity-0",
-              ].join(" ")}
-              style={{
-                background:
-                  "radial-gradient(circle at 50% 45%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 42%, rgba(255,255,255,0) 70%)",
-                transitionDelay: "250ms",
-              }}
-            />
-
-
-            {/* ======================================================
-                CONTACT SHADOW
-            ====================================================== */}
-
-            <div
-              aria-hidden="true"
-              className={[
-                "pointer-events-none absolute bottom-[6%] left-1/2",
-                "h-6 w-[46%]",
-                "-translate-x-1/2 rounded-[50%] blur-xl",
-
-                "transition-all duration-[1000ms] ease-out",
-
-                videoVisible
-                  ? "scale-100 opacity-100"
-                  : "scale-[0.65] opacity-0",
-              ].join(" ")}
-              style={{
-                backgroundColor: "rgba(30,28,25,0.10)",
-                transitionDelay: "350ms",
-              }}
-            />
-
-
-            {/* ======================================================
-                VIDEO
-            ====================================================== */}
-
-            <video
-              className={[
-                "relative z-10 aspect-[4/5] w-full object-contain",
-                "[&::-webkit-media-controls]:hidden",
-                blendVideo ? "mix-blend-multiply" : "",
-
-                "transition-transform duration-[1200ms] ease-out",
-
-                videoVisible
-                  ? "scale-100"
-                  : "scale-[0.96]",
-              ].join(" ")}
-              src={VIDEO_SRC}
-              autoPlay
-              darkPink
-              loop
-              playsInline
-              preload="metadata"
-              controls={false}
-              disablePictureInPicture
-              aria-hidden="true"
-              tabIndex={-1}
-            />
-
+            <ul
+              ref={sliderRef}
+              role="list"
+              onTouchStart={pauseAutoAdvance}
+              onPointerDown={pauseAutoAdvance}
+              className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-0 pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {usps.map((usp, index) => (
+                <UspItem key={usp.title} usp={usp} side={index % 2 === 0 ? "left" : "right"} index={index} variant="slide" />
+              ))}
+            </ul>
           </div>
-
-
-          {/* ========================================================
-              RIGHT USP COLUMN
-          ======================================================== */}
-
-          <ul
-            role="list"
-            className="
-              order-3
-              grid
-              grid-cols-2
-              gap-x-8
-              gap-y-12
-
-              lg:flex
-              lg:h-full
-              lg:flex-col
-              lg:justify-between
-              lg:gap-y-0
-            "
-          >
-            {rightUsps.map((usp, index) => (
-              <UspItem
-                key={usp.title}
-                usp={usp}
-                side="right"
-                index={index}
-              />
-            ))}
-          </ul>
-
         </div>
 
+        {/* DESKTOP — original two-column layout around the video */}
+        <div className="mt-16 hidden lg:mt-24 lg:grid lg:grid-cols-[1fr_minmax(320px,460px)_1fr] lg:items-stretch lg:gap-x-12 xl:gap-x-20">
+          <ul role="list" className="order-1 flex h-full flex-col justify-between">
+            {leftUsps.map((usp, index) => (
+              <UspItem key={usp.title} usp={usp} side="left" index={index} />
+            ))}
+          </ul>
+
+          <div className="order-2">
+            <ProductVisual blendVideo={blendVideo} />
+          </div>
+
+          <ul role="list" className="order-3 flex h-full flex-col justify-between">
+            {rightUsps.map((usp, index) => (
+              <UspItem key={usp.title} usp={usp} side="right" index={index} />
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { Heart, ShoppingBag } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, ShoppingBag, Star, Zap, ChevronUp, ChevronDown } from "lucide-react";
 import { MiniNavbar } from "@/components/ui/mini-navbar";
 import Footer from "@/components/Footer";
 import { useProducts, Product } from "@/hooks/useProducts";
@@ -27,6 +27,10 @@ const HAIR = "border-[#7a2c4e]/[0.12]";
 
 const GRAIN =
     "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+/* USPs cycle automatically inside each card — short, factual, and
+   generic across the whole line rather than invented per product. */
+const USP_ROTATION = ["Alcohol-free", "pH-balanced", "100% natural oils", "Dermatologically tested"];
 
 function Grain({ opacity = 0.03 }: { opacity?: number }) {
     return <span aria-hidden className="pointer-events-none absolute inset-0 -z-10" style={{ backgroundImage: GRAIN, opacity }} />;
@@ -57,7 +61,7 @@ function SafeImg({
     const [broken, setBroken] = useState(false);
     if (!src || broken) {
         return (
-            <div className={cn("flex items-center justify-center bg-[#f3dce8]", className)}>
+            <div className={cn("flex items-center justify-center bg-[#f6f4f2]", className)}>
                 <span className="font-serif text-[30px] font-light italic text-[#7a2c4e]/25">
                     {(label || alt || "L").trim().charAt(0).toUpperCase()}
                 </span>
@@ -83,19 +87,115 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
 }
 
 /* ------------------------------------------------------------------
-   Minimal product card — image, name, price. One quiet wishlist icon
-   and one quiet add-to-bag icon, both hidden until hover, and the
-   whole card is the link to the product. No stacked buttons, no
-   competing badges — the photograph and the price do the talking.
+   RATING ROW — stars + review count. Reads straight from the stats
+   already fetched for this product; renders nothing if there isn't
+   any review data yet, rather than showing a fake "0 reviews" line.
+------------------------------------------------------------------- */
+function RatingRow({ stats }: { stats?: { avgRating: number; totalCount: number } }) {
+    if (!stats || stats.totalCount === 0) return null;
+    const rounded = Math.round(stats.avgRating);
+    return (
+        <div className="flex items-center justify-center gap-1.5">
+            <span className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((n) => (
+                    <Star
+                        key={n}
+                        className={cn("h-3 w-3", n <= rounded ? "fill-[#ec4899] text-[#ec4899]" : "text-[#7a2c4e]/20")}
+                        strokeWidth={1.4}
+                    />
+                ))}
+            </span>
+            <span className="text-[11.5px] font-light text-[#6b5560]/70">({stats.totalCount})</span>
+        </div>
+    );
+}
+
+/* ------------------------------------------------------------------
+   USP TICKER — a vertical bar: the current claim slides up and fades
+   out, the next slides up from below and fades in. Auto-advances on
+   an interval, and can also be stepped manually with the up/down
+   controls (both pause the auto-advance briefly so they don't fight).
+------------------------------------------------------------------- */
+function UspTicker() {
+    const [index, setIndex] = useState(0);
+    const pausedUntilRef = useRef(0);
+
+    useEffect(() => {
+        let reduced = false;
+        try {
+            reduced = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        } catch {
+            reduced = false;
+        }
+        if (reduced) return;
+
+        const id = window.setInterval(() => {
+            if (Date.now() < pausedUntilRef.current) return;
+            setIndex((i) => (i + 1) % USP_ROTATION.length);
+        }, 2600);
+        return () => window.clearInterval(id);
+    }, []);
+
+    const step = (dir: 1 | -1, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        pausedUntilRef.current = Date.now() + 4000; // give manual control room to breathe
+        setIndex((i) => (i + dir + USP_ROTATION.length) % USP_ROTATION.length);
+    };
+
+    return (
+        <div className="mx-auto mt-2.5 flex items-center justify-center gap-2">
+            <button
+                type="button"
+                onClick={(e) => step(-1, e)}
+                aria-label="Previous highlight"
+                className="text-[#7a2c4e]/25 transition-colors hover:text-[#ec4899]"
+            >
+                <ChevronUp className="h-3 w-3" strokeWidth={2} />
+            </button>
+
+            <div className="relative h-[16px] w-[152px] overflow-hidden">
+                <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.span
+                        key={index}
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{ duration: 0.35, ease: EASE }}
+                        className="absolute inset-x-0 top-0 block text-center text-[10.5px] font-medium uppercase tracking-[0.1em] text-[#a8823f]"
+                    >
+                        {USP_ROTATION[index]}
+                    </motion.span>
+                </AnimatePresence>
+            </div>
+
+            <button
+                type="button"
+                onClick={(e) => step(1, e)}
+                aria-label="Next highlight"
+                className="text-[#7a2c4e]/25 transition-colors hover:text-[#ec4899]"
+            >
+                <ChevronDown className="h-3 w-3" strokeWidth={2} />
+            </button>
+        </div>
+    );
+}
+
+/* ------------------------------------------------------------------
+   PRODUCT CARD
 ------------------------------------------------------------------- */
 function ProductCard({
     product,
     priority,
+    stats,
     onAddToCart,
+    onBuyNow,
 }: {
     product: Product;
     priority: boolean;
+    stats?: { avgRating: number; totalCount: number };
     onAddToCart: (p: Product) => void;
+    onBuyNow: (p: Product) => void;
 }) {
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const [hovered, setHovered] = useState(false);
@@ -103,23 +203,27 @@ function ProductCard({
     const inWishlist = isInWishlist(pid);
     const coverPath = pickShopCardPath(product);
     const coverUrl = coverPath ? resolveMediaUrl(coverPath) : "/images/placeholder.png";
-    // a second photo, if the product has one, crossfades in on hover —
-    // a small, quietly premium interaction rather than a static tile
     const secondUrl = Array.isArray(product.images) && product.images.length > 1 ? resolveMediaUrl(product.images[1]) : null;
     const isOutOfStock = product.status === "inactive" || Number(product.stock ?? 0) <= 0;
     const original = strikethroughPriceIfHigher(product.price || "", product.originalPrice);
 
+    // savings — only shown when we actually have both numbers to compare
+    const currentNum = Number(String(product.price || "").replace(/[^0-9.]/g, "")) || 0;
+    const originalNum = Number(String(product.originalPrice || "").replace(/[^0-9.]/g, "")) || 0;
+    const savingsPercent = originalNum > currentNum && originalNum > 0 ? Math.round(((originalNum - currentNum) / originalNum) * 100) : 0;
+
+    const shortDesc = (product as any).detailTagline || product.description || "";
+
     return (
         <div
-            className="group relative overflow-hidden rounded-[14px] bg-[#fdf1f5] p-4 transition-shadow duration-500 hover:shadow-[0_28px_54px_-36px_rgba(122,44,78,0.4)] sm:p-5"
+            className="group relative flex h-full flex-col overflow-hidden rounded-[14px] border border-[#7a2c4e]/[0.08] bg-white p-4 transition-shadow duration-500 hover:shadow-[0_24px_48px_-34px_rgba(122,44,78,0.28)] sm:p-5"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
             <Link href={getProductShopPath(product)} className="block">
-                {/* the photo fills its slot completely — no inset padding,
-                    no letterboxing — the coloured card around it does the
-                    framing instead */}
-                <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-[#f3dce8]">
+                {/* the photo fills its slot completely — the coloured card
+                    around it does the framing instead of internal padding */}
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-[#f6f4f2]">
                     <SafeImg
                         src={coverUrl}
                         alt={product.name}
@@ -141,37 +245,65 @@ function ProductCard({
                         />
                     )}
 
-                    {isOutOfStock && (
+                    {isOutOfStock ? (
                         <span className="absolute left-3 top-3 rounded-[3px] bg-[#7a2c4e] px-3.5 py-1 text-[10px] uppercase tracking-[0.14em] text-white">
                             Sold out
                         </span>
-                    )}
+                    ) : savingsPercent > 0 ? (
+                        <span className="absolute left-3 top-3 rounded-[3px] bg-[#ec4899] px-3.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
+                            Save {savingsPercent}%
+                        </span>
+                    ) : null}
                 </div>
 
                 <div className="mt-4 text-center">
-                    <h3 className={cn("font-serif text-[21px] font-light capitalize leading-[1.2] transition-colors group-hover:text-[#ec4899] md:text-[23px]", INK)}>
+                    <RatingRow stats={stats} />
+
+                    <h3
+                        className={cn(
+                            "font-serif text-[20px] font-light capitalize leading-[1.2] transition-colors group-hover:text-[#ec4899] md:text-[22px]",
+                            stats && stats.totalCount > 0 ? "mt-1.5" : "",
+                            INK
+                        )}
+                    >
                         {product.name}
                     </h3>
-                    {/* price is the visual lead on the card — the ₹ sign sits
-                        smaller and lighter beside a bolder numeral, rather than
-                        both characters competing at the same weight */}
-                    <div className="mt-2.5 flex items-baseline justify-center gap-2.5">
-                        <span className="font-serif text-[24px] font-normal tabular-nums text-[#ec4899] md:text-[26px]">
-                            <span className="mr-0.5 text-[16px] font-light align-baseline text-[#ec4899]/80">₹</span>
+
+                    {shortDesc ? (
+                        <p className={cn("mx-auto mt-1.5 line-clamp-2 max-w-[36ch] text-[13px] font-light leading-[1.55]", BODY)}>
+                            {shortDesc}
+                        </p>
+                    ) : null}
+
+                    <UspTicker />
+
+                    {/* price — the ₹ sign sits smaller and lighter beside a
+                        bolder numeral; savings called out beneath rather
+                        than crowding the price line itself */}
+                    <div className="mt-2 flex items-baseline justify-center gap-2.5">
+                        <span className="font-serif text-[23px] font-normal tabular-nums text-[#ec4899] md:text-[25px]">
+                            <span className="mr-0.5 text-[15px] font-light align-baseline text-[#ec4899]/80">₹</span>
                             {formatRupee(product.price).replace("₹", "")}
                         </span>
                         {original ? (
                             <span className="text-[12px] font-light tabular-nums text-[#6b5560]/50 line-through">{formatRupee(original)}</span>
                         ) : null}
                     </div>
+
+                    {savingsPercent > 0 && originalNum > currentNum && (
+                        <p className="mt-1 text-[11px] font-medium text-emerald-700">
+                            You save {formatRupee(String(originalNum - currentNum))}
+                        </p>
+                    )}
                 </div>
             </Link>
 
-            {/* wishlist — the one quiet icon action, still hover-revealed */}
+            {/* wishlist */}
             <button
                 type="button"
                 onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     inWishlist ? removeFromWishlist(pid) : addToWishlist(pid);
                 }}
                 aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
@@ -185,28 +317,53 @@ function ProductCard({
                 <Heart className={cn("h-[14px] w-[14px]", inWishlist && "fill-current")} strokeWidth={1.6} />
             </button>
 
-            {/* the one deliberate, always-visible CTA — a real pill button,
-                not an icon hidden behind a hover, since the price above it
-                is meant to lead straight into a purchase decision */}
-            <button
-                type="button"
-                onClick={() => onAddToCart(product)}
-                disabled={isOutOfStock}
-                className={cn(
-                    "group/cta relative mt-5 flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-[4px] text-[10.5px] uppercase tracking-[0.2em] transition-transform duration-500",
-                    isOutOfStock
-                        ? "cursor-not-allowed bg-[#7a2c4e]/10 text-[#7a2c4e]/40"
-                        : "bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] text-white shadow-[0_14px_28px_-16px_rgba(236,72,153,0.85)] hover:-translate-y-0.5"
-                )}
-            >
-                <span className="relative z-10 flex items-center gap-2">
-                    <ShoppingBag className="h-[13px] w-[13px]" strokeWidth={1.6} />
-                    {isOutOfStock ? "Sold out" : "Add to bag"}
-                </span>
-                {!isOutOfStock && (
-                    <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover/cta:translate-y-0" />
-                )}
-            </button>
+            {/* CTAs — Buy Now leads (filled), Add to bag is the quieter
+                second action (outline), always visible. Both stop the
+                click from also triggering the card's own navigation. */}
+            <div className="mt-auto flex gap-2 pt-5">
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onAddToCart(product);
+                    }}
+                    disabled={isOutOfStock}
+                    className={cn(
+                        "flex h-11 flex-1 items-center justify-center gap-1.5 rounded-[4px] border text-[10px] uppercase tracking-[0.14em] transition-colors duration-300",
+                        isOutOfStock
+                            ? "cursor-not-allowed border-[#7a2c4e]/10 text-[#7a2c4e]/35"
+                            : "border-[#7a2c4e]/20 text-[#7a2c4e] hover:border-[#7a2c4e]/35 hover:bg-[#7a2c4e]/[0.03]"
+                    )}
+                >
+                    <ShoppingBag className="h-[12px] w-[12px]" strokeWidth={1.6} />
+                    Add to bag
+                </button>
+
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onBuyNow(product);
+                    }}
+                    disabled={isOutOfStock}
+                    className={cn(
+                        "group/cta relative flex h-11 flex-1 items-center justify-center gap-1.5 overflow-hidden rounded-[4px] text-[10px] uppercase tracking-[0.14em] transition-transform duration-500",
+                        isOutOfStock
+                            ? "cursor-not-allowed bg-[#7a2c4e]/10 text-[#7a2c4e]/35"
+                            : "bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] text-white shadow-[0_14px_28px_-16px_rgba(236,72,153,0.85)] hover:-translate-y-0.5"
+                    )}
+                >
+                    <span className="relative z-10 flex items-center gap-1.5">
+                        <Zap className="h-[12px] w-[12px]" strokeWidth={1.8} />
+                        {isOutOfStock ? "Sold out" : "Buy now"}
+                    </span>
+                    {!isOutOfStock && (
+                        <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover/cta:translate-y-0" />
+                    )}
+                </button>
+            </div>
         </div>
     );
 }
@@ -214,7 +371,7 @@ function ProductCard({
 export default function ShopPageClient({ initialProducts = [] }: { initialProducts?: Product[] }) {
     const { products, loading } = useProducts(initialProducts);
     const { addToCart } = useCart();
-    const { error } = useToast();
+    const { success, error } = useToast();
     const router = useRouter();
     const [reviewStatsMap, setReviewStatsMap] = useState<Record<string, { avgRating: number; totalCount: number }>>({});
 
@@ -257,7 +414,7 @@ export default function ShopPageClient({ initialProducts = [] }: { initialProduc
         };
     }, [productIds]);
 
-    const handleAddToCart = async (product: Product) => {
+    const handleAddToCart = async (product: Product, opts?: { silent?: boolean }) => {
         const productId = product._id || product.id;
         if (!productId) return;
         const isOutOfStock = product.status === "inactive" || Number(product.stock ?? 0) <= 0;
@@ -270,6 +427,7 @@ export default function ShopPageClient({ initialProducts = [] }: { initialProduc
         const snapshot = { name: product.name, price: product.price || "₹0", imageUrl };
         try {
             await addToCart(productId, 1, snapshot);
+            if (!opts?.silent) success(`${product.name} added to your bag`);
         } catch (e) {
             const msg = e instanceof Error ? e.message : "";
             if (msg.includes("customer to add to cart") || msg.includes("Not authorized") || msg.includes("User not found")) {
@@ -278,6 +436,20 @@ export default function ShopPageClient({ initialProducts = [] }: { initialProduc
             } else {
                 error(msg || "Could not add to cart");
             }
+            throw e;
+        }
+    };
+
+    /* Buy Now adds the item to cart, then opens the existing cart /
+       checkout drawer directly via the same custom event it already
+       listens for elsewhere in the app — no new checkout route
+       invented, just the shortest path into the flow that exists. */
+    const handleBuyNow = async (product: Product) => {
+        try {
+            await handleAddToCart(product, { silent: true });
+            window.dispatchEvent(new Event("leira:cart:open"));
+        } catch {
+            // handleAddToCart already surfaced the error toast / login redirect
         }
     };
 
@@ -324,12 +496,21 @@ export default function ShopPageClient({ initialProducts = [] }: { initialProduc
                                 </Link>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-x-6 gap-y-12 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
-                                {shopProducts.map((product, index) => (
-                                    <Reveal key={product._id || product.id} delay={Math.min(index, 5) * 0.06}>
-                                        <ProductCard product={product} priority={index < 3} onAddToCart={handleAddToCart} />
-                                    </Reveal>
-                                ))}
+                            <div className="grid grid-cols-2 items-stretch gap-x-6 gap-y-12 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
+                                {shopProducts.map((product, index) => {
+                                    const pid = product._id || product.id;
+                                    return (
+                                        <Reveal key={pid} delay={Math.min(index, 5) * 0.06} className="h-full">
+                                            <ProductCard
+                                                product={product}
+                                                priority={index < 3}
+                                                stats={pid ? reviewStatsMap[pid] : undefined}
+                                                onAddToCart={handleAddToCart}
+                                                onBuyNow={handleBuyNow}
+                                            />
+                                        </Reveal>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
