@@ -21,7 +21,7 @@ const COLLAGE_IMAGES = [
   "/new-images/ls-7.jpg",
   "/new-images/ls-8.jpg",
   "/new-images/ls-16.jpeg",
-  "/new-images/ls-14.jpe  g",
+  "/new-images/ls-14.jpeg",
 ];
 
 const REVEAL_IMAGE = "https://images.unsplash.com/photo-1782687493430-228efc6a7d37?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
