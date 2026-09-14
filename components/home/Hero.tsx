@@ -16,18 +16,18 @@ const COLLAGE_IMAGES = [
   "/new-images/ls-2.jpg",
   "/new-images/ls-3.jpg",
   "/new-images/ls-4.jpg",
+  "/new-images/pd-3.jpg",
   "/new-images/ls-5.jpg",
-  "/new-images/ls-6.jpg",
+  "/new-images/pd-2.jpg",
   "/new-images/ls-7.jpg",
-  "/new-images/ls-8.jpg",
-  "/new-images/ls-16.jpeg",
+  "/new-images/ls-12.jpeg",
   "/new-images/ls-14.jpeg",
 ];
 
-const REVEAL_IMAGE = "https://images.unsplash.com/photo-1782687493430-228efc6a7d37?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-const ABOUT_IMAGE = "https://images.unsplash.com/photo-1782687493430-228efc6a7d37?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+const REVEAL_IMAGE = "/graphics/g1.png";
+const ABOUT_IMAGE = "/graphics/g2.png";
 /* second, smaller frame in the about collage */
-const ABOUT_IMAGE_2 = "https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+const ABOUT_IMAGE_2 = "/new-images/pd-2.jpg";
 
 /* ------------------------------------------------------------------
    TIMING
@@ -561,7 +561,6 @@ const CSS = `
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   will-change: transform;
   filter: blur(14px);
   transition: filter 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
@@ -1120,7 +1119,7 @@ export default function LeiraHero({
         const r2 = art!.getBoundingClientRect();
         const c = r2.top + r2.height / 2 - innerHeight / 2;
         const s = Math.max(-40, Math.min(40, (-c / innerHeight) * 46));
-        artImg!.style.transform = "translate3d(0," + s.toFixed(1) + "px,0) scale(1.14)";
+        artImg!.style.transform = "translate3d(0," + s.toFixed(1) + "px,0) scale(1)";
 
         // --ap: how far the about panel has travelled up the viewport.
         // Straightens its top corners and drifts the small frame.
@@ -1231,7 +1230,7 @@ export default function LeiraHero({
                   ref={artImgRef}
                   src={ABOUT_IMAGE}
                   alt="The Leira bottle with botanicals"
-                  style={{ transform: "translate3d(0,0,0) scale(1.14)" }}
+                  style={{ transform: "translate3d(0,0,0) scale(1)" }}
                 />
               </div>
 
