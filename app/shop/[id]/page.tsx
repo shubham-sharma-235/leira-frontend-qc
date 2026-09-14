@@ -23,6 +23,12 @@ import {
     Copy,
     Check,
     Share2,
+    Flower2,
+    Sun,
+    Moon,
+    Tag,
+    Truck,
+    RotateCcw,
 } from "lucide-react";
 
 import { MiniNavbar } from "@/components/ui/mini-navbar";
@@ -45,7 +51,6 @@ import { getImageUrl } from "@/lib/imageUtils";
 import { canonicalProductSlug, getProductShopPath } from "@/lib/product-slugs";
 
 const HOW_TO_USE_INFOGRAPHIC_SRC = encodeURI("/How to use leira.png");
-const PDP_IMAGE_QUALITY = 82;
 
 const INK = "text-[#7a2c4e]";
 const BODY = "text-[#6b5560]";
@@ -89,8 +94,6 @@ function useStickyTopOffset(shown = 96, hidden = 16) {
     return top;
 }
 
-/** Scroll-triggered reveal, once, with a safety timeout so content
-    never stays permanently hidden if the observer fails to fire. */
 function useReveal<T extends HTMLElement>() {
     const ref = React.useRef<T | null>(null);
     const [shown, setShown] = useState(false);
@@ -124,23 +127,24 @@ function useReveal<T extends HTMLElement>() {
     return { ref, shown };
 }
 
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+function Reveal({ children, delay = 0, className = "", style }: { children: React.ReactNode; delay?: number; className?: string; style?: React.CSSProperties }) {
     const { ref, shown } = useReveal<HTMLDivElement>();
     return (
         <div
             ref={ref}
             className={cn("transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]", className)}
-            style={{ opacity: shown ? 1 : 0, transform: shown ? "none" : "translateY(18px)", transitionDelay: `${delay}ms` }}
+            style={{
+                ...style,
+                opacity: shown ? 1 : 0,
+                transform: shown ? "none" : "translateY(28px) scale(0.97)",
+                transitionDelay: `${delay}ms`,
+            }}
         >
             {children}
         </div>
     );
 }
 
-/* ------------------------------------------------------------------
-   SafeImg — plain <img> for product photography, no next/image
-   domain-whitelist requirement, falls back to a monogram tile.
-------------------------------------------------------------------- */
 function SafeImg({ src, alt, label, className }: { src: string; alt: string; label?: string; className?: string }) {
     const [broken, setBroken] = useState(false);
     if (!src || broken) {
@@ -180,9 +184,6 @@ function isLoggedInCustomer(): boolean {
     }
 }
 
-/* ------------------------------------------------------------------
-   Content — icons + colours, so nothing here is a plain text block
-------------------------------------------------------------------- */
 const USPS = [
     { label: "Alcohol-free", icon: Droplet, tint: "#ec4899" },
     { label: "pH-balanced", icon: Scale, tint: "#d8b06a" },
@@ -205,95 +206,138 @@ const INGREDIENTS = [
     { name: "Ylang Ylang", tint: "#d8b06a", note: "Balancing, antioxidant-rich, quietly grounding." },
 ];
 
-const PRODUCT_POINTS = [
+const NOTES = [
+    { tier: "Top note", icon: Sun, tint: "#ec4899", body: "The first impression — light and immediate, fading within minutes." },
+    { tier: "Heart note", icon: Flower2, tint: "#d8b06a", body: "The scent's true character, emerging as the top note settles." },
+    { tier: "Base note", icon: Moon, tint: "#7a2c4e", body: "The lasting trace that stays close to skin through the day." },
+];
+
+const FAQS = [
+    { q: "Is this safe for daily use?", a: "Yes. Leira is dermatologically tested and pH-balanced for daily use on the external intimate area." },
+    { q: "Can I use it after shaving or waxing?", a: "Wait 24 hours after shaving or waxing before applying, to avoid irritation on freshly exposed skin." },
+    { q: "How long does one bottle last?", a: "With one or two drops per use, a bottle typically lasts 6–8 weeks." },
+    { q: "Is it safe during pregnancy?", a: "As with any intimate care product, check with your doctor before use during pregnancy." },
+];
+
+/* NOTE: placeholder offers — wire these to your real coupon/offer API
+   when available. */
+const OFFERS = [
+    "Flat 10% off on prepaid orders",
+    "Free shipping on orders above ₹999",
+    "Extra 5% off your first order — code WELCOME5",
+];
+
+const BENEFITS = [
     { title: "Natural essence", description: "100% natural, skin-friendly essential oils.", icon: Leaf, tint: "#7a9b5c" },
     { title: "External use only", description: "Made exclusively for the outer intimate area.", icon: ShieldCheck, tint: "#b23a63" },
     { title: "pH-balanced", description: "Works with your skin's natural balance.", icon: Scale, tint: "#d8b06a" },
     { title: "Dermatologist tested", description: "Verified gentle for daily intimate use.", icon: Stethoscope, tint: "#ec4899" },
 ];
 
-/* ------------------------------------------------------------------
-   Share row — WhatsApp / Facebook / X all have real share-intent
-   URLs; Instagram does not expose one for arbitrary web content, so
-   it falls back to copying the link (native share sheet on mobile
-   covers Instagram directly when available).
-------------------------------------------------------------------- */
+const ALL_COMBOS = {
+    "jasmine-damask-rose": { label: "Jasmine × Damask Rose", href: "/shop/jasmine-damask-rose-duo", scents: ["jasmine", "damask rose"] },
+    "damask-rose-ylang-ylang": { label: "Damask Rose × Ylang Ylang", href: "/shop/damask-rose-ylang-ylang-duo", scents: ["damask rose", "ylang ylang"] },
+    "jasmine-ylang-ylang": { label: "Jasmine × Ylang Ylang", href: "/shop/jasmine-ylang-ylang-duo", scents: ["jasmine", "ylang ylang"] },
+};
+const DUO_PRICE = "₹3,599";
+const DUO_ORIGINAL = "₹5,998";
+const TRIO_PRICE = "₹4,949";
+const TRIO_ORIGINAL = "₹8,997";
+const TRIO_HREF = "/shop/complete-trio-full-mother-s-day-description";
+
+function relevantDuos(productName: string) {
+    const n = productName.toLowerCase();
+    return Object.values(ALL_COMBOS).filter((c) => c.scents.some((s) => n.includes(s)));
+}
+
+function PackSelector({ product, currentPrice }: { product: { name: string; price?: string }; currentPrice: string }) {
+    const duos = useMemo(() => relevantDuos(product.name), [product.name]);
+    return (
+        <div className={cn("mt-6 border-t pt-6", HAIR)}>
+            <span className="text-[11px] uppercase tracking-[0.2em] text-[#d8b06a]">Choose your set</span>
+            <div className="mt-3 grid gap-2.5">
+                <div className="flex items-center justify-between rounded-[12px] border-2 border-[#ec4899] bg-[#ec4899]/[0.06] px-4 py-3.5">
+                    <div>
+                        <p className={cn("font-serif text-[15px] font-normal", INK)}>Single — {product.name}</p>
+                        <p className="text-[11.5px] font-light text-[#6b5560]/70">This bottle only</p>
+                    </div>
+                    <span className="font-serif text-[16px] font-normal text-[#ec4899]">{currentPrice}</span>
+                </div>
+
+                {duos.map((duo) => (
+                    <Link key={duo.href} href={duo.href}
+                        className="flex items-center justify-between rounded-[12px] border border-[#7a2c4e]/15 px-4 py-3.5 transition-colors duration-300 hover:border-[#7a2c4e]/30 hover:bg-[#7a2c4e]/[0.02]">
+                        <div>
+                            <p className={cn("font-serif text-[15px] font-normal", INK)}>{duo.label}</p>
+                            <p className="text-[11.5px] font-light text-[#6b5560]/70">Save ₹2,399</p>
+                        </div>
+                        <div className="text-right">
+                            <span className="font-serif text-[16px] font-normal text-[#7a2c4e]">{DUO_PRICE}</span>
+                            <span className="ml-1.5 text-[11px] font-light text-[#6b5560]/45 line-through">{DUO_ORIGINAL}</span>
+                        </div>
+                    </Link>
+                ))}
+
+                <Link href={TRIO_HREF}
+                    className="relative flex items-center justify-between overflow-hidden rounded-[12px] border-2 border-[#d8b06a] bg-gradient-to-br from-[#fdf3e0] to-[#fdeef4] px-4 py-3.5 transition-transform duration-300 hover:-translate-y-0.5">
+                    <span className="absolute -right-1 -top-1 rounded-bl-[10px] bg-[#d8b06a] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white">Best value</span>
+                    <div>
+                        <p className={cn("font-serif text-[15px] font-normal", INK)}>Complete Trio — all 3</p>
+                        <p className="text-[11.5px] font-medium text-[#a8823f]">Save ₹4,048</p>
+                    </div>
+                    <div className="text-right">
+                        <span className="font-serif text-[16px] font-normal text-[#7a2c4e]">{TRIO_PRICE}</span>
+                        <span className="ml-1.5 text-[11px] font-light text-[#6b5560]/45 line-through">{TRIO_ORIGINAL}</span>
+                    </div>
+                </Link>
+            </div>
+        </div>
+    );
+}
+
 function ShareRow({ productName, price }: { productName: string; price: string }) {
     const [copied, setCopied] = useState(false);
     const url = typeof window !== "undefined" ? window.location.href : "";
     const text = `${productName} — ${price} · Leira`;
-
     const links = [
         { label: "WhatsApp", href: `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, color: "#25D366" },
         { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, color: "#1877F2" },
         { label: "X", href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, color: "#111111" },
     ];
-
     const copyLink = async () => {
         try {
             await navigator.clipboard.writeText(url);
             setCopied(true);
             window.setTimeout(() => setCopied(false), 1800);
-        } catch {
-            // clipboard may be unavailable — silently ignore
-        }
+        } catch {}
     };
-
     const nativeShare = async () => {
         if (navigator.share) {
-            try {
-                await navigator.share({ title: productName, text, url });
-            } catch {
-                // user cancelled — no action needed
-            }
-        } else {
-            copyLink();
-        }
+            try { await navigator.share({ title: productName, text, url }); } catch {}
+        } else copyLink();
     };
-
     return (
-        <div className={cn("mt-6 flex flex-wrap items-center gap-2 border-t pt-5", HAIR)}>
-            <span className={cn("mr-1 text-[11px] uppercase tracking-[0.16em]", BODY)}>Share</span>
+        <div className="flex flex-wrap items-center gap-2">
+            <span className={cn("mr-1 text-[11px] uppercase tracking-[0.16em]", BODY)}>Share this scent</span>
             {links.map((l) => (
-                <a
-                    key={l.label}
-                    href={l.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Share on ${l.label}`}
+                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={`Share on ${l.label}`}
                     className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = l.color)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
                     <span className="text-[11px] font-semibold">{l.label.charAt(0)}</span>
                 </a>
             ))}
-            {/* Instagram: no public share-intent URL exists, so this opens the
-                native share sheet (covers IG directly on mobile) or copies
-                the link as a safe fallback on desktop. */}
-            <button
-                type="button"
-                onClick={nativeShare}
-                aria-label="Share on Instagram or more"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ec4899]/50 hover:text-[#ec4899]"
-            >
+            <button type="button" onClick={nativeShare} aria-label="Share on Instagram or more"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ec4899]/50 hover:text-[#ec4899]">
                 <Share2 className="h-[14px] w-[14px]" strokeWidth={1.7} />
             </button>
-            <button
-                type="button"
-                onClick={copyLink}
-                aria-label="Copy link"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b06a]/60 hover:text-[#a8823f]"
-            >
+            <button type="button" onClick={copyLink} aria-label="Copy link"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b06a]/60 hover:text-[#a8823f]">
                 <AnimatePresence mode="wait" initial={false}>
                     {copied ? (
-                        <motion.span key="check" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>
-                            <Check className="h-[14px] w-[14px]" strokeWidth={1.8} />
-                        </motion.span>
+                        <motion.span key="check" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}><Check className="h-[14px] w-[14px]" strokeWidth={1.8} /></motion.span>
                     ) : (
-                        <motion.span key="copy" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>
-                            <Copy className="h-[14px] w-[14px]" strokeWidth={1.7} />
-                        </motion.span>
+                        <motion.span key="copy" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}><Copy className="h-[14px] w-[14px]" strokeWidth={1.7} /></motion.span>
                     )}
                 </AnimatePresence>
             </button>
@@ -311,6 +355,24 @@ function Section({ title, children, defaultOpen = false }: { title: string; chil
             </button>
             <div className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" style={{ gridTemplateRows: open ? "1fr" : "0fr" }}>
                 <div className="overflow-hidden"><div className="pb-6">{children}</div></div>
+            </div>
+        </div>
+    );
+}
+
+function FlipCard({ tint, front, back }: { tint: string; front: string; back: string }) {
+    const [flipped, setFlipped] = useState(false);
+    return (
+        <div className="group relative h-[220px] cursor-pointer [perspective:1200px]" onMouseEnter={() => setFlipped(true)} onMouseLeave={() => setFlipped(false)} onClick={() => setFlipped((f) => !f)}>
+            <div className="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d]" style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[18px] border border-[#7a2c4e]/[0.1] p-6 text-center [backface-visibility:hidden]" style={{ background: `linear-gradient(160deg, ${tint}14, #fffdfc)` }}>
+                    <span className="h-2 w-2 rotate-[-45deg] rounded-[50%_50%_50%_0]" style={{ background: tint }} />
+                    <p className="font-serif text-[22px] font-light italic" style={{ color: tint }}>{front}</p>
+                    <span className={cn("text-[11px] font-light uppercase tracking-[0.14em]", BODY)}>Hover to reveal</span>
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[18px] p-7 text-center text-white [backface-visibility:hidden]" style={{ transform: "rotateY(180deg)", background: `linear-gradient(160deg, ${tint}, #2b0f1d)` }}>
+                    <p className="text-[14px] font-light leading-[1.7]">{back}</p>
+                </div>
             </div>
         </div>
     );
@@ -441,26 +503,29 @@ export default function ProductDetailPage() {
             : seoCopy?.longDescription || "Experience the essence of luxury with this exclusive fragrance.";
     const descriptionParagraphs = String(productDescription).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 
+    const secondaryPhoto = images.length > 1 ? images[1] : images[0];
+    const tertiaryPhoto = images.length > 2 ? images[2] : images[0];
+
     return (
         <div className="leira-underlap-nav-spacer min-h-screen bg-white pb-24 lg:pb-0">
             <MiniNavbar />
 
-            {/* ================= hero ================= */}
-            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12 mt-16">
+            {/* ================= hero — 40% image / 60% info ================= */}
+            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-8xl">
-                    {/* <nav className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]">
+                <div className="mx-auto max-w-8xl mt-8">
+                    <nav className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]">
                         <Link href="/shop" className={cn(BODY, "transition-colors hover:text-[#ec4899]")}>Shop</Link>
                         <Mark className="opacity-50" />
                         <span className={INK}>{product.name}</span>
-                    </nav> */}
+                    </nav>
 
-                    <div className="mt-8 grid gap-10 lg:grid-cols-[88px_minmax(0,45fr)_minmax(0,55fr)] lg:gap-8">
+                    <div className="mt-8 grid gap-10 lg:grid-cols-[76px_2fr_3fr] lg:gap-10">
                         {images.length > 1 && (
                             <div className="hidden flex-col gap-3 lg:flex lg:sticky lg:self-start" style={{ top: stickyTop }}>
                                 {images.map((img, i) => (
                                     <button key={i} onClick={() => setActiveImage(i)} aria-label={`View image ${i + 1}`}
-                                        className={cn("relative h-[76px] w-[76px] overflow-hidden rounded-[12px] border transition-all duration-400",
+                                        className={cn("relative h-[72px] w-[72px] overflow-hidden rounded-[12px] border transition-all duration-400",
                                             activeImage === i ? "border-[#ec4899]" : "border-[#7a2c4e]/10 opacity-55 hover:opacity-100")}>
                                         <SafeImg src={img} alt={`${product.name} ${i + 1}`} label={product.name} className="h-full w-full object-cover" />
                                     </button>
@@ -469,10 +534,10 @@ export default function ProductDetailPage() {
                         )}
 
                         <div className="lg:sticky lg:self-start" style={{ top: stickyTop }}>
-                            <div className="relative overflow-hidden rounded-[22px] bg-[#f7e6ee] shadow-[0_40px_80px_-56px_rgba(122,44,78,0.55)]">
+                            <div className="relative aspect-[3/4] overflow-hidden rounded-[24px] bg-[#f7e6ee] shadow-[0_44px_84px_-56px_rgba(122,44,78,0.55)] lg:min-h-[560px]">
                                 <AnimatePresence mode="wait">
-                                    <motion.div key={activeImage} initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} className="relative w-full">
-                                        <SafeImg src={images[activeImage]} alt={product.name} label={product.name} className="h-auto w-full max-w-full object-contain object-center" />
+                                    <motion.div key={activeImage} initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} className="absolute inset-0">
+                                        <SafeImg src={images[activeImage]} alt={product.name} label={product.name} className="h-full w-full object-cover object-center" />
                                     </motion.div>
                                 </AnimatePresence>
                                 {isOutOfStock && <div className="absolute left-5 top-5 rounded-full bg-[#7a2c4e] px-4 py-1.5 text-[10.5px] uppercase tracking-[0.16em] text-white">Out of stock</div>}
@@ -496,14 +561,13 @@ export default function ProductDetailPage() {
                             )}
                         </div>
 
-                        {/* ---- info ---- */}
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE }}>
                             <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
                                 <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />Leira exclusive
                             </span>
 
-                            <h1 className={cn("mt-4 font-serif text-[clamp(28px,3.6vw,42px)] font-light leading-[1.1] tracking-tight", INK)}>{product.name}</h1>
-                            {benefitH2 && <p className="mt-2 max-w-[36ch] font-serif text-[16px] font-light italic text-[#7a2c4e]/55">{benefitH2}</p>}
+                            <h1 className={cn("mt-4 font-serif text-[clamp(30px,3.6vw,44px)] font-light leading-[1.1] tracking-tight", INK)}>{product.name}</h1>
+                            {benefitH2 && <p className="mt-2 max-w-[42ch] font-serif text-[16px] font-light italic text-[#7a2c4e]/55">{benefitH2}</p>}
 
                             <div className="mt-4 flex items-center gap-2">
                                 <span className="flex items-center gap-0.5">
@@ -522,7 +586,7 @@ export default function ProductDetailPage() {
                                 <span className="text-[11.5px] font-light text-[#6b5560]/60">Inclusive of taxes</span>
                             </div>
 
-                            <div className="mt-6 hidden gap-3 sm:flex">
+                            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                                 <div className={cn("flex h-14 items-center rounded-full border bg-white/70", HAIR)}>
                                     <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="flex h-full w-12 items-center justify-center text-[#7a2c4e]/60 hover:text-[#ec4899]" aria-label="Decrease quantity"><Minus className="h-4 w-4" strokeWidth={1.6} /></button>
                                     <span className={cn("min-w-9 text-center font-serif text-[18px] tabular-nums", INK)}>{quantity}</span>
@@ -536,64 +600,137 @@ export default function ProductDetailPage() {
                                 </button>
                             </div>
 
-                            {/* ---- USPs: icon + colour, never a plain text row ---- */}
-                            <div className={cn("mt-7 grid grid-cols-2 gap-2.5 border-t pt-6", HAIR)}>
-                                {USPS.map((u, i) => {
-                                    const Icon = u.icon;
-                                    return (
-                                        <Reveal key={u.label} delay={i * 70}>
-                                            <div className="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5" style={{ background: `${u.tint}12` }}>
-                                                <Icon className="h-4 w-4 shrink-0" strokeWidth={1.7} style={{ color: u.tint }} />
-                                                <span className="text-[11.5px] font-medium" style={{ color: u.tint }}>{u.label}</span>
-                                            </div>
-                                        </Reveal>
-                                    );
-                                })}
+                            <PackSelector product={product} currentPrice={product.price || ""} />
+
+                            {/* offers — minimal, a few lines, nothing heavier */}
+                            <div className={cn("mt-5 rounded-[12px] border p-4", HAIR)}>
+                                <div className="flex items-center gap-2">
+                                    <Tag className="h-[13px] w-[13px] text-[#ec4899]" strokeWidth={1.7} />
+                                    <span className="text-[11px] uppercase tracking-[0.14em] text-[#7a2c4e]/60">Offers</span>
+                                </div>
+                                <ul className="mt-2 space-y-1.5">
+                                    {OFFERS.map((offer) => (
+                                        <li key={offer} className={cn("text-[12.5px] font-light leading-[1.5]", BODY)}>{offer}</li>
+                                    ))}
+                                </ul>
                             </div>
 
-                            {/* ---- share ---- */}
-                            <ShareRow productName={product.name} price={product.price || ""} />
-
-                            {/* ---- reading sections ---- */}
-                            <div className="mt-2">
-                                <Section title="Description">
-                                    <div className={cn("space-y-4 text-[14.5px] font-light leading-[1.85]", BODY)}>
-                                        {descriptionParagraphs.map((p, i) => <p key={i}>{renderFormattedDescription(p)}</p>)}
-                                    </div>
-                                </Section>
-                                <Section title="How to use">
-                                    <div className="overflow-hidden rounded-[16px] border border-[#7a2c4e]/[0.1]">
-                                        <Image src={HOW_TO_USE_INFOGRAPHIC_SRC} alt="Leira — how to use" width={1125} height={1398} className="h-auto w-full object-contain object-top" sizes="(max-width: 1024px) 100vw, 480px" />
-                                    </div>
-                                </Section>
+                            {/* delivery / returns — same minimal treatment, right below offers */}
+                            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] font-light text-[#6b5560]/75">
+                                <span className="flex items-center gap-1.5"><Truck className="h-[13px] w-[13px] text-[#7a2c4e]/50" strokeWidth={1.6} />Free shipping over ₹999</span>
+                                <span className="flex items-center gap-1.5"><RotateCcw className="h-[13px] w-[13px] text-[#7a2c4e]/50" strokeWidth={1.6} />7-day easy returns</span>
                             </div>
                         </motion.div>
                     </div>
                 </div>
             </main>
 
-            {/* ================= specifications — animated stat cards ================= */}
-            <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+            {/* ================= sub info: highlights + share, full width ================= */}
+            <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-10 sm:px-8 lg:px-12">
+                <div className="mx-auto flex max-w-7xl flex-col gap-6 border-b border-[#7a2c4e]/[0.1] pb-10 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap gap-2.5">
+                        {USPS.map((u, i) => {
+                            const Icon = u.icon;
+                            return (
+                                <Reveal key={u.label} delay={i * 90}>
+                                    <div className="flex items-center gap-2 rounded-full px-3.5 py-2" style={{ background: `${u.tint}12` }}>
+                                        <Icon className="h-3.5 w-3.5" strokeWidth={1.7} style={{ color: u.tint }} />
+                                        <span className="text-[11px] font-medium" style={{ color: u.tint }}>{u.label}</span>
+                                    </div>
+                                </Reveal>
+                            );
+                        })}
+                    </div>
+                    <ShareRow productName={product.name} price={product.price || ""} />
+                </div>
+            </section>
+
+            {/* ================= about — description/how-to-use beside a photo ================= */}
+            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fffdfc] via-[#fff7fa] to-[#fdf1f5] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+                <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
+                    <Reveal className="lg:sticky lg:top-24 lg:self-start">
+                        <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-[#f7e6ee] shadow-[0_36px_70px_-48px_rgba(122,44,78,0.4)]">
+                            <SafeImg src={secondaryPhoto} alt={`${product.name} lifestyle`} label={product.name} className="h-full w-full object-cover" />
+                        </div>
+                    </Reveal>
+
+                    <div>
+                        <Reveal>
+                            <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">About this fragrance</span>
+                            <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>{product.name}, in detail</h2>
+                        </Reveal>
+                        <div className="mt-6">
+                            <Section title="Description" defaultOpen>
+                                <div className={cn("space-y-4 text-[14.5px] font-light leading-[1.85]", BODY)}>
+                                    {descriptionParagraphs.map((p, i) => <p key={i}>{renderFormattedDescription(p)}</p>)}
+                                </div>
+                            </Section>
+                            <Section title="How to use">
+                                <div className="overflow-hidden rounded-[16px] border border-[#7a2c4e]/[0.1]">
+                                    <Image src={HOW_TO_USE_INFOGRAPHIC_SRC} alt="Leira — how to use" width={1125} height={1398} className="h-auto w-full object-contain object-top" sizes="(max-width: 1024px) 100vw, 560px" />
+                                </div>
+                            </Section>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ================= key notes — a fragrance pyramid, not another card grid ================= */}
+            <section className="relative isolate [overflow:clip] bg-gradient-to-br from-[#2b0f1d] via-[#3a1526] to-[#4a1c31] px-5 py-16 sm:px-8 md:py-24 lg:px-12">
+                <Grain opacity={0.05} />
+                <span aria-hidden className="pointer-events-none absolute -right-24 top-0 -z-10 h-[32vw] max-h-[400px] w-[32vw] max-w-[400px] rounded-full bg-[#ec4899]/18 blur-[110px]" />
+                <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-16">
+                    <div>
+                        <Reveal>
+                            <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#f9a8d4]">Key notes</span>
+                            <h2 className="mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15] text-white">How this scent unfolds</h2>
+                            <p className="mt-3 max-w-[52ch] text-[14px] font-light leading-[1.85] text-[#f7dfe8]/70">
+                                Like any fine fragrance, {product.name} reveals itself in stages — not all at once.
+                            </p>
+                        </Reveal>
+
+                        <div className="mt-10 space-y-4">
+                            {NOTES.map((n, i) => {
+                                const Icon = n.icon;
+                                return (
+                                    <Reveal key={n.tier} delay={i * 160} className="origin-left" style={{ width: `${72 + i * 14}%` }}>
+                                        <div className="flex items-center gap-4 rounded-r-[16px] border-l-4 py-4 pl-5 pr-6" style={{ borderColor: n.tint, background: `${n.tint}14` }}>
+                                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: `${n.tint}22` }}>
+                                                <Icon className="h-[18px] w-[18px]" strokeWidth={1.6} style={{ color: n.tint }} />
+                                            </span>
+                                            <div>
+                                                <p className="text-[10.5px] uppercase tracking-[0.16em]" style={{ color: n.tint }}>{n.tier}</p>
+                                                <p className="mt-0.5 text-[13.5px] font-light leading-[1.6] text-white/85">{n.body}</p>
+                                            </div>
+                                        </div>
+                                    </Reveal>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <Reveal delay={200} className="relative hidden overflow-hidden rounded-[22px] lg:block">
+                        <SafeImg src={tertiaryPhoto} alt={`${product.name} botanicals`} label={product.name} className="h-full min-h-[440px] w-full object-cover" />
+                        <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#2b0f1d]/60 via-transparent to-transparent" />
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ================= specifications ================= */}
+            <section className="relative isolate [overflow:clip] from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] bg-gradient-to-b px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-7xl">
                     <Reveal>
                         <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Specifications</span>
                         <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>The details that matter</h2>
                     </Reveal>
-
                     <div className="mt-9 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                         {SPECS.map((s, i) => {
                             const Icon = s.icon;
                             return (
-                                <Reveal key={s.label} delay={i * 60}>
-                                    <motion.div
-                                        whileHover={{ y: -4 }}
-                                        transition={{ duration: 0.3, ease: EASE }}
-                                        className="flex flex-col items-center gap-2 rounded-[16px] border border-[#7a2c4e]/[0.1] bg-white p-5 text-center shadow-[0_16px_32px_-26px_rgba(122,44,78,0.3)]"
-                                    >
-                                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ec4899]/10">
-                                            <Icon className="h-[18px] w-[18px] text-[#ec4899]" strokeWidth={1.6} />
-                                        </span>
+                                <Reveal key={s.label} delay={i * 110}>
+                                    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3, ease: EASE }} className="flex flex-col items-center gap-2 rounded-[16px] border border-[#7a2c4e]/[0.1] bg-white p-5 text-center shadow-[0_16px_32px_-26px_rgba(122,44,78,0.3)]">
+                                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ec4899]/10"><Icon className="h-[18px] w-[18px] text-[#ec4899]" strokeWidth={1.6} /></span>
                                         <span className="text-[10px] uppercase tracking-[0.14em] text-[#7a2c4e]/50">{s.label}</span>
                                         <span className={cn("font-serif text-[14px] font-normal leading-tight", INK)}>{s.value}</span>
                                     </motion.div>
@@ -604,48 +741,49 @@ export default function ProductDetailPage() {
                 </div>
             </section>
 
-            {/* ================= ingredients — flip cards ================= */}
-            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+            {/* ================= ingredients ================= */}
+            <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-7xl">
                     <Reveal>
                         <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Ingredients</span>
                         <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>Crafted with three essential oils</h2>
                         <p className={cn("mt-3 max-w-[54ch] text-[14px] font-light leading-[1.85]", BODY)}>Hover a card to see what each oil actually does for your skin.</p>
                     </Reveal>
-
                     <div className="mt-9 grid gap-6 sm:grid-cols-3">
                         {INGREDIENTS.map((ing, i) => (
-                            <Reveal key={ing.name} delay={i * 90}>
-                                <FlipCard tint={ing.tint} front={ing.name} back={ing.note} />
-                            </Reveal>
+                            <Reveal key={ing.name} delay={i * 140}><FlipCard tint={ing.tint} front={ing.name} back={ing.note} /></Reveal>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ================= benefits — coloured icon cards ================= */}
+            {/* ================= full-bleed photo break — a moment, not a card ================= */}
+            <section className="relative isolate flex min-h-[46vh] items-center justify-center overflow-hidden px-5 py-20 sm:px-8">
+                <SafeImg src={secondaryPhoto} alt="" label={product.name} className="absolute inset-0 h-full w-full object-cover" />
+                <span aria-hidden className="absolute inset-0 bg-[#2b0f1d]/60" />
+                <Reveal className="relative z-10 mx-auto max-w-2xl text-center">
+                    <p className="font-serif text-[clamp(22px,3vw,32px)] font-light italic leading-[1.4] text-white">
+                        "A quiet ritual, every morning two drops, and confidence that lasts the day."
+                    </p>
+                </Reveal>
+            </section>
+
+            {/* ================= key features & benefits ================= */}
             <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-7xl">
                     <Reveal>
-                        <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Benefits</span>
+                        <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Key features & benefits</span>
                         <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>Why it works</h2>
                     </Reveal>
-
                     <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                        {PRODUCT_POINTS.map((p, i) => {
+                        {BENEFITS.map((p, i) => {
                             const Icon = p.icon;
                             return (
-                                <Reveal key={p.title} delay={i * 80}>
-                                    <motion.div
-                                        whileHover={{ y: -5, boxShadow: "0 24px 48px -30px rgba(122,44,78,0.35)" }}
-                                        transition={{ duration: 0.3, ease: EASE }}
-                                        className="h-full rounded-[18px] border border-[#7a2c4e]/[0.1] bg-white p-6"
-                                    >
-                                        <span className="flex h-11 w-11 items-center justify-center rounded-[12px]" style={{ background: `${p.tint}15` }}>
-                                            <Icon className="h-5 w-5" strokeWidth={1.6} style={{ color: p.tint }} />
-                                        </span>
+                                <Reveal key={p.title} delay={i * 130}>
+                                    <motion.div whileHover={{ y: -5, boxShadow: "0 24px 48px -30px rgba(122,44,78,0.35)" }} transition={{ duration: 0.3, ease: EASE }} className="h-full rounded-[18px] border border-[#7a2c4e]/[0.1] bg-white p-6">
+                                        <span className="flex h-11 w-11 items-center justify-center rounded-[12px]" style={{ background: `${p.tint}15` }}><Icon className="h-5 w-5" strokeWidth={1.6} style={{ color: p.tint }} /></span>
                                         <h3 className={cn("mt-4 font-serif text-[17px] font-normal leading-tight", INK)}>{p.title}</h3>
                                         <p className={cn("mt-2 text-[13px] font-light leading-[1.65]", BODY)}>{p.description}</p>
                                     </motion.div>
@@ -656,10 +794,28 @@ export default function ProductDetailPage() {
                 </div>
             </section>
 
-            {/* ================= explore ================= */}
-            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12" aria-labelledby="explore-leira-heading">
+            {/* ================= faq — same accordion pattern as Description/How to use ================= */}
+            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fffdfc] via-[#fff5f9] to-[#fdeef4] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-3xl">
+                    <Reveal className="text-center">
+                        <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Questions</span>
+                        <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>Frequently asked questions</h2>
+                    </Reveal>
+                    <div className="mt-8">
+                        {FAQS.map((f) => (
+                            <Section key={f.q} title={f.q}>
+                                <p className={cn("text-[13.5px] font-light leading-[1.75]", BODY)}>{f.a}</p>
+                            </Section>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ================= explore ================= */}
+            <section className="relative isolate [overflow:clip] from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] bg-gradient-to-b px-5 py-16 sm:px-8 md:py-20 lg:px-12" aria-labelledby="explore-leira-heading">
+                <Grain />
+                <div className="mx-auto max-w-7xl">
                     <Reveal>
                         <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">The collection</span>
                         <h2 id="explore-leira-heading" className={cn("mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]", INK)}>Explore more from Leira</h2>
@@ -690,7 +846,7 @@ export default function ProductDetailPage() {
             {/* ================= reviews ================= */}
             <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-7xl">
                     <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] lg:gap-16">
                         <div className="lg:sticky lg:self-start" style={{ top: stickyTop }}>
                             <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">In their words</span>
@@ -764,7 +920,7 @@ export default function ProductDetailPage() {
                 return (
                     <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                         <Grain />
-                        <div className="mx-auto max-w-6xl">
+                        <div className="mx-auto max-w-7xl">
                             <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">You may also like</span>
                             <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]", INK)}>More to discover</h2>
                             <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4 md:gap-6">
@@ -805,44 +961,6 @@ export default function ProductDetailPage() {
                         isOutOfStock ? "bg-[#7a2c4e]/15 text-[#7a2c4e]/50" : "bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] text-white")}>
                     <ShoppingBag className="h-4 w-4" strokeWidth={1.6} />{isOutOfStock ? "Out of stock" : `Add · ${product.price}`}
                 </button>
-            </div>
-        </div>
-    );
-}
-
-/* ------------------------------------------------------------------
-   FlipCard — hover/tap to reveal the benefit behind each ingredient.
-   Pure CSS 3D flip, no dependency beyond what's already imported.
-------------------------------------------------------------------- */
-function FlipCard({ tint, front, back }: { tint: string; front: string; back: string }) {
-    const [flipped, setFlipped] = useState(false);
-    return (
-        <div
-            className="group relative h-[220px] cursor-pointer [perspective:1200px]"
-            onMouseEnter={() => setFlipped(true)}
-            onMouseLeave={() => setFlipped(false)}
-            onClick={() => setFlipped((f) => !f)}
-        >
-            <div
-                className="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d]"
-                style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
-            >
-                {/* front */}
-                <div
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[18px] border border-[#7a2c4e]/[0.1] p-6 text-center [backface-visibility:hidden]"
-                    style={{ background: `linear-gradient(160deg, ${tint}14, #fffdfc)` }}
-                >
-                    <span className="h-2 w-2 rotate-[-45deg] rounded-[50%_50%_50%_0]" style={{ background: tint }} />
-                    <p className="font-serif text-[22px] font-light italic" style={{ color: tint }}>{front}</p>
-                    <span className={cn("text-[11px] font-light uppercase tracking-[0.14em]", BODY)}>Hover to reveal</span>
-                </div>
-                {/* back */}
-                <div
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[18px] p-7 text-center text-white [backface-visibility:hidden]"
-                    style={{ transform: "rotateY(180deg)", background: `linear-gradient(160deg, ${tint}, #2b0f1d)` }}
-                >
-                    <p className="text-[14px] font-light leading-[1.7]">{back}</p>
-                </div>
             </div>
         </div>
     );
