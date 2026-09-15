@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -50,12 +49,16 @@ import { pickShopCardPath } from "@/lib/product-card-images";
 import { getImageUrl } from "@/lib/imageUtils";
 import { canonicalProductSlug, getProductShopPath } from "@/lib/product-slugs";
 
-const HOW_TO_USE_INFOGRAPHIC_SRC = encodeURI("/How to use leira.png");
-
 const INK = "text-[#7a2c4e]";
 const BODY = "text-[#6b5560]";
 const HAIR = "border-[#7a2c4e]/[0.12]";
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+/* Canonical blush gradient — used for every "light" section below the
+   hero so the whole page shares one consistent background rhythm
+   instead of several slightly different gradients pointing different
+   directions. */
+const BLUSH = "bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc]";
 
 const GRAIN =
     "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E\")";
@@ -234,6 +237,127 @@ const BENEFITS = [
     { title: "Dermatologist tested", description: "Verified gentle for daily intimate use.", icon: Stethoscope, tint: "#ec4899" },
 ];
 
+/* ------------------------------------------------------------------
+   HOW TO USE — the horizontal step-flow built earlier, inlined here
+   (rather than imported from a separate file whose path in your repo
+   I can't verify) so the accordion below can render it directly in
+   place of the old static infographic image.
+------------------------------------------------------------------- */
+type UsageStep = { n: string; title: string; copy: string; img: string };
+
+const USAGE_STEPS: UsageStep[] = [
+    {
+        n: "01",
+        title: "Start on clean, dry skin",
+        copy: "Apply straight after your shower. Dry skin holds the oil, so the scent stays with you through the day.",
+        img: "https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?q=80&w=900&auto=format&fit=crop",
+    },
+    {
+        n: "02",
+        title: "Draw one or two drops",
+        copy: "The precision dropper gives you exactly what you need. The oil is undiluted, so two drops is plenty.",
+        img: "https://images.unsplash.com/photo-1671493229066-f36e86b35841?q=80&w=900&auto=format&fit=crop",
+    },
+    {
+        n: "03",
+        title: "Press gently, then wait",
+        copy: "Apply to the external intimate area or bikini line. Give it a few seconds to settle before you dress.",
+        img: "https://plus.unsplash.com/premium_photo-1674739375749-7efe56fc8bbb?q=80&w=900&auto=format&fit=crop",
+    },
+    {
+        n: "04",
+        title: "Make it part of your morning",
+        copy: "Patch test somewhere less delicate the first time. Once comfortable, Leira belongs in your daily routine.",
+        img: "https://images.unsplash.com/photo-1665763630810-e6251bdd392d?q=80&w=900&auto=format&fit=crop",
+    },
+];
+
+function useRevealOnce<T extends HTMLElement>() {
+    const ref = React.useRef<T | null>(null);
+    const [shown, setShown] = useState(false);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        let reduced = false;
+        try {
+            reduced = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        } catch {
+            reduced = false;
+        }
+        if (reduced || typeof IntersectionObserver === "undefined") {
+            setShown(true);
+            return;
+        }
+        let io: IntersectionObserver | null = null;
+        try {
+            io = new IntersectionObserver(
+                (entries) => entries.forEach((e) => { if (e.isIntersecting) { setShown(true); io?.disconnect(); } }),
+                { threshold: 0.15 }
+            );
+            io.observe(el);
+        } catch {
+            setShown(true);
+            return;
+        }
+        const bail = window.setTimeout(() => setShown(true), 1200);
+        return () => { io?.disconnect(); window.clearTimeout(bail); };
+    }, []);
+    return { ref, shown };
+}
+
+function HowToUseSteps() {
+    const { ref, shown } = useRevealOnce<HTMLDivElement>();
+    return (
+        <div ref={ref} className="relative">
+            <span
+                aria-hidden
+                className="pointer-events-none absolute left-[12%] right-[12%] top-9 hidden h-px bg-gradient-to-r from-[#ec4899]/40 via-[#d8b06a]/60 to-[#ec4899]/40 md:block"
+            />
+            <ol className="grid grid-cols-1 gap-y-10 md:grid-cols-4 md:gap-x-5 md:gap-y-0">
+                {USAGE_STEPS.map((step, i) => (
+                    <li
+                        key={step.n}
+                        className="relative flex gap-4 text-left transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:flex-col md:items-center md:gap-0 md:text-center"
+                        style={{
+                            opacity: shown ? 1 : 0,
+                            transform: shown ? "none" : "translateY(16px)",
+                            transitionDelay: shown ? `${i * 100}ms` : "0ms",
+                        }}
+                    >
+                        <div className="relative shrink-0 md:mx-auto">
+                            <div className="relative h-[60px] w-[60px] overflow-hidden rounded-full border-4 border-[#fffdfc] shadow-[0_12px_24px_-12px_rgba(122,44,78,0.5)]">
+                                <SafeImg src={step.img} alt="" label={step.title} className="h-full w-full object-cover" />
+                            </div>
+                            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#ec4899] font-serif text-[10px] font-light text-white shadow-sm">
+                                {i + 1}
+                            </span>
+                        </div>
+
+                        {i < USAGE_STEPS.length - 1 && (
+                            <span
+                                aria-hidden
+                                className="absolute left-[30px] top-[60px] block h-9 w-px bg-gradient-to-b from-[#d8b06a]/50 to-transparent md:hidden"
+                            />
+                        )}
+
+                        <div className="pt-0.5 md:pt-4">
+                            <span className="hidden text-[10px] font-light uppercase tracking-[0.18em] text-[#d8b06a] md:block">
+                                Step {step.n}
+                            </span>
+                            <h4 className={cn("font-serif text-[15.5px] font-light leading-tight md:mt-1.5", INK)}>
+                                {step.title}
+                            </h4>
+                            <p className={cn("mt-1 max-w-[28ch] text-[12.5px] font-light leading-[1.6] md:mx-auto", BODY)}>
+                                {step.copy}
+                            </p>
+                        </div>
+                    </li>
+                ))}
+            </ol>
+        </div>
+    );
+}
+
 const ALL_COMBOS = {
     "jasmine-damask-rose": { label: "Jasmine × Damask Rose", href: "/shop/jasmine-damask-rose-duo", scents: ["jasmine", "damask rose"] },
     "damask-rose-ylang-ylang": { label: "Damask Rose × Ylang Ylang", href: "/shop/damask-rose-ylang-ylang-duo", scents: ["damask rose", "ylang ylang"] },
@@ -248,6 +372,179 @@ const TRIO_HREF = "/shop/complete-trio-full-mother-s-day-description";
 function relevantDuos(productName: string) {
     const n = productName.toLowerCase();
     return Object.values(ALL_COMBOS).filter((c) => c.scents.some((s) => n.includes(s)));
+}
+
+/* ------------------------------------------------------------------
+   DELIVERY ESTIMATOR — a real pincode input, not decorative. There's
+   no live carrier API wired in, so this resolves to a state using
+   India Post's published PIN prefix ranges (the first 2–3 digits),
+   which is what actually identifies a single state — the first digit
+   alone only identifies a broad zone spanning several states, which
+   was the mistake in an earlier version of this.
+
+   Covers all 28 states and all 8 union territories. A handful of
+   borders (UP/Uttarakhand, Bihar/Jharkhand — both carved from a
+   single state whose PIN ranges were never fully renumbered) don't
+   split cleanly on digits alone; those are called out below. Any
+   prefix that isn't a real assigned Indian PIN range returns null,
+   which the component below surfaces as an actual validation error
+   rather than a fake fallback estimate. */
+function resolveStateFromPin(pin: string): string | null {
+    const full = parseInt(pin, 10);
+    const p3 = parseInt(pin.slice(0, 3), 10);
+    const p2 = Math.floor(p3 / 10);
+
+    if (p2 === 11) return "Delhi";
+    if (p3 === 160) return "Chandigarh"; // carved out of Punjab's range
+    if (p2 >= 12 && p2 <= 13) return "Haryana";
+    if (p2 >= 14 && p2 <= 16) return "Punjab";
+    if (p2 === 17) return "Himachal Pradesh";
+    if (p3 === 194) return "Ladakh"; // carved out of J&K's range (separate UT since 2019)
+    if (p2 >= 18 && p2 <= 19) return "Jammu & Kashmir";
+    // Uttarakhand's range (244–263) overlaps Uttar Pradesh's (201–285) —
+    // both were one state until 2000, and PIN codes were never fully
+    // re-split. This narrower band catches the common Uttarakhand
+    // prefixes; everything else in 20x–28x defaults to UP.
+    if (p3 >= 244 && p3 <= 263) return "Uttarakhand";
+    if (p2 >= 20 && p2 <= 28) return "Uttar Pradesh";
+    if (p2 >= 30 && p2 <= 34) return "Rajasthan";
+    if (p3 === 403) return "Goa"; // sits inside Maharashtra's 40x range
+    if (p3 === 396) return "Dadra & Nagar Haveli and Daman & Diu"; // sits inside Gujarat's 39x range
+    if (p2 >= 40 && p2 <= 44) return "Maharashtra";
+    if (p2 >= 36 && p2 <= 39) return "Gujarat";
+    if (p2 >= 45 && p2 <= 48) return "Madhya Pradesh";
+    if (p2 === 49) return "Chhattisgarh";
+    if (p2 === 50) return "Telangana";
+    if (p2 >= 51 && p2 <= 53) return "Andhra Pradesh";
+    if (p2 >= 56 && p2 <= 59) return "Karnataka";
+    if (p3 === 605 || p3 === 609) return "Puducherry"; // enclaves inside Tamil Nadu's range
+    if (p2 >= 60 && p2 <= 64) return "Tamil Nadu";
+    // Lakshadweep's actual range (682551–682559) sits inside Kochi's own
+    // 682xxx postal area, so this needs a full 6-digit check rather than
+    // a 3-digit prefix — the two are only distinguishable at that level.
+    if (full >= 682551 && full <= 682559) return "Lakshadweep";
+    if (p2 >= 67 && p2 <= 69) return "Kerala";
+    if (p3 === 737) return "Sikkim"; // carved out of West Bengal's range
+    if (p3 === 744) return "Andaman & Nicobar Islands"; // carved out of West Bengal's range
+    if (p2 >= 70 && p2 <= 74) return "West Bengal";
+    if (p2 >= 75 && p2 <= 77) return "Odisha";
+    if (p2 === 78) return "Assam";
+    if (p3 >= 790 && p3 <= 792) return "Arunachal Pradesh";
+    if (p3 >= 793 && p3 <= 794) return "Meghalaya";
+    if (p3 === 795) return "Manipur";
+    if (p3 === 796) return "Mizoram";
+    if (p3 >= 797 && p3 <= 798) return "Nagaland";
+    if (p3 === 799) return "Tripura";
+    // Jharkhand's range (813–835) overlaps Bihar's (800–855) for the
+    // same reason as UP/Uttarakhand — carved from Bihar in 2000.
+    if (p3 >= 813 && p3 <= 835) return "Jharkhand";
+    if (p2 >= 80 && p2 <= 85) return "Bihar";
+    return null; // no real Indian PIN range starts with this prefix
+}
+
+const STATE_DELIVERY_DAYS: Record<string, string> = {
+    "Delhi": "1–2 business days",
+    "Chandigarh": "1–2 business days",
+    "Uttar Pradesh": "1–2 business days",
+    "Haryana": "1–2 business days",
+    "Uttarakhand": "2–3 business days",
+    "Punjab": "2–3 business days",
+    "Rajasthan": "2–3 business days",
+    "Himachal Pradesh": "3–4 business days",
+    "Jammu & Kashmir": "4–5 business days",
+    "Ladakh": "5–7 business days",
+    "Madhya Pradesh": "2–3 business days",
+    "Chhattisgarh": "3–4 business days",
+    "Bihar": "2–3 business days",
+    "Jharkhand": "2–3 business days",
+    "Gujarat": "3–4 business days",
+    "Dadra & Nagar Haveli and Daman & Diu": "3–4 business days",
+    "Maharashtra": "3–4 business days",
+    "Goa": "4–5 business days",
+    "West Bengal": "3–4 business days",
+    "Sikkim": "5–7 business days",
+    "Odisha": "4–5 business days",
+    "Telangana": "4–5 business days",
+    "Andhra Pradesh": "4–5 business days",
+    "Karnataka": "4–5 business days",
+    "Tamil Nadu": "5–6 business days",
+    "Puducherry": "5–6 business days",
+    "Kerala": "5–6 business days",
+    "Lakshadweep": "7–9 business days",
+    "Assam": "5–7 business days",
+    "Arunachal Pradesh": "6–8 business days",
+    "Meghalaya": "6–8 business days",
+    "Manipur": "6–8 business days",
+    "Mizoram": "6–8 business days",
+    "Nagaland": "6–8 business days",
+    "Tripura": "6–8 business days",
+    "Andaman & Nicobar Islands": "7–9 business days",
+};
+const DEFAULT_DAYS = "3–5 business days";
+
+function DeliveryEstimator() {
+    const [pin, setPin] = useState("");
+    const [estimate, setEstimate] = useState<{ days: string; state: string } | null>(null);
+    const [pinError, setPinError] = useState("");
+
+    const checkPin = () => {
+        const clean = pin.replace(/\D/g, "").slice(0, 6);
+        if (clean.length !== 6) {
+            setPinError("Enter a valid pin");
+            setEstimate(null);
+            return;
+        }
+        const state = resolveStateFromPin(clean);
+        if (!state) {
+            setPinError("Enter a valid pin");
+            setEstimate(null);
+            return;
+        }
+        setPinError("");
+        setEstimate({ state, days: STATE_DELIVERY_DAYS[state] || DEFAULT_DAYS });
+    };
+
+    return (
+        <div className={cn("mt-6 rounded-[14px] border p-4", HAIR)}>
+            <div className="flex items-center gap-2">
+                <Truck className="h-[14px] w-[14px] text-[#ec4899]" strokeWidth={1.7} />
+                <span className="text-[11px] uppercase tracking-[0.16em] text-[#7a2c4e]/70">Check delivery time</span>
+            </div>
+            <div className="mt-3 flex gap-2">
+                <input
+                    value={pin}
+                    onChange={(e) => {
+                        setPin(e.target.value.replace(/\D/g, "").slice(0, 6));
+                        setPinError("");
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && checkPin()}
+                    placeholder="Enter pincode"
+                    inputMode="numeric"
+                    maxLength={6}
+                    aria-label="Delivery pincode"
+                    className="h-11 flex-1 rounded-full border border-[#7a2c4e]/15 bg-white px-4 text-[13px] text-[#7a2c4e] outline-none focus:border-[#ec4899]/50"
+                />
+                <button
+                    type="button"
+                    onClick={checkPin}
+                    className="h-11 shrink-0 rounded-full bg-[#7a2c4e] px-5 text-[11px] uppercase tracking-[0.14em] text-white transition-colors duration-300 hover:bg-[#5c2338]"
+                >
+                    Check
+                </button>
+            </div>
+            {pinError && <p className="mt-2 text-[12px] font-light text-[#c14a4a]">{pinError}</p>}
+            {estimate && (
+                <div className="mt-2.5">
+                    <p className="text-[13px] font-medium text-[#2f8f45]">
+                        Estimated delivery: {estimate.days}
+                    </p>
+                    <p className="mt-0.5 text-[11.5px] font-light text-[#6b5560]">
+                        {estimate.state}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
 }
 
 function PackSelector({ product, currentPrice }: { product: { name: string; price?: string }; currentPrice: string }) {
@@ -295,6 +592,14 @@ function PackSelector({ product, currentPrice }: { product: { name: string; pric
     );
 }
 
+/* ------------------------------------------------------------------
+   Share row — WhatsApp / Facebook / X / Instagram all shown as the
+   same lettered circle. Instagram has no public share-intent URL for
+   arbitrary web content (a platform limitation, not something a link
+   can work around), so its button opens the native share sheet
+   instead — which does cover Instagram directly on phones — or copies
+   the link on desktop.
+------------------------------------------------------------------- */
 function ShareRow({ productName, price }: { productName: string; price: string }) {
     const [copied, setCopied] = useState(false);
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -327,9 +632,13 @@ function ShareRow({ productName, price }: { productName: string; price: string }
                     <span className="text-[11px] font-semibold">{l.label.charAt(0)}</span>
                 </a>
             ))}
-            <button type="button" onClick={nativeShare} aria-label="Share on Instagram or more"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ec4899]/50 hover:text-[#ec4899]">
-                <Share2 className="h-[14px] w-[14px]" strokeWidth={1.7} />
+            {/* Instagram — opens the native share sheet (covers IG directly on
+                mobile) or copies the link on desktop, since no direct web
+                share-intent URL exists for Instagram. */}
+            <button type="button" onClick={nativeShare} aria-label="Share on Instagram"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-white transition-all duration-300 hover:-translate-y-0.5"
+                style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }}>
+                <span className="text-[11px] font-semibold">IG</span>
             </button>
             <button type="button" onClick={copyLink} aria-label="Copy link"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b06a]/60 hover:text-[#a8823f]">
@@ -513,13 +822,7 @@ export default function ProductDetailPage() {
             {/* ================= hero — 40% image / 60% info ================= */}
             <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12">
                 <Grain />
-                <div className="mx-auto max-w-8xl mt-8">
-                    <nav className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]">
-                        <Link href="/shop" className={cn(BODY, "transition-colors hover:text-[#ec4899]")}>Shop</Link>
-                        <Mark className="opacity-50" />
-                        <span className={INK}>{product.name}</span>
-                    </nav>
-
+                <div className="mx-auto max-w-7xl">
                     <div className="mt-8 grid gap-10 lg:grid-cols-[76px_2fr_3fr] lg:gap-10">
                         {images.length > 1 && (
                             <div className="hidden flex-col gap-3 lg:flex lg:sticky lg:self-start" style={{ top: stickyTop }}>
@@ -546,6 +849,13 @@ export default function ProductDetailPage() {
                                         isInWishlist(product._id || product.id) ? "border-transparent bg-[#ec4899] text-white" : "border-white/70 bg-white/70 text-[#7a2c4e]/60 hover:border-[#ec4899]/50 hover:text-[#ec4899]")}>
                                     <Heart className={cn("h-[18px] w-[18px]", isInWishlist(product._id || product.id) && "fill-current")} strokeWidth={1.6} />
                                 </button>
+
+                                {/* delivery estimate — static, no pincode input; we ship
+                                    from Noida so a flat range is accurate enough here */}
+                                <span className="absolute bottom-5 right-5 flex items-center gap-1.5 rounded-full border border-white/70 bg-white/85 px-3.5 py-2 text-[10.5px] font-medium text-[#7a2c4e] backdrop-blur-md">
+                                    <Truck className="h-[13px] w-[13px]" strokeWidth={1.8} />
+                                    Delivery in 3–5 days
+                                </span>
                             </div>
 
                             {images.length > 1 && (
@@ -580,10 +890,14 @@ export default function ProductDetailPage() {
                                 </span>
                             </div>
 
-                            <div className={cn("mt-5 flex items-baseline gap-3 border-t pt-5", HAIR)}>
-                                <span className="font-serif text-[clamp(28px,3vw,36px)] font-light leading-none text-[#ec4899] tabular-nums">{product.price}</span>
-                                {detailMrp && <span className="text-[15px] font-light tabular-nums text-[#6b5560]/60 line-through">{detailMrp}</span>}
-                                <span className="text-[11.5px] font-light text-[#6b5560]/60">Inclusive of taxes</span>
+                            {/* price — highlighted in its own tinted panel so it
+                                leads the whole info column, not just another line */}
+                            <div className="mt-5 rounded-[16px] bg-gradient-to-br from-[#ec4899]/[0.08] to-[#f9a8d4]/[0.12] p-5">
+                                <div className="flex items-baseline gap-3">
+                                    <span className="font-serif text-[clamp(34px,4vw,44px)] font-normal leading-none text-[#ec4899] tabular-nums">{product.price}</span>
+                                    {detailMrp && <span className="text-[16px] font-light tabular-nums text-[#6b5560]/60 line-through">{detailMrp}</span>}
+                                </div>
+                                <span className="mt-1.5 block text-[11.5px] font-light text-[#6b5560]/60">Inclusive of taxes</span>
                             </div>
 
                             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -599,6 +913,8 @@ export default function ProductDetailPage() {
                                     {!isOutOfStock && <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover:translate-y-0" />}
                                 </button>
                             </div>
+
+                            <DeliveryEstimator />
 
                             <PackSelector product={product} currentPrice={product.price || ""} />
 
@@ -645,8 +961,8 @@ export default function ProductDetailPage() {
                 </div>
             </section>
 
-            {/* ================= about — description/how-to-use beside a photo ================= */}
-            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fffdfc] via-[#fff7fa] to-[#fdf1f5] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+            {/* ================= about — description/how-to-use/faq beside a photo ================= */}
+            <section className={cn("relative isolate [overflow:clip] px-5 py-16 sm:px-8 md:py-20 lg:px-12", BLUSH)}>
                 <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
                     <Reveal className="lg:sticky lg:top-24 lg:self-start">
                         <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-[#f7e6ee] shadow-[0_36px_70px_-48px_rgba(122,44,78,0.4)]">
@@ -666,8 +982,16 @@ export default function ProductDetailPage() {
                                 </div>
                             </Section>
                             <Section title="How to use">
-                                <div className="overflow-hidden rounded-[16px] border border-[#7a2c4e]/[0.1]">
-                                    <Image src={HOW_TO_USE_INFOGRAPHIC_SRC} alt="Leira — how to use" width={1125} height={1398} className="h-auto w-full object-contain object-top" sizes="(max-width: 1024px) 100vw, 560px" />
+                                <HowToUseSteps />
+                            </Section>
+                            <Section title="Frequently asked questions">
+                                <div className="space-y-5">
+                                    {FAQS.map((f) => (
+                                        <div key={f.q}>
+                                            <p className={cn("text-[14px] font-medium", INK)}>{f.q}</p>
+                                            <p className={cn("mt-1.5 text-[13px] font-light leading-[1.7]", BODY)}>{f.a}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             </Section>
                         </div>
@@ -717,7 +1041,7 @@ export default function ProductDetailPage() {
             </section>
 
             {/* ================= specifications ================= */}
-            <section className="relative isolate [overflow:clip] from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] bg-gradient-to-b px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+            <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
                 <Grain />
                 <div className="mx-auto max-w-7xl">
                     <Reveal>
@@ -742,7 +1066,7 @@ export default function ProductDetailPage() {
             </section>
 
             {/* ================= ingredients ================= */}
-            <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+            <section className={cn("relative isolate [overflow:clip] px-5 py-16 sm:px-8 md:py-20 lg:px-12", BLUSH)}>
                 <Grain />
                 <div className="mx-auto max-w-7xl">
                     <Reveal>
@@ -794,26 +1118,8 @@ export default function ProductDetailPage() {
                 </div>
             </section>
 
-            {/* ================= faq — same accordion pattern as Description/How to use ================= */}
-            <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fffdfc] via-[#fff5f9] to-[#fdeef4] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
-                <Grain />
-                <div className="mx-auto max-w-3xl">
-                    <Reveal className="text-center">
-                        <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Questions</span>
-                        <h2 className={cn("mt-3 font-serif text-[clamp(24px,3vw,34px)] font-light leading-[1.15]", INK)}>Frequently asked questions</h2>
-                    </Reveal>
-                    <div className="mt-8">
-                        {FAQS.map((f) => (
-                            <Section key={f.q} title={f.q}>
-                                <p className={cn("text-[13.5px] font-light leading-[1.75]", BODY)}>{f.a}</p>
-                            </Section>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* ================= explore ================= */}
-            <section className="relative isolate [overflow:clip] from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] bg-gradient-to-b px-5 py-16 sm:px-8 md:py-20 lg:px-12" aria-labelledby="explore-leira-heading">
+            <section className={cn("relative isolate [overflow:clip] px-5 py-16 sm:px-8 md:py-20 lg:px-12", BLUSH)} aria-labelledby="explore-leira-heading">
                 <Grain />
                 <div className="mx-auto max-w-7xl">
                     <Reveal>
@@ -918,7 +1224,7 @@ export default function ProductDetailPage() {
                     .slice(0, 4);
                 if (related.length === 0) return null;
                 return (
-                    <section className="relative isolate [overflow:clip] bg-[#fffdfc] px-5 py-16 sm:px-8 md:py-20 lg:px-12">
+                    <section className={cn("relative isolate [overflow:clip] px-5 py-16 sm:px-8 md:py-20 lg:px-12", BLUSH)}>
                         <Grain />
                         <div className="mx-auto max-w-7xl">
                             <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">You may also like</span>
