@@ -120,9 +120,12 @@ const GRAIN =
     "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 /* ------------------------------------------------------------------
-   SCROLL REVEAL CARD
+   SCROLL REVEAL CARD — `className` added so callers can size each
+   card differently for the mobile horizontal row vs. the desktop grid
+   (e.g. a fixed percentage width for the drag-scroll row, auto width
+   once it becomes a grid item).
 ------------------------------------------------------------------- */
-function RevealCard({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+function RevealCard({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
     const ref = useRef<HTMLElement>(null);
     const [visible, setVisible] = useState(false);
 
@@ -143,7 +146,7 @@ function RevealCard({ children, delay = 0 }: { children: ReactNode; delay?: numb
             style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
             className={`transform transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 visible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
-            }`}
+            } ${className}`}
         >
             {children}
         </article>
@@ -164,7 +167,7 @@ function ProductCard({
     return (
         <Link
             href={product.href}
-            className="group relative block overflow-hidden rounded-[16px] border border-[#7a2c4e]/[0.12] bg-[#fdf1f5] transition-all duration-700 ease-out hover:-translate-y-1 hover:shadow-[0_28px_60px_-32px_rgba(122,44,78,0.35)]"
+            className="group relative block h-full overflow-hidden rounded-[16px] border border-[#7a2c4e]/[0.12] bg-[#fdf1f5] transition-all duration-700 ease-out sm:hover:-translate-y-1 sm:hover:shadow-[0_28px_60px_-32px_rgba(122,44,78,0.35)]"
         >
             {/* ---- image ---- */}
             <div className="relative aspect-[0.88] overflow-hidden rounded-t-[16px] sm:aspect-[0.86] lg:aspect-[0.9]">
@@ -179,15 +182,15 @@ function ProductCard({
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="absolute inset-0 h-full w-full object-contain p-6 transition-all duration-700 ease-out group-hover:scale-[1.04] group-hover:opacity-0 sm:p-10 lg:p-10"
+                    className="absolute inset-0 h-full w-full object-contain p-6 transition-all duration-700 ease-out sm:group-hover:scale-[1.04] sm:group-hover:opacity-0 sm:p-10 lg:p-10"
                 />
                 <img
                     src={product.hoverImage}
                     alt={`${product.name} lifestyle`}
-                    className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-0 transition-all duration-700 ease-out group-hover:scale-100 group-hover:opacity-100"
+                    className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-0 transition-all duration-700 ease-out sm:group-hover:scale-100 sm:group-hover:opacity-100"
                 />
 
-                <div className="pointer-events-none absolute inset-0 bg-[#3a1424]/[0.03] opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-0 bg-[#3a1424]/[0.03] opacity-0 transition-opacity duration-700 sm:group-hover:opacity-100" />
 
                 {/* add to cart — always visible (hover-only was invisible and
                     unclickable on touch devices, which is almost certainly why
@@ -203,14 +206,14 @@ function ProductCard({
                         }}
                         className="group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 py-2.5 text-[9.5px] font-medium uppercase tracking-[0.14em] text-[#7a2c4e] shadow-[0_8px_24px_rgba(122,44,78,0.22)] transition-colors duration-300 sm:gap-3 sm:px-6 sm:py-3.5 sm:text-[11px] sm:tracking-[0.18em]"
                     >
-                        <span className="relative z-10 flex items-center gap-2 transition-colors duration-300 group-hover/btn:text-white sm:gap-3">
+                        <span className="relative z-10 flex items-center gap-2 transition-colors duration-300 sm:group-hover/btn:text-white sm:gap-3">
                             Add to Cart
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="sm:h-3.5 sm:w-3.5">
                                 <path d="M5 12h14" />
                                 <path d="m13 6 6 6-6 6" />
                             </svg>
                         </span>
-                        <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-400 group-hover/btn:translate-y-0" />
+                        <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-400 sm:group-hover/btn:translate-y-0" />
                     </button>
                 </div>
             </div>
@@ -219,7 +222,7 @@ function ProductCard({
             <div className="relative px-4 pb-5 pt-5 text-center sm:px-6 sm:pb-8 sm:pt-7 lg:px-8">
                 <div className="mx-auto mb-3 h-px w-6 bg-[#d8b06a] sm:mb-5 sm:w-7" />
 
-                <h3 className="font-serif text-[17px] font-light leading-tight tracking-[-0.01em] text-[#7a2c4e] transition-colors duration-300 group-hover:text-[#ec4899] sm:text-[27px] sm:leading-none sm:tracking-[-0.015em]">
+                <h3 className="font-serif text-[17px] font-light leading-tight tracking-[-0.01em] text-[#7a2c4e] transition-colors duration-300 sm:group-hover:text-[#ec4899] sm:text-[27px] sm:leading-none sm:tracking-[-0.015em]">
                     {product.name}
                 </h3>
 
@@ -294,8 +297,8 @@ export default function ProductShowcase() {
             <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03]" style={{ backgroundImage: GRAIN }} />
 
             <div className="relative mx-auto max-w-[1500px]">
-                {/* ---------------- header ---------------- */}
-                <header className="mx-auto mb-16 max-w-3xl text-center md:mb-20">
+                {/* ---------------- header 1 — singles ---------------- */}
+                <header className="mx-auto mb-10 max-w-3xl px-5 text-center sm:mb-16 sm:px-0 md:mb-20">
                     <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
                         <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />
                         The Leira Collection
@@ -315,19 +318,24 @@ export default function ProductShowcase() {
                     </p>
                 </header>
 
-                {/* ---------------- single scents — 2 cols on phone,
-                    3 on desktop ---------------- */}
-                <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {/* ---------------- single scents ----------------
+                    Mobile: horizontal drag/swipe row, one card mostly
+                    in frame with the next peeking in to invite scrolling.
+                    sm: and up: back to the original grid, untouched. */}
+                <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-6 pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
                     {products.map((product, index) => (
-                        <RevealCard key={product.id} delay={index * 250}>
+                        <RevealCard
+                            key={product.id}
+                            delay={index * 250}
+                            className="w-[78%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-align-none"
+                        >
                             <ProductCard product={product} onAddToCart={handleAddToCart} />
                         </RevealCard>
                     ))}
                 </div>
 
-                {/* ---------------- combos — new row, straight from
-                    leiraindia.com's live homepage listings ---------------- */}
-                {/* <div className="mt-14 text-center md:mt-16">
+                {/* ---------------- header 2 — combos ---------------- */}
+                <div className="mt-14 px-5 text-center sm:px-0 md:mt-16">
                     <span className="inline-flex items-center gap-2.5 rounded-full bg-[#d8b06a]/15 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#a8823f]">
                         <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#d8b06a]" />
                         Save more, together
@@ -335,11 +343,18 @@ export default function ProductShowcase() {
                     <h3 className="mt-4 font-serif text-[1.6rem] font-light leading-[1.15] text-[#7a2c4e] sm:text-[2rem]">
                         Signature combos
                     </h3>
-                </div> */}
+                </div>
 
-                <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 md:mt-10 lg:grid-cols-4">
+                {/* ---------------- combos ----------------
+                    Same mobile drag-row treatment, slightly narrower per
+                    card since there are 4 to imply more content off-screen. */}
+                <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-6 pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
                     {combos.map((combo, index) => (
-                        <RevealCard key={combo.id} delay={index * 200}>
+                        <RevealCard
+                            key={combo.id}
+                            delay={index * 200}
+                            className="w-[68%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-align-none"
+                        >
                             <ProductCard product={combo} onAddToCart={handleAddToCart} />
                         </RevealCard>
                     ))}
@@ -347,7 +362,7 @@ export default function ProductShowcase() {
 
                 {/* ---------------- bottom cta ---------------- */}
                 <div className="mt-14 flex justify-center md:mt-16">
-                    <button className="group inline-flex items-center gap-4 border-b border-[#7a2c4e]/25 pb-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7a2c4e] transition-all duration-300 hover:gap-6 hover:text-[#ec4899]">
+                    <button className="group inline-flex items-center gap-4 border-b border-[#7a2c4e]/25 pb-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7a2c4e] transition-all duration-300 sm:hover:gap-6 sm:hover:text-[#ec4899]">
                         <span>Explore the collection</span>
                         <svg
                             width="16"
@@ -356,7 +371,7 @@ export default function ProductShowcase() {
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="1.5"
-                            className="transition-transform duration-300 group-hover:translate-x-1"
+                            className="transition-transform duration-300 sm:group-hover:translate-x-1"
                         >
                             <path d="M5 12h14" />
                             <path d="m13 6 6 6-6 6" />

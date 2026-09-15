@@ -142,17 +142,19 @@ const CSS = `
 .ctKey {
   display: block;
   margin-bottom: 8px;
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(216, 176, 106, 0.95);
+  font-family: var(--font-serif);
 }
 .ctVal {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(18px, 1.6vw, 23px);
+  // font-family: var(--font-serif);
+  font-size: clamp(18px, 1.4vw, 20px);
   line-height: 1.42;
   color: var(--rose-ink);
+  font-weight: 100;
 }
 .ctVal a {
   color: inherit;

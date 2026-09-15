@@ -247,7 +247,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE }}
-        className="absolute inset-x-0 top-0 z-50 flex w-full flex-col bg-[#fdf1f5]"
+        className="fixed inset-x-0 top-0 z-50 flex w-full flex-col bg-transparent"
       >
         {scrim && (
           <span

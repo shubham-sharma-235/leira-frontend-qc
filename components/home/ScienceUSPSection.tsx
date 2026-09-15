@@ -372,6 +372,35 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
       className="relative w-full overflow-hidden px-5 py-24 sm:px-8 lg:py-36"
       style={{ backgroundColor: token.shell }}
     >
+
+    <style jsx>{`
+      .heading {
+        margin: 0;
+        color: #7f2d55;
+        font-size: clamp(2.8rem, 5vw, 4.2rem);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        text-align: center;
+      }
+
+      .heading .line {
+        display: block;
+        overflow: hidden;
+      }
+
+      .heading .line > span {
+        display: block;
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .heading .line em {
+        color: #fe3ca2;
+        font-style: italic;
+        font-weight: 400;
+      }
+    `}</style>
       <div className="mx-auto w-full max-w-[1240px]">
         <header className="mx-auto mb-16 max-w-3xl text-center md:mb-20">
           <div className="flex items-center justify-center gap-4">
@@ -379,17 +408,36 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
             <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#7b1d4e]">Why Choose Us</p>
             <span className="h-px w-8 bg-[#B39A70]" />
           </div>
-
+          
           <h2
             id="science-usp-heading"
-            className="mt-7 font-serif text-[2.5rem] font-normal leading-[1.08] tracking-[-0.025em] text-[#211E1A] sm:text-[3.2rem] md:text-[2rem] lg:text-[3rem]"
+            className="heading mt-7"
             style={{ fontFamily: displayFont }}
           >
-            Intimate care,
-            <br />
-            <span className="italic">Science Behind Every Drop</span>
+            <span
+              className="line"
+              style={{ "--l": 0 } as React.CSSProperties}
+            >
+              <span>Intimate care,</span>
+            </span>
+          
+            <span
+              className="line"
+              style={{ "--l": 1 } as React.CSSProperties}
+            >
+              <span>Science Behind</span>
+            </span>
+          
+            <span
+              className="line"
+              style={{ "--l": 2 } as React.CSSProperties}
+            >
+              <span>
+                <em>Every Drop</em>
+              </span>
+            </span>
           </h2>
-
+          
           <p className="mx-auto mt-7 max-w-xl text-[14px] leading-[1.9] tracking-[0.01em] text-[#777168] sm:text-[15px]">
             Every batch begins in the lab and ends in your daily ritual — researched ingredients, measured doses
             and nothing along for the ride.

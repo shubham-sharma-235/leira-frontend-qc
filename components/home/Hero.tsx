@@ -56,9 +56,9 @@ const CARDS: Card[] = [
   { top: "56%", left: "18%", width: "11vw", aspectRatio: "4 / 5", dx: -50, dy: 30, i: 3, smHide: true },
   { top: "78%", left: "1%", width: "12vw", aspectRatio: "5 / 4", dx: -58, dy: 34, i: 4 },
   { top: "62%", left: "44%", width: "10vw", aspectRatio: "3 / 4", dx: 6, dy: 62, i: 5 },
-  { top: "34%", left: "74%", width: "12vw", aspectRatio: "4 / 3", dx: 50, dy: -14, i: 6 },
+  { top: "34%", left: "74%", width: "12vw", aspectRatio: "4 / 3", dx: 50, dy: -14, i: 6, smHide: true },
   { top: "14%", left: "86%", width: "10vw", aspectRatio: "1 / 1", dx: 56, dy: -36, i: 7 },
-  { top: "50%", left: "82%", width: "11vw", aspectRatio: "3 / 4", dx: 54, dy: 26, i: 8 },
+  { top: "50%", left: "82%", width: "11vw", aspectRatio: "3 / 4", dx: 54, dy: 26, i: 8, smHide: true },
   { top: "72%", left: "72%", width: "9vw", aspectRatio: "1 / 1", dx: 48, dy: 40, i: 9, smHide: true },
   { top: "22%", left: "58%", width: "9vw", aspectRatio: "1 / 1", dx: 48, dy: 40, i: 9, smHide: true },
 ];
@@ -80,8 +80,6 @@ const CSS = `
   --font-serif: "Cormorant Garamond", Georgia, serif;
   background: #fff;
 
-  /* the component must not create its own containing block or clip,
-     or the sticky child inside it would break */
   overflow: visible;
   transform: none;
   filter: none;
@@ -98,10 +96,8 @@ const CSS = `
   --gold: #d8b06a;
   --seam-color: #fffdfc;
 
-  /* set by the component when a fixed header needs clearance */
   --sticky-top: 0px;
 
-  /* px height of the scrollport; falls back to the viewport */
   --stage-h: 100vh;
 
   background: linear-gradient(
@@ -115,12 +111,10 @@ const CSS = `
 
   -webkit-font-smoothing: antialiased;
 
-  /* same reason as .leiraRoot — never clip or transform an ancestor of .stage */
   overflow: visible;
   transform: none;
   filter: none;
 }
-/* long track = the pin holds well past the end of the animation */
 .scroller {
   position: relative;
   height: 360vh;
@@ -138,7 +132,6 @@ const CSS = `
   isolation: isolate;
 }
 
-/* ---------------- scattered images ---------------- */
 .collage {
   position: absolute;
   inset: 0;
@@ -182,7 +175,6 @@ const CSS = `
   }
 }
 
-/* ---------------- headline ---------------- */
 .title-he {
   position: absolute;
   inset: 0;
@@ -226,7 +218,6 @@ const CSS = `
   border: 0;
 }
 
-/* ---------------- the expanding image ---------------- */
 .reveal {
   position: absolute;
   top: 50%;
@@ -258,7 +249,6 @@ const CSS = `
   opacity: clamp(0, calc(var(--r) * 1.7 - 0.5), 1);
 }
 
-/* ---------------- seam into the About section ---------------- */
 .seam {
   position: absolute;
   left: 0;
@@ -276,7 +266,6 @@ const CSS = `
   opacity: var(--s);
 }
 
-/* ---------------- cta + meter ---------------- */
 .cta {
   position: absolute;
   left: 50%;
@@ -334,7 +323,6 @@ const CSS = `
   background: var(--pink);
 }
 
-/* ---------------- responsive ---------------- */
 @media (max-width: 900px) {
   .scroller {
     height: 320vh;
@@ -342,8 +330,38 @@ const CSS = `
   .smHide {
     display: none;
   }
-  .card {
-    width: 22vw !important;
+  /* FIX 1: the blanket ".card { width: 22vw !important }" combined with
+     the desktop inline left/top values (tuned for a wide viewport, e.g.
+     left:86%) is exactly what pushed cards past the right/left edge and
+     cut them off. Each remaining visible card now gets its own safe
+     position + width via nth-of-type, sized to fit inside 4–96% of the
+     viewport with real margin, instead of one-size-fits-all. DOM order
+     matches the CARDS array order, so nth-of-type(N) = array index N-1
+     regardless of which entries are hidden. */
+  .card:nth-of-type(1) {
+    top: 6% !important;
+    left: 4% !important;
+    width: 30vw !important;
+  }
+  .card:nth-of-type(3) {
+    top: 6% !important;
+    left: 62% !important;
+    width: 30vw !important;
+  }
+  .card:nth-of-type(5) {
+    top: 40% !important;
+    left: 2% !important;
+    width: 26vw !important;
+  }
+  .card:nth-of-type(6) {
+    top: 40% !important;
+    left: 68% !important;
+    width: 26vw !important;
+  }
+  .card:nth-of-type(8) {
+    top: 66% !important;
+    left: 34% !important;
+    width: 30vw !important;
   }
   .title-he {
     flex-direction: column;
@@ -358,15 +376,31 @@ const CSS = `
   .right {
     transform: translateY(calc(var(--d) * 40vh));
   }
+  /* FIX 3: the reveal image's height was based on --stage-h (roughly the
+     viewport height), which on a phone in portrait is taller than it is
+     wide — so the "expanding" photo grew into a tall portrait rectangle
+     instead of staying landscape. Basing height on viewport WIDTH
+     instead (at a fixed ~0.72 ratio) keeps the final shape landscape
+     regardless of how tall the screen is; object-fit: cover on the img
+     handles the crop. */
   .reveal {
     width: calc(96px + var(--r) * (100vw - 96px));
+    height: calc(66px + var(--r) * (100vw * 0.72 - 66px));
+  }
+  /* FIX 2: desktop's 13px/32px padding + 11px type was oversized and
+     wrapped awkwardly on a narrow screen — this scales it down to fit
+     comfortably on one or two short lines. */
+  .cta {
+    padding: 10px 22px;
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    bottom: clamp(64px, 10vh, 96px);
   }
   .seam {
     height: 38vh;
   }
 }
 
-/* ---------------- reduced motion ---------------- */
 .flat .scroller {
   height: auto;
 }
@@ -400,9 +434,6 @@ const CSS = `
   transition: none !important;
 }
 
-/* ==================================================================
-   ABOUT
-   ================================================================== */
 .about {
   --pink: #ec4899;
   --pink-soft: #f9a8d4;
@@ -417,8 +448,6 @@ const CSS = `
   overflow: hidden;
   isolation: isolate;
 
-  /* rides up over the last of the hero like a curtain, and the
-     corners straighten out as it settles into place */
   margin-top: clamp(-96px, -7vw, -56px);
   border-radius: calc(46px * (1 - var(--ap))) calc(46px * (1 - var(--ap))) 0 0;
   box-shadow: 0 -34px 70px -34px rgba(122, 44, 78, 0.3);
@@ -428,7 +457,6 @@ const CSS = `
   color: var(--body-ink);
 }
 
-/* the ornament sitting on the seam */
 .seamDrop {
   position: absolute;
   top: clamp(30px, 4vw, 46px);
@@ -445,7 +473,6 @@ const CSS = `
   transform: translateX(-50%) rotate(-45deg) scale(1);
 }
 
-/* slow drifting glow so the panel is never flat */
 .about::before {
   content: "";
   position: absolute;
@@ -472,7 +499,6 @@ const CSS = `
   }
 }
 
-/* ---------------- top rail ---------------- */
 .aboutTop {
   display: flex;
   align-items: center;
@@ -503,7 +529,6 @@ const CSS = `
   transform: none;
 }
 
-/* hairline that draws itself across the section */
 .rule {
   flex: 1 1 auto;
   height: 1px;
@@ -539,7 +564,6 @@ const CSS = `
   align-items: center;
 }
 
-/* ---------------- image pair ---------------- */
 .art {
   position: relative;
   padding: 0 clamp(20px, 4vw, 54px) clamp(48px, 7vw, 86px) 0;
@@ -569,13 +593,11 @@ const CSS = `
   filter: blur(0);
 }
 
-/* smaller frame overlapping the corner */
 .artSecondWrap {
   position: absolute;
   right: 0;
   bottom: clamp(16px, 3vw, 34px);
   width: clamp(120px, 17vw, 210px);
-  /* drifts against the scroll */
   transform: translateY(calc((var(--ap) - 0.5) * -30px));
   will-change: transform;
 }
@@ -627,7 +649,6 @@ const CSS = `
   transform: none;
 }
 
-/* ---------------- text ---------------- */
 .heading {
   margin: 0;
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -674,7 +695,6 @@ const CSS = `
   transform: none;
 }
 
-/* ---------------- specs as a 2x2 ledger ---------------- */
 .specs {
   display: grid;
   display: none;
@@ -695,7 +715,6 @@ const CSS = `
   opacity: 1;
   transform: none;
 }
-/* pink line that wipes across the rule on hover */
 .spec::after {
   content: "";
   position: absolute;
@@ -743,7 +762,6 @@ const CSS = `
   color: var(--rose-ink);
 }
 
-/* ---------------- pull quote ---------------- */
 .pull {
   position: relative;
   margin: clamp(30px, 3.6vw, 46px) 0 0;
@@ -761,7 +779,6 @@ const CSS = `
   opacity: 1;
   transform: none;
 }
-/* gold bar that grows down beside the quote */
 .pull::before {
   content: "";
   position: absolute;
@@ -808,7 +825,6 @@ const CSS = `
 .link::before {
   background: rgba(216, 176, 106, 0.6);
 }
-/* second rule sweeps in on hover */
 .link::after {
   background: var(--pink);
   transform: scaleX(0);
@@ -893,18 +909,6 @@ const CSS = `
 }
 `;
 
-/* ------------------------------------------------------------------
-   STICKY AUDIT
-   position:sticky is silently disabled when an ancestor either
-     (a) clips  — any overflow value other than `visible`/`clip`, or
-     (b) creates a containing block — transform / filter / perspective /
-         backdrop-filter / contain:paint / will-change on those.
-   In an isolated preview there are no ancestors, which is why the pin
-   works there and dies once the section is dropped into a real page.
-   `overflow: hidden` can be safely swapped for `overflow: clip`, which
-   clips identically but does NOT create a scroll container — so we
-   patch that automatically and warn loudly about the rest.
-------------------------------------------------------------------- */
 function auditStickyAncestors(el: HTMLElement, autofix: boolean, debug: boolean) {
   const blockers: { el: HTMLElement; reason: string; fixed: boolean }[] = [];
   let node: HTMLElement | null = el.parentElement;
@@ -912,18 +916,13 @@ function auditStickyAncestors(el: HTMLElement, autofix: boolean, debug: boolean)
   while (node && node !== document.documentElement) {
     const cs = getComputedStyle(node);
 
-    // --- clipping ancestors -------------------------------------------------
     const clipsY = cs.overflowY !== "visible" && cs.overflowY !== "clip";
     const clipsX = cs.overflowX !== "visible" && cs.overflowX !== "clip";
     if (clipsY || clipsX) {
-      // only safe to convert when the element isn't actually a scroller
       const scrolls =
         (clipsY && node.scrollHeight > node.clientHeight + 1) ||
         (clipsX && node.scrollWidth > node.clientWidth + 1);
 
-      // `overflow-x: hidden` alone makes the browser compute overflow-y as
-      // `auto` — the classic `overflow-x-hidden` wrapper. Converting x to
-      // `clip` lets y fall back to `visible`, which restores sticky.
       const forcedAutoY = cs.overflowX === "hidden" && cs.overflowY === "auto";
       const forcedAutoX = cs.overflowY === "hidden" && cs.overflowX === "auto";
 
@@ -955,7 +954,6 @@ function auditStickyAncestors(el: HTMLElement, autofix: boolean, debug: boolean)
       }
     }
 
-    // --- containing-block ancestors ----------------------------------------
     const cbReasons: string[] = [];
     if (cs.transform !== "none") cbReasons.push("transform");
     if (cs.filter !== "none") cbReasons.push("filter");
@@ -971,8 +969,6 @@ function auditStickyAncestors(el: HTMLElement, autofix: boolean, debug: boolean)
     node = node.parentElement;
   }
 
-  // html / body are worth checking too — `body { overflow-x: hidden }` is the
-  // single most common cause of this bug
   [document.documentElement, document.body].forEach((n) => {
     const cs = getComputedStyle(n);
     if (cs.overflowX === "hidden") {
@@ -1003,7 +999,6 @@ function auditStickyAncestors(el: HTMLElement, autofix: boolean, debug: boolean)
   return blockers;
 }
 
-/** Nearest scrolling ancestor, or null when the page itself scrolls. */
 function getScrollParent(el: HTMLElement): HTMLElement | null {
   let node: HTMLElement | null = el.parentElement;
   while (node && node !== document.body && node !== document.documentElement) {
@@ -1016,11 +1011,8 @@ function getScrollParent(el: HTMLElement): HTMLElement | null {
 }
 
 type Props = {
-  /** px of fixed-header clearance to pin below. Default 0. */
   stickyTop?: number;
-  /** auto-convert clipping ancestors from overflow:hidden to overflow:clip. Default true. */
   autoFixSticky?: boolean;
-  /** log the full ancestor audit to the console. */
   debug?: boolean;
 };
 
@@ -1121,8 +1113,6 @@ export default function LeiraHero({
         const s = Math.max(-40, Math.min(40, (-c / innerHeight) * 46));
         artImg!.style.transform = "translate3d(0," + s.toFixed(1) + "px,0) scale(1)";
 
-        // --ap: how far the about panel has travelled up the viewport.
-        // Straightens its top corners and drifts the small frame.
         const ra = about!.getBoundingClientRect();
         const vh2 = viewH();
         const ap = clamp01((vh2 - ra.top) / (vh2 * 0.55));
@@ -1135,8 +1125,6 @@ export default function LeiraHero({
     paint();
     raf = requestAnimationFrame(tick);
 
-    // capture:true catches scroll from a container as well as the window,
-    // since scroll events do not bubble
     document.addEventListener("scroll", measure, { passive: true, capture: true });
     addEventListener("resize", measure);
     const ro = new ResizeObserver(measure);
@@ -1246,15 +1234,15 @@ export default function LeiraHero({
             <div className="text">
               <h2 className="heading">
                 <span className="line" style={{ "--l": 0 } as React.CSSProperties}>
-                  <span>A perfume made for</span>
+                  <span>Discover Leira | Natural </span>
                 </span>
                 <span className="line" style={{ "--l": 1 } as React.CSSProperties}>
-                  <span>the skin no one</span>
+                  <span>Intimate Perfume for</span>
                 </span>
                 <span className="line" style={{ "--l": 2 } as React.CSSProperties}>
                   <span>
-                    <em>thinks</em> about.
-                  </span>
+                    <em>Women</em>.
+                  </span> 
                 </span>
               </h2>
 
