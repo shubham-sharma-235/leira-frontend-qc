@@ -349,7 +349,7 @@ export default async function Home() {
         {/* <VisitorHighlight /> */}
         <Hero />
         
-        {/* <ScienceUSPSection /> */}
+        <ScienceUSPSection />
         {/* <LuxuryHero /> */}
         <ProductShowcase />
         <HowToUse />

@@ -345,7 +345,16 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
 
       slideIndexRef.current = (slideIndexRef.current + 1) % usps.length;
       const card = el.children[slideIndexRef.current] as HTMLElement | undefined;
-      card?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      if (!card) return;
+
+      // Scroll only the slider's own horizontal overflow via scrollTo on
+      // the slider element itself. `scrollIntoView` was used before, but
+      // it walks up every scrollable ancestor — including the whole page
+      // — to bring the target into view. That's what was hijacking the
+      // page's vertical scroll position and snapping visitors to this
+      // section every 3 seconds, regardless of where they'd scrolled to.
+      const target = card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2;
+      el.scrollTo({ left: target, behavior: "smooth" });
     };
 
     const id = window.setInterval(advance, 3000);
@@ -394,7 +403,7 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
         <div className="lg:hidden">
           <ProductVisual blendVideo={blendVideo} />
 
-          <div className="relative mt-14">
+          <div className="relative mt-14 -mx-5 sm:-mx-8">
             <span
               aria-hidden="true"
               className="pointer-events-none absolute inset-y-0 left-0 z-10 w-14 sm:w-20"
@@ -411,7 +420,7 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
               role="list"
               onTouchStart={pauseAutoAdvance}
               onPointerDown={pauseAutoAdvance}
-              className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-[calc(50%-120px)] pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] sm:-mx-8 sm:px-[calc(50%-130px)] [&::-webkit-scrollbar]:hidden"
+              className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-[calc(50%-120px)] pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] sm:px-[calc(50%-130px)] [&::-webkit-scrollbar]:hidden"
             >
               {usps.map((usp, index) => (
                 <UspItem key={usp.title} usp={usp} side={index % 2 === 0 ? "left" : "right"} index={index} variant="slide" />
