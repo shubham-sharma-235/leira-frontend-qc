@@ -276,7 +276,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         </div>
 
         {/* Links left, wordmark centre, icons right */}
-        <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-10">
+        <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-[1480px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-10">
           {/* left */}
           <div className="flex min-w-0 items-center justify-start">
             <motion.button

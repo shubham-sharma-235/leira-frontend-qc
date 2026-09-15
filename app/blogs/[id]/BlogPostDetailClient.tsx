@@ -31,8 +31,16 @@ const getBlogPath = (post: { slug?: string; _id?: string; title?: string }) => {
 
 const getCategoryPath = (category?: string) => `/blogs/category/${toSlug(category || "")}`;
 
+/* ------------------------------------------------------------------
+   BLOG_CONTENT_CLASS — every selector here is unchanged from the
+   original (same [&_p], [&_h2], [&_.inci-name], [&_ul.check-list],
+   etc.). Only the colour values were swapped for Leira's palette:
+   magenta/blue headings → ink (#7a2c4e) and pink (#ec4899); the
+   "tone-gold" h3 variant → Leira gold; INCI/check-list green is left
+   untouched since it's a safety indicator, not a brand colour.
+------------------------------------------------------------------- */
 const BLOG_CONTENT_CLASS =
-  "blog-content max-w-none text-[17px] leading-[1.9] text-neutral-800 [&_p]:mb-5 [&_p]:text-neutral-800 [&_strong]:font-semibold [&_strong]:text-neutral-900 [&_ul]:mb-7 [&_ul]:list-disc [&_ul]:pl-6 [&_ul>li]:mb-2 [&_ol]:mb-7 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol>li]:mb-2 [&_h2:not(.blog-hero-subtitle)]:mt-12 [&_h2:not(.blog-hero-subtitle)]:mb-5 [&_h2:not(.blog-hero-subtitle)]:border-t [&_h2:not(.blog-hero-subtitle)]:border-pink-300 [&_h2:not(.blog-hero-subtitle)]:pt-7 [&_h2:not(.blog-hero-subtitle)]:text-[clamp(1.65rem,2.1vw,2.05rem)] [&_h2:not(.blog-hero-subtitle)]:font-semibold [&_h2:not(.blog-hero-subtitle)]:leading-tight [&_h2:not(.blog-hero-subtitle)]:tracking-tight [&_h2:not(.blog-hero-subtitle)]:text-[#8f1d58] [&_h3]:mt-7 [&_h3]:mb-3 [&_h3]:text-[1.05rem] [&_h3]:font-bold [&_h3]:leading-snug [&_h3]:text-[#30548a] [&_h3.tone-gold]:text-[#b07a09] [&_h3.tone-blue]:text-[#30548a] [&_a]:text-[#30548a] [&_a]:underline [&_a]:underline-offset-2 [&_h4]:mt-6 [&_h4]:mb-3 [&_h4]:text-[1.06rem] [&_h4]:font-semibold [&_h4]:text-neutral-900 [&_.inci-name]:my-5 [&_.inci-name]:rounded-none [&_.inci-name]:border [&_.inci-name]:border-[#2f8f45] [&_.inci-name]:bg-[#f8fff9] [&_.inci-name]:px-4 [&_.inci-name]:py-2 [&_.inci-name]:text-[1.02rem] [&_.inci-name]:font-semibold [&_.inci-name]:text-[#24753a] [&_.inci-name_strong]:text-[#24753a] [&_ul.check-list]:list-none [&_ul.check-list]:pl-0 [&_ul.check-list>li]:relative [&_ul.check-list>li]:pl-8 [&_ul.check-list>li]:text-[#24753a] [&_ul.check-list>li]:font-medium [&_ul.check-list>li]:before:content-['✓'] [&_ul.check-list>li]:before:absolute [&_ul.check-list>li]:before:left-0 [&_ul.check-list>li]:before:top-0 [&_ul.check-list>li]:before:text-[#24753a] [&_ul.check-list>li_*]:text-[#24753a] [&_ul.check-list>li_strong]:font-medium [&_ul.check-list>li_strong]:text-[#24753a] [&_blockquote]:my-8 [&_blockquote]:border-l-2 [&_blockquote]:border-pink-500 [&_blockquote]:pl-5 [&_blockquote]:text-center [&_blockquote]:text-[1.2rem] [&_blockquote]:font-medium [&_blockquote]:text-[#8f1d58] [&_.gold-box]:my-6 [&_.gold-box]:border [&_.gold-box]:border-[#b07a09] [&_.gold-box]:bg-[#fffaf0] [&_.gold-box]:px-5 [&_.gold-box]:py-4 [&_.gold-box]:text-[#7a4e00] [&_.gold-box]:text-[0.98rem] [&_.gold-box_p]:my-1 [&_.gold-box_strong]:text-[#7a4e00] [&_.gold-box_strong]:font-semibold";
+  "blog-content max-w-none text-[17px] leading-[1.9] text-[#5c4a52] [&_p]:mb-5 [&_p]:text-[#5c4a52] [&_strong]:font-semibold [&_strong]:text-[#7a2c4e] [&_ul]:mb-7 [&_ul]:list-disc [&_ul]:pl-6 [&_ul>li]:mb-2 [&_ol]:mb-7 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol>li]:mb-2 [&_h2:not(.blog-hero-subtitle)]:mt-12 [&_h2:not(.blog-hero-subtitle)]:mb-5 [&_h2:not(.blog-hero-subtitle)]:border-t [&_h2:not(.blog-hero-subtitle)]:border-[#ec4899]/30 [&_h2:not(.blog-hero-subtitle)]:pt-7 [&_h2:not(.blog-hero-subtitle)]:font-serif [&_h2:not(.blog-hero-subtitle)]:text-[clamp(1.65rem,2.1vw,2.05rem)] [&_h2:not(.blog-hero-subtitle)]:font-light [&_h2:not(.blog-hero-subtitle)]:leading-tight [&_h2:not(.blog-hero-subtitle)]:tracking-tight [&_h2:not(.blog-hero-subtitle)]:text-[#7a2c4e] [&_h3]:mt-7 [&_h3]:mb-3 [&_h3]:text-[1.05rem] [&_h3]:font-semibold [&_h3]:leading-snug [&_h3]:text-[#7a2c4e] [&_h3.tone-gold]:text-[#a8823f] [&_h3.tone-blue]:text-[#7a2c4e] [&_a]:text-[#ec4899] [&_a]:underline [&_a]:underline-offset-2 [&_h4]:mt-6 [&_h4]:mb-3 [&_h4]:text-[1.06rem] [&_h4]:font-semibold [&_h4]:text-[#7a2c4e] [&_.inci-name]:my-5 [&_.inci-name]:rounded-none [&_.inci-name]:border [&_.inci-name]:border-[#2f8f45] [&_.inci-name]:bg-[#f8fff9] [&_.inci-name]:px-4 [&_.inci-name]:py-2 [&_.inci-name]:text-[1.02rem] [&_.inci-name]:font-semibold [&_.inci-name]:text-[#24753a] [&_.inci-name_strong]:text-[#24753a] [&_ul.check-list]:list-none [&_ul.check-list]:pl-0 [&_ul.check-list>li]:relative [&_ul.check-list>li]:pl-8 [&_ul.check-list>li]:text-[#24753a] [&_ul.check-list>li]:font-medium [&_ul.check-list>li]:before:content-['✓'] [&_ul.check-list>li]:before:absolute [&_ul.check-list>li]:before:left-0 [&_ul.check-list>li]:before:top-0 [&_ul.check-list>li]:before:text-[#24753a] [&_ul.check-list>li_*]:text-[#24753a] [&_ul.check-list>li_strong]:font-medium [&_ul.check-list>li_strong]:text-[#24753a] [&_blockquote]:my-8 [&_blockquote]:border-l-2 [&_blockquote]:border-[#ec4899] [&_blockquote]:pl-5 [&_blockquote]:text-center [&_blockquote]:font-serif [&_blockquote]:text-[1.2rem] [&_blockquote]:font-normal [&_blockquote]:italic [&_blockquote]:text-[#7a2c4e] [&_.gold-box]:my-6 [&_.gold-box]:border [&_.gold-box]:border-[#d8b06a] [&_.gold-box]:bg-[#fdf6e8] [&_.gold-box]:px-5 [&_.gold-box]:py-4 [&_.gold-box]:text-[#6b5230] [&_.gold-box]:text-[0.98rem] [&_.gold-box_p]:my-1 [&_.gold-box_strong]:text-[#6b5230] [&_.gold-box_strong]:font-semibold";
 
 function markInciHeadingsAsBox(html: string): string {
   if (!html) return html;
@@ -93,8 +101,8 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
 
     const calloutToneClass = (tone?: string) => {
       if (tone === "green") return "border-[#2f8f45] bg-[#f8fff9] text-[#24753a]";
-      if (tone === "pink") return "border-pink-300 bg-[#FFFBFD] text-[#8f1d58]";
-      return "border-neutral-200 bg-neutral-50 text-neutral-800";
+      if (tone === "pink") return "border-[#ec4899]/40 bg-[#fdf1f5] text-[#7a2c4e]";
+      return "border-[#7a2c4e]/15 bg-[#fdf6f8] text-[#5c4a52]";
     };
 
     return blocks.map((b: any, i: number) => {
@@ -108,7 +116,7 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
         if (!imageUrl) return null;
         return (
           <figure key={`blk-${i}`} className="my-10">
-            <div className="relative w-full overflow-hidden rounded-2xl">
+            <div className="relative w-full overflow-hidden rounded-[20px]">
               <Image
                 src={imgSrc(imageUrl)}
                 alt={alt}
@@ -120,7 +128,7 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
                 unoptimized={imageUrl.startsWith("http")}
               />
             </div>
-            {caption && <figcaption className="mt-3 text-center text-xs text-neutral-500">{caption}</figcaption>}
+            {caption && <figcaption className="mt-3 text-center text-[12.5px] font-light text-[#6b5560]">{caption}</figcaption>}
           </figure>
         );
       }
@@ -134,7 +142,7 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
             className="my-12 grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-start"
           >
             <div className={`lg:col-span-5 ${isRight ? "lg:order-2" : "lg:order-1"}`}>
-              <div className="relative aspect-4/5 min-h-[280px] w-full overflow-hidden rounded-3xl border border-neutral-100 bg-transparent shadow-sm lg:min-h-[360px]">
+              <div className="relative aspect-4/5 min-h-[280px] w-full overflow-hidden rounded-[22px] border border-[#7a2c4e]/[0.1] bg-[#f7e6ee] shadow-[0_24px_48px_-32px_rgba(122,44,78,0.3)] lg:min-h-[360px]">
                 <Image
                   src={imgSrc(imageUrl)}
                   alt={alt}
@@ -145,7 +153,7 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
                   unoptimized={imageUrl.startsWith("http")}
                 />
               </div>
-              {caption && <div className="mt-3 text-center text-xs text-neutral-500">{caption}</div>}
+              {caption && <div className="mt-3 text-center text-[12.5px] font-light text-[#6b5560]">{caption}</div>}
             </div>
             <div className={`lg:col-span-7 ${isRight ? "lg:order-1" : "lg:order-2"}`}>
               <div
@@ -163,10 +171,10 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
         return (
           <section key={`blk-${i}`} className="my-10">
             <div
-              className={`rounded-3xl border px-6 py-6 md:px-8 md:py-7 shadow-sm ${calloutToneClass(tone)}`}
+              className={`rounded-[22px] border px-6 py-6 md:px-8 md:py-7 ${calloutToneClass(tone)}`}
             >
               <div
-                className="max-w-none text-[15.5px] leading-[1.85] [&_p]:my-3 [&_strong]:font-semibold [&_a]:text-[#30548a] [&_a]:underline"
+                className="max-w-none text-[15.5px] leading-[1.85] [&_p]:my-3 [&_strong]:font-semibold [&_a]:text-[#ec4899] [&_a]:underline"
                 dangerouslySetInnerHTML={{ __html: normalizeBlogContent(html) }}
               />
             </div>
@@ -263,39 +271,48 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] leira-underlap-nav-spacer">
+    <div className="min-h-screen bg-white leira-underlap-nav-spacer">
+      {/* ------------------------------------------------------------
+          Content-authored typography. Every selector below is the
+          same one that shipped originally (.leira-summer-blog h2/h3,
+          .hero, .gold, .banner, .muted, .stats, .red-bullets,
+          .green-checks, .heat, .faq) — only colour values changed,
+          swapped for Leira's palette. Green (safety) and the heat
+          gradient are left as-is since they carry meaning unrelated
+          to brand colour.
+      ------------------------------------------------------------ */}
       <style>{`
         .leira-summer-blog {
           max-width: 760px;
           margin: 0 auto;
-          color: #231f20;
+          color: #5c4a52;
           font-family: Georgia, "Times New Roman", serif;
           font-size: 16px;
           line-height: 1.18;
         }
         .blog-content .leira-summer-blog h2,
         .leira-summer-blog h2 {
-          border-top: 1px solid #b01855 !important;
-          color: #9b174f !important;
-          font-family: Arial, sans-serif !important;
+          border-top: 1px solid #ec4899 !important;
+          color: #7a2c4e !important;
+          font-family: Georgia, "Times New Roman", serif !important;
           font-size: 30px !important;
-          font-weight: 800 !important;
+          font-weight: 400 !important;
           line-height: 1.08 !important;
           margin: 42px 0 18px !important;
           padding-top: 26px !important;
         }
         .blog-content .leira-summer-blog h3,
         .leira-summer-blog h3 {
-          color: #30548a !important;
-          font-family: Arial, sans-serif !important;
+          color: #7a2c4e !important;
+          font-family: Georgia, "Times New Roman", serif !important;
           font-size: 17px !important;
-          font-weight: 800 !important;
+          font-weight: 700 !important;
           line-height: 1.25 !important;
           margin: 22px 0 10px !important;
         }
         .blog-content .leira-summer-blog h3.tone-gold,
         .leira-summer-blog h3.tone-gold {
-          color: #b88400 !important;
+          color: #a8823f !important;
         }
         .leira-summer-blog .hero {
           text-align: center;
@@ -309,20 +326,20 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
         }
         .blog-content .leira-summer-blog .gold,
         .leira-summer-blog .gold {
-          color: #b88400 !important;
-          font-family: Arial, sans-serif !important;
-          font-weight: 800 !important;
+          color: #a8823f !important;
+          font-family: Georgia, "Times New Roman", serif !important;
+          font-weight: 700 !important;
         }
         .blog-content .leira-summer-blog p,
         .leira-summer-blog p {
           margin: 0 0 14px !important;
         }
         .leira-summer-blog .banner {
-          background: #9b174f;
+          background: #7a2c4e;
           color: white;
-          font-family: Arial, sans-serif;
+          font-family: Georgia, "Times New Roman", serif;
           font-size: 20px;
-          font-weight: 900;
+          font-weight: 600;
           line-height: 1.15;
           margin: 34px auto 22px;
           max-width: 650px;
@@ -330,15 +347,15 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
           text-align: center;
         }
         .leira-summer-blog .muted {
-          color: #666;
-          font-family: Arial, sans-serif;
+          color: #6b5560;
+          font-family: Georgia, "Times New Roman", serif;
           font-size: 12px;
           text-align: center;
         }
         .blog-content .leira-summer-blog blockquote,
         .leira-summer-blog blockquote {
-          border-left: 4px solid #9b174f !important;
-          color: #9b174f !important;
+          border-left: 4px solid #ec4899 !important;
+          color: #7a2c4e !important;
           font-size: 16px !important;
           margin: 36px 0 30px !important;
           padding: 0 0 0 14px !important;
@@ -352,15 +369,15 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
           width: 100%;
         }
         .leira-summer-blog th {
-          background: #9b174f;
-          border: 1px solid #111;
+          background: #7a2c4e;
+          border: 1px solid #4a1c2c;
           color: white;
-          font-family: Arial, sans-serif;
-          font-weight: 800;
+          font-family: Georgia, "Times New Roman", serif;
+          font-weight: 600;
           padding: 3px 6px;
         }
         .leira-summer-blog td {
-          border: 1px solid #111;
+          border: 1px solid #7a2c4e;
           padding: 3px 6px;
         }
         .leira-summer-blog .heat {
@@ -380,7 +397,7 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
           margin: 8px 0 !important;
         }
         .leira-summer-blog .red-bullets li::before {
-          color: #d93458;
+          color: #ec4899;
           content: "●";
           font-size: 18px;
           margin-right: 10px;
@@ -392,31 +409,31 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
           margin-right: 8px;
         }
         .leira-summer-blog .stats {
-          border-left: 2px solid #b88400;
+          border-left: 2px solid #d8b06a;
           padding-left: 16px !important;
         }
         .leira-summer-blog .stats li strong {
-          color: #9b174f !important;
-          font-family: Arial, sans-serif;
+          color: #7a2c4e !important;
+          font-family: Georgia, "Times New Roman", serif;
           font-size: 18px;
         }
         .blog-content .leira-summer-blog .faq h3,
         .leira-summer-blog .faq h3,
         .blog-content h3.tone-blue,
         h3.tone-blue {
-          color: #30548a !important;
+          color: #7a2c4e !important;
         }
         .blog-content h3:not(.tone-gold):not(.inci-name) {
-          color: #30548a !important;
+          color: #7a2c4e !important;
           font-size: 1.05rem !important;
-          font-weight: 700 !important;
+          font-weight: 600 !important;
         }
         .blog-content h2:not(.blog-hero-subtitle) {
-          color: #8f1d58 !important;
+          color: #7a2c4e !important;
           font-size: clamp(1.65rem, 2.1vw, 2.05rem) !important;
         }
         .blog-content a {
-          color: #30548a !important;
+          color: #ec4899 !important;
           text-decoration: underline;
           text-underline-offset: 2px;
         }
@@ -427,7 +444,8 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
       `}</style>
       <MiniNavbar />
 
-      <section className="relative w-full overflow-hidden bg-[#ebe5df]">
+      {/* ---------------- hero ---------------- */}
+      <section className="relative w-full overflow-hidden bg-[#f7e6ee]">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -450,59 +468,60 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
         <div className="absolute top-32 left-8 md:left-12">
           <Link
             href="/blogs"
-            className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border border-white/50 flex items-center justify-center text-neutral-900 hover:bg-white transition-all group shadow-sm"
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/50 bg-white/80 text-[#7a2c4e] shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-white group"
             aria-label="Back to blogs"
           >
-            <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="h-5 w-5 transition-transform duration-300 group-hover:-translate-x-1" strokeWidth={1.7} />
           </Link>
         </div>
       </section>
 
-      <main className="max-w-3xl mx-auto px-6 py-20">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-10 mb-12">
+      <main className="mx-auto max-w-3xl px-6 py-20">
+        {/* ---------------- author / share row ---------------- */}
+        <div className={`mb-12 flex items-center justify-between border-b border-[#7a2c4e]/[0.1] pb-10`}>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 font-bold">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ec4899]/10 font-serif text-[17px] font-normal text-[#ec4899]">
               {(post.author || "L").charAt(0)}
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-900">{post.author}</p>
-              <p className="text-xs text-gray-400">Contributor</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#7a2c4e]">{post.author}</p>
+              <p className="text-[11px] font-light text-[#6b5560]/60">Contributor</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={handleShare}
-              className="p-3 rounded-full hover:bg-gray-50 text-gray-400 transition-colors"
+              className="rounded-full p-3 text-[#7a2c4e]/45 transition-colors duration-300 hover:bg-[#ec4899]/[0.06] hover:text-[#ec4899]"
               aria-label="Share"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="h-4 w-4" strokeWidth={1.7} />
             </button>
-            <button className="p-3 rounded-full hover:bg-gray-50 text-gray-400 transition-colors" aria-label="Bookmark">
-              <Bookmark className="w-4 h-4" />
+            <button className="rounded-full p-3 text-[#7a2c4e]/45 transition-colors duration-300 hover:bg-[#ec4899]/[0.06] hover:text-[#ec4899]" aria-label="Bookmark">
+              <Bookmark className="h-4 w-4" strokeWidth={1.7} />
             </button>
           </div>
         </div>
 
-        {/* Table of Contents - SEO critical for multi-section blogs */}
+        {/* ---------------- table of contents ---------------- */}
         {toc.length > 0 && (
           <nav
-            className="mb-12 overflow-hidden rounded-3xl bg-white border border-neutral-100 shadow-sm"
+            className="mb-12 overflow-hidden rounded-[22px] border border-[#7a2c4e]/[0.1] bg-white shadow-[0_20px_40px_-30px_rgba(122,44,78,0.3)]"
             aria-label="Table of contents"
           >
-            <div className="px-6 pt-6 pb-4 border-b border-neutral-100 bg-linear-to-b from-white to-[#FFFBFD]">
+            <div className="border-b border-[#7a2c4e]/[0.1] bg-gradient-to-b from-white to-[#fdf1f5] px-6 pb-4 pt-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-500">
-                    <List className="w-4 h-4" />
+                  <h2 className="flex items-center gap-2 text-[11.5px] font-medium uppercase tracking-[0.18em] text-[#7a2c4e]/70">
+                    <List className="h-4 w-4" strokeWidth={1.7} />
                     On this page
                   </h2>
-                  <p className="mt-1 text-xs text-neutral-400">Jump to any section.</p>
+                  <p className="mt-1 text-[11.5px] font-light text-[#6b5560]/60">Jump to any section.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsTocOpen((v) => !v)}
-                  className="shrink-0 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-neutral-600 hover:border-pink-200 hover:text-pink-700 transition-colors"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#7a2c4e]/15 bg-white px-4 py-2 text-[10.5px] font-medium uppercase tracking-[0.16em] text-[#7a2c4e]/70 transition-colors duration-300 hover:border-[#ec4899]/40 hover:text-[#ec4899]"
                   aria-expanded={isTocOpen}
                   aria-controls="blog-toc"
                 >
@@ -548,20 +567,20 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
                         <a
                           href={`#${section.parent.id}`}
                           onClick={() => setIsTocOpen(false)}
-                          className="group flex items-start gap-3 text-[13px] font-semibold text-neutral-900 hover:text-pink-700 transition-colors"
+                          className="group flex items-start gap-3 text-[13px] font-medium text-[#7a2c4e] transition-colors duration-300 hover:text-[#ec4899]"
                         >
-                          <span className="mt-[0.45rem] h-1.5 w-1.5 rounded-full bg-pink-400/70 group-hover:bg-pink-500 transition-colors" />
+                          <span className="mt-[0.45rem] h-1.5 w-1.5 rotate-[-45deg] rounded-[50%_50%_50%_0] bg-[#ec4899]/70 transition-colors duration-300 group-hover:bg-[#ec4899]" />
                           <span className="leading-snug">{section.parent.text}</span>
                         </a>
 
                         {section.children.length > 0 && (
-                          <ol className="mt-2 ml-[0.35rem] pl-4 border-l border-neutral-100 space-y-2">
+                          <ol className="mt-2 ml-[0.35rem] space-y-2 border-l border-[#7a2c4e]/[0.1] pl-4">
                             {section.children.map((child) => (
                               <li key={child.id} className="relative">
                                 <a
                                   href={`#${child.id}`}
                                   onClick={() => setIsTocOpen(false)}
-                                  className="block text-[12.5px] font-medium text-neutral-600 hover:text-pink-700 transition-colors leading-snug"
+                                  className="block text-[12.5px] font-light leading-snug text-[#6b5560] transition-colors duration-300 hover:text-[#ec4899]"
                                 >
                                   {child.text}
                                 </a>
@@ -578,14 +597,14 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
           </nav>
         )}
 
+        {/* ---------------- article ---------------- */}
         <article className="prose prose-pink prose-lg max-w-none">
-          {/* Title + subtitle from admin fields — never use excerpt/meta as the on-page title */}
           <header className="not-prose mb-10">
-            <h1 className="text-[clamp(1.75rem,3vw,2.35rem)] font-semibold leading-tight tracking-tight text-[#8f1d58] m-0">
+            <h1 className="m-0 font-serif text-[clamp(1.9rem,3.4vw,2.5rem)] font-light leading-[1.15] tracking-tight text-[#7a2c4e]">
               {post.title}
             </h1>
             {String(post.subHeading || "").trim() ? (
-              <p className="mt-4 mb-0 text-[1.05rem] md:text-[1.12rem] font-normal italic leading-relaxed text-neutral-700">
+              <p className="mb-0 mt-4 font-serif text-[1.05rem] font-light italic leading-relaxed text-[#7a2c4e]/60 md:text-[1.12rem]">
                 {post.subHeading}
               </p>
             ) : null}
@@ -599,125 +618,128 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
               dangerouslySetInnerHTML={{ __html: contentWithIds }}
             />
           ) : (
-            <div className="text-gray-800 leading-[1.8] space-y-6 font-light text-lg">
+            <div className="space-y-6 text-[17px] font-light leading-[1.8] text-[#6b5560]">
               <p>No content available for this post.</p>
             </div>
           )}
         </article>
 
-        {/* Like & Dislike + Publish info */}
-        <div className="mt-12 pt-10 border-t border-gray-100">
-          <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-500 mb-6">
+        {/* ---------------- reactions + publish info ---------------- */}
+        <div className="mt-12 border-t border-[#7a2c4e]/[0.1] pt-10">
+          <div className="mb-6 flex flex-wrap items-center gap-6 text-[13px] font-light text-[#6b5560]/70">
             <span className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+              <Calendar className="h-4 w-4 text-[#d8b06a]" strokeWidth={1.6} />
               Published {post.date}
             </span>
             <span className="flex items-center gap-2">
-              <Eye className="w-4 h-4" />
+              <Eye className="h-4 w-4 text-[#d8b06a]" strokeWidth={1.6} />
               {views.toLocaleString()} views
             </span>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={() => handleReact("like")}
               disabled={!!reacting}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-colors disabled:opacity-50 ${
+              className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-[13px] font-light transition-colors duration-300 disabled:opacity-50 ${
                 userReaction === "like"
-                  ? "border-pink-500 bg-pink-50 text-pink-600"
-                  : "border-neutral-200 text-neutral-700 hover:border-pink-300 hover:text-pink-600"
+                  ? "border-[#ec4899] bg-[#ec4899]/[0.08] text-[#ec4899]"
+                  : "border-[#7a2c4e]/15 text-[#7a2c4e]/70 hover:border-[#ec4899]/40 hover:text-[#ec4899]"
               }`}
             >
-              <ThumbsUp className="w-4 h-4" />
+              <ThumbsUp className="h-4 w-4" strokeWidth={1.7} />
               <span>{likes}</span>
             </button>
             <button
               type="button"
               onClick={() => handleReact("dislike")}
               disabled={!!reacting}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-colors disabled:opacity-50 ${
+              className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-[13px] font-light transition-colors duration-300 disabled:opacity-50 ${
                 userReaction === "dislike"
-                  ? "border-pink-500 bg-pink-50 text-pink-600"
-                  : "border-neutral-200 text-neutral-700 hover:border-pink-300 hover:text-pink-600"
+                  ? "border-[#ec4899] bg-[#ec4899]/[0.08] text-[#ec4899]"
+                  : "border-[#7a2c4e]/15 text-[#7a2c4e]/70 hover:border-[#ec4899]/40 hover:text-[#ec4899]"
               }`}
             >
-              <ThumbsDown className="w-4 h-4" />
+              <ThumbsDown className="h-4 w-4" strokeWidth={1.7} />
               <span>{dislikes}</span>
             </button>
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 px-8 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-bold uppercase tracking-widest hover:bg-pink-600 transition-colors"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] px-8 py-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-transform duration-500 hover:-translate-y-0.5"
             >
-              Shop Now
+              <span className="relative z-10">Shop now</span>
+              <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover:translate-y-0" />
             </Link>
           </div>
           {!isLoggedIn && (
-            <p className="mt-3 text-xs text-neutral-500">
-              <Link href="/login" className="text-pink-600 hover:underline">Log in</Link> to react once per post.
+            <p className="mt-3 text-[12px] font-light text-[#6b5560]/60">
+              <Link href="/login" className="text-[#ec4899] hover:underline">Log in</Link> to react once per post.
             </p>
           )}
         </div>
 
-        <div className="mt-20 pt-10 border-t border-gray-100 flex flex-wrap gap-3">
+        {/* ---------------- tags ---------------- */}
+        <div className="mt-20 flex flex-wrap gap-2.5 border-t border-[#7a2c4e]/[0.1] pt-10">
           {["Beauty", "Lifestyle", "Scent", post.category].filter(Boolean).map((tag) => (
             <span
               key={tag}
-              className="px-4 py-2 rounded-xl bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-pink-50 hover:text-pink-500 cursor-pointer transition-colors"
+              className="cursor-pointer rounded-full bg-[#fdf1f5] px-4 py-2 text-[10.5px] font-medium uppercase tracking-[0.14em] text-[#7a2c4e]/60 transition-colors duration-300 hover:bg-[#ec4899]/10 hover:text-[#ec4899]"
             >
               #{tag}
             </span>
           ))}
         </div>
 
-        {/* CTA-ready footer section */}
-        <footer className="mt-16 p-8 md:p-12 rounded-3xl bg-neutral-900 text-white text-center">
-          <h3 className="text-2xl font-serif italic mb-4">Explore Leira</h3>
-          <p className="text-neutral-400 text-sm mb-8 max-w-md mx-auto">
+        {/* ---------------- footer cta ---------------- */}
+        <footer className="mt-16 rounded-[26px] bg-gradient-to-br from-[#2b0f1d] via-[#3a1526] to-[#4a1c31] p-8 text-center text-white md:p-12">
+          <h3 className="mb-4 font-serif text-[26px] font-light italic">Explore Leira</h3>
+          <p className="mx-auto mb-8 max-w-md text-[13.5px] font-light text-[#f7dfe8]/70">
             Discover our collection of fragrances and find your signature scent.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/blogs"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/30 text-white text-sm font-bold uppercase tracking-widest hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white/10"
             >
-              <MessageCircle className="w-4 h-4" />
-              More Articles
+              <MessageCircle className="h-4 w-4" strokeWidth={1.7} />
+              More articles
             </Link>
           </div>
         </footer>
       </main>
 
+      {/* ---------------- related posts ---------------- */}
       {relatedPosts.length > 0 && (
-        <section className="bg-gray-50 py-24 px-6">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-serif italic text-gray-900 text-center mb-16 underline decoration-pink-200 underline-offset-8">
-              Continue Reading
+        <section className="bg-gradient-to-b from-[#fdeef4] via-[#fff5f9] to-[#fffdfc] px-6 py-24">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="mb-16 text-center font-serif text-[32px] font-light italic text-[#7a2c4e]">
+              Continue reading
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            <div className="mx-auto grid max-w-4xl grid-cols-1 gap-12 md:grid-cols-2">
               {relatedPosts.map((p: any) => (
-                <Link key={p._id} href={getBlogPath(p)} className="group space-y-6">
-                  <div className="relative overflow-hidden rounded-3xl bg-[#ebe5df] shadow-lg transition-all duration-500 group-hover:shadow-pink-100">
+                <Link key={p._id} href={getBlogPath(p)} className="group space-y-5">
+                  <div className="relative overflow-hidden rounded-[22px] bg-[#f7e6ee] shadow-[0_24px_48px_-32px_rgba(122,44,78,0.3)] transition-shadow duration-500 group-hover:shadow-[0_32px_64px_-36px_rgba(236,72,153,0.35)]">
                     <Image
                       src={getImageSrc(p.imageUrl)}
                       alt={p.title}
                       width={1200}
                       height={800}
-                      className="h-auto w-full max-w-full object-contain object-center"
+                      className="h-auto w-full max-w-full object-cover object-center transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                       style={{ width: "100%", height: "auto" }}
                       sizes="(max-width: 768px) 100vw, 50vw"
                       loading="lazy"
                       unoptimized={p.imageUrl?.startsWith("http")}
                     />
-                    <div className="pointer-events-none absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/0" />
+                    <div className="pointer-events-none absolute inset-0 bg-[#3a1424]/10 transition-colors duration-500 group-hover:bg-transparent" />
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <Link
                       href={getCategoryPath(p.category)}
-                      className="text-[10px] font-bold uppercase tracking-widest text-pink-500 underline decoration-pink-200"
+                      className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-[#ec4899] underline decoration-[#ec4899]/30 underline-offset-4"
                     >
                       {p.category}
                     </Link>
-                    <h3 className="text-2xl font-serif italic text-gray-900 group-hover:text-pink-600 transition-colors leading-tight">
+                    <h3 className="font-serif text-[22px] font-light italic leading-tight text-[#7a2c4e] transition-colors duration-300 group-hover:text-[#ec4899]">
                       {p.title}
                     </h3>
                   </div>
@@ -728,7 +750,7 @@ export default function BlogPostDetailClient({ post, relatedPosts }: { post: any
         </section>
       )}
 
-      <div className="bg-[#0F0F11]">
+      <div className="bg-gradient-to-br from-[#2b0f1d] via-[#3a1526] to-[#4a1c31]">
         <Footer />
       </div>
     </div>

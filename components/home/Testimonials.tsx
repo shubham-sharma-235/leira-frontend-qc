@@ -450,6 +450,7 @@ export default function Testimonials() {
           font: inherit;
           transition: color 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
             background 0.4s ease;
+          border: none!important;
         }
         .avatar:hover {
           color: var(--rose-ink);

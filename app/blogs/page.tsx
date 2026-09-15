@@ -5,12 +5,94 @@ import { MiniNavbar } from "@/components/ui/mini-navbar";
 import Footer from "@/components/Footer";
 import { blogAPI } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, FileText, Eye, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Calendar, Clock, Eye, ThumbsUp, ThumbsDown, FileText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+function Mark({ className = "" }: { className?: string }) {
+  return <span aria-hidden className={cn("inline-block h-1.5 w-1.5 rotate-[-45deg] rounded-[50%_50%_50%_0] bg-[#ec4899]", className)} />;
+}
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+function Grain() {
+  return <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03]" style={{ backgroundImage: GRAIN }} />;
+}
+
+function Chip({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.28em] text-[#ec4899]">
+      <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />
+      {label}
+    </span>
+  );
+}
+
+/** Same reveal used across the site. `onMount` plays immediately on
+    mount (for above-the-fold content, which never gets a scroll
+    intersection event since it's already on screen) instead of
+    waiting for `whileInView`. */
+function Reveal({
+  children,
+  delay = 0,
+  onMount = false,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  onMount?: boolean;
+  className?: string;
+}) {
+  const animProps = onMount
+    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }
+    : { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-60px" } };
+  return (
+    <motion.div {...animProps} transition={{ duration: 0.8, delay, ease: EASE }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Masked-line heading — each line slides up from behind an
+    overflow-hidden mask, matching the Collaboration/About pages. */
+function MaskedHeading({
+  lines,
+  className = "",
+  as: Tag = "h1",
+  onMount = false,
+}: {
+  lines: (string | React.ReactNode)[];
+  className?: string;
+  as?: "h1" | "h2";
+  onMount?: boolean;
+}) {
+  return (
+    <Tag className={className}>
+      {lines.map((line, i) => (
+        <span key={i} className="-mb-[0.16em] block overflow-hidden pb-[0.16em]">
+          <motion.span
+            className="block"
+            initial={{ y: "108%" }}
+            {...(onMount ? { animate: { y: 0 } } : { whileInView: { y: 0 }, viewport: { once: true, margin: "-60px" } })}
+            transition={{ duration: 1, delay: 0.1 + i * 0.11, ease: EASE }}
+          >
+            {line}
+          </motion.span>
+        </span>
+      ))}
+    </Tag>
+  );
+}
+
 const CATEGORIES = ["All", "Scent Guide", "Self Care", "Lifestyle", "Science", "Ethics"];
+
+const INK = "text-[#7a2c4e]";
+const BODY = "text-[#6b5560]";
+const HAIR = "border-[#7a2c4e]/[0.12]";
+
+const GRAIN =
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 const toSlug = (value = "") =>
   String(value)
@@ -64,10 +146,10 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col leira-underlap-nav-spacer">
+      <div className="leira-underlap-nav-spacer flex min-h-screen flex-col bg-gradient-to-b from-[#fdf1f5] to-[#fffdfc]">
         <MiniNavbar />
-        <main className="flex-1 flex items-center justify-center pb-20">
-          <div className="w-12 h-12 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+        <main className="flex flex-1 items-center justify-center pb-20">
+          <span className="block h-10 w-10 animate-spin rounded-full border border-[#7a2c4e]/15 border-t-[#ec4899]" />
         </main>
         <Footer />
       </div>
@@ -76,17 +158,18 @@ export default function BlogPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col leira-underlap-nav-spacer">
+      <div className="leira-underlap-nav-spacer flex min-h-screen flex-col bg-gradient-to-b from-[#fdf1f5] to-[#fffdfc]">
         <MiniNavbar />
-        <main className="flex-1 flex flex-col items-center justify-center pb-20 px-6">
-          <FileText className="w-14 h-14 text-neutral-300 mb-4" />
-          <h2 className="text-xl font-serif text-neutral-900 mb-2">Something went wrong</h2>
-          <p className="text-neutral-500 text-center mb-6">{error}</p>
+        <main className="flex flex-1 flex-col items-center justify-center px-6 pb-20 text-center">
+          <FileText className="mb-4 h-12 w-12 text-[#7a2c4e]/25" strokeWidth={1.3} />
+          <h2 className={cn("font-serif text-[22px] font-light", INK)}>Something went wrong</h2>
+          <p className={cn("mt-2 mb-6 max-w-[42ch] text-[14px] font-light leading-[1.7]", BODY)}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-neutral-900 text-white rounded-full text-sm font-medium hover:bg-neutral-800"
+            className="group relative overflow-hidden rounded-full bg-gradient-to-br from-[#f9a8d4] to-[#ec4899] px-7 py-3 text-[11px] uppercase tracking-[0.2em] text-white transition-transform duration-500 hover:-translate-y-0.5"
           >
-            Try again
+            <span className="relative z-10">Try again</span>
+            <span aria-hidden className="absolute inset-0 translate-y-full bg-[#7a2c4e] transition-transform duration-500 group-hover:translate-y-0" />
           </button>
         </main>
         <Footer />
@@ -95,129 +178,155 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] leira-underlap-nav-spacer">
+    <div className="leira-underlap-nav-spacer min-h-screen bg-white">
       <MiniNavbar />
 
-      <main className="pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <header className="text-center pt-2 pb-10 md:pb-14 max-w-3xl mx-auto">
-          <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-gray-400 mb-4">
-            Scent · Care · Stories
-          </p>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif italic text-gray-900 leading-[1.1]">
-            The Leira Journal
-          </h1>
-          <p className="mt-5 text-sm md:text-base text-neutral-500 font-medium leading-relaxed">
-            Guides, rituals, and quiet science behind India&apos;s first intimate perfume — written for your most sensitive skin.
-          </p>
-        </header>
+      {/* ---------------- masthead ---------------- */}
+      <section
+        className={cn(
+          "relative isolate [overflow:clip] bg-[#fffdfc] px-5 pb-16 pt-16 sm:px-8 md:pb-24 md:pt-24 lg:px-12",
+          "before:pointer-events-none before:absolute before:inset-x-0 before:-top-24 before:-z-10",
+          "before:h-[calc(100%+6rem)] before:bg-gradient-to-b before:from-[#fdf1f5] before:via-[#fff7fa] before:to-[#fffdfc] before:content-['']"
+        )}
+      >
+        <Grain />
+        <motion.span
+          aria-hidden
+          animate={{ x: [0, 40, 0], y: [0, -34, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute -right-24 -top-28 -z-10 h-[40vw] max-h-[520px] w-[40vw] max-w-[520px] rounded-full bg-[#f9a8d4]/30 blur-[95px]"
+        />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-          <div className="flex flex-wrap gap-3">
+        <div className="mx-auto max-w-3xl text-center">
+          <Reveal onMount>
+            <Chip label="Scent · Care · Stories" />
+          </Reveal>
+
+          <MaskedHeading
+            as="h1"
+            onMount
+            className={cn("mt-6 font-serif text-[clamp(32px,5vw,64px)] font-light leading-[1.08] tracking-tight", INK)}
+            lines={[
+              "The Leira",
+              <em key="journal" className="not-italic text-[#ec4899]">
+                Journal
+              </em>,
+            ]}
+          />
+
+          <Reveal delay={0.4} onMount>
+            <p className={cn("mx-auto mt-6 max-w-[52ch] text-[15px] font-light leading-[1.85] md:text-base", BODY)}>
+              Guides, rituals, and quiet science behind India&apos;s first intimate perfume — written for your most sensitive skin.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        {/* ---------------- filters ---------------- */}
+        <div className={cn("mb-12 flex flex-col justify-between gap-6 border-t pt-10 md:flex-row md:items-center", HAIR)}>
+          <div className="flex flex-wrap gap-2.5">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={cn(
-                  "px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border",
+                  "rounded-full border px-5 py-2 text-[10.5px] font-light uppercase tracking-[0.16em] transition-all duration-300",
                   activeCategory === cat
-                    ? "bg-black text-white border-black"
-                    : "bg-white text-gray-500 border-gray-100 hover:border-pink-300 hover:text-pink-500"
+                    ? "border-transparent bg-[#7a2c4e] text-white"
+                    : cn("border-[#7a2c4e]/15 bg-white hover:border-[#ec4899]/50 hover:text-[#ec4899]", BODY)
                 )}
               >
                 {cat}
               </button>
             ))}
           </div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
-            {filteredPosts.length} Articles Found
-          </div>
+          <span className="text-[10.5px] font-light uppercase tracking-[0.2em] text-[#7a2c4e]/45">
+            {filteredPosts.length} article{filteredPosts.length === 1 ? "" : "s"} found
+          </span>
         </div>
 
+        {/* ---------------- grid / empty state ---------------- */}
         {filteredPosts.length === 0 ? (
-          <div className="text-center py-20 bg-white/50 rounded-3xl border border-neutral-100">
-            <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-            <h3 className="text-xl font-serif text-neutral-900 mb-2">No articles yet</h3>
-            <p className="text-neutral-500">Check back soon for new posts in this category.</p>
+          <div className={cn("rounded-[24px] border bg-[#fdf6f8] py-20 text-center", HAIR)}>
+            <FileText className="mx-auto mb-4 h-11 w-11 text-[#7a2c4e]/25" strokeWidth={1.3} />
+            <h3 className={cn("font-serif text-[20px] font-light", INK)}>No articles yet</h3>
+            <p className={cn("mt-1.5 text-[13.5px] font-light", BODY)}>Check back soon for new posts in this category.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-12">
-            <AnimatePresence mode="popLayout">
-              {displayPosts.map((post: any, index: number) => (
-                <motion.article
-                  key={post._id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group cursor-pointer"
-                >
-                  <Link href={getBlogPath(post)}>
-                    <div className="relative mb-6 overflow-hidden rounded-4xl bg-[#ebe5df] shadow-lg shadow-gray-200/50">
-                      <Image
-                        src={getImageSrc(post.imageUrl)}
-                        alt={post.title}
-                        width={1200}
-                        height={800}
-                        className="h-auto w-full max-w-full object-contain object-center"
-                        style={{ width: "100%", height: "auto" }}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        unoptimized={post.imageUrl?.startsWith("http")}
-                      />
-                      <div className="pointer-events-none absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
-                      <div className="absolute top-6 left-6">
-                        <span className="px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-[9px] font-bold uppercase tracking-[0.15em] text-black">
-                          {post.category}
-                        </span>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:gap-10">
+              <AnimatePresence mode="popLayout">
+                {displayPosts.map((post: any, index: number) => (
+                  <motion.article
+                    key={post._id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.5, delay: index * 0.08 }}
+                    className="group h-full"
+                  >
+                    <Link href={getBlogPath(post)} className="flex h-full flex-col">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] bg-[#f7e6ee]">
+                        <Image
+                          src={getImageSrc(post.imageUrl)}
+                          alt={post.title}
+                          width={1200}
+                          height={800}
+                          className="h-full w-full object-cover object-center transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          unoptimized={post.imageUrl?.startsWith("http")}
+                        />
                       </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {post.date}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5" />
-                          {post.readTime}
-                        </span>
-                      </div>
-                      <h3 className="text-2xl font-serif italic text-gray-900 group-hover:text-pink-600 transition-colors duration-300 leading-tight">
-                        {post.title}
-                      </h3>
-                      <p className="text-neutral-500 text-sm font-medium line-clamp-2">
-                        {post.subHeading || post.excerpt}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-3 text-[10px] text-neutral-400">
-                        <span className="flex items-center gap-1.5">
-                          <Eye className="w-3.5 h-3.5" />
-                          {(post.views ?? 0).toLocaleString()} views
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <ThumbsUp className="w-3.5 h-3.5" />
-                          {post.likes ?? 0}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <ThumbsDown className="w-3.5 h-3.5" />
-                          {post.dislikes ?? 0}
-                        </span>
-                      </div>
-                      <div className="pt-2">
-                        <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-[0.2em] text-black group-hover:text-pink-500 transition-colors after:content-[''] after:w-0 after:h-px after:bg-pink-500 after:absolute after:bottom-0 after:left-0 group-hover:after:w-full relative pb-1">
-                          Read Entry
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.article>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
 
+                      <div className="mt-4 flex flex-1 flex-col">
+                        <div className={cn("flex items-center gap-4 text-[11px] font-light", BODY)}>
+                          <span className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 text-[#d8b06a]" strokeWidth={1.6} />
+                            {post.date}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="h-3.5 w-3.5 text-[#d8b06a]" strokeWidth={1.6} />
+                            {post.readTime}
+                          </span>
+                        </div>
+
+                        <h3 className={cn("mt-3 font-serif text-[20px] font-light italic leading-tight transition-colors duration-300 group-hover:text-[#ec4899]", INK)}>
+                          {post.title}
+                        </h3>
+
+                        <p className={cn("mt-2 line-clamp-2 text-[13.5px] font-light leading-[1.65]", BODY)}>
+                          {post.subHeading || post.excerpt}
+                        </p>
+
+                        <div className="mt-3 flex items-center gap-4 text-[11px] font-light text-[#7a2c4e]/45">
+                          <span className="flex items-center gap-1.5">
+                            <Eye className="h-3.5 w-3.5" strokeWidth={1.6} />
+                            {(post.views ?? 0).toLocaleString()}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <ThumbsUp className="h-3.5 w-3.5" strokeWidth={1.6} />
+                            {post.likes ?? 0}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <ThumbsDown className="h-3.5 w-3.5" strokeWidth={1.6} />
+                            {post.dislikes ?? 0}
+                          </span>
+                        </div>
+
+                        <span className="mt-4 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#7a2c4e]">
+                          Read entry
+                        </span>
+                      </div>
+                    </Link>
+                  </motion.article>
+                ))}
+              </AnimatePresence>
+            </div>
+        )}
       </main>
 
-      <div className="bg-[#0F0F11]">
+      <div className="bg-gradient-to-br from-[#2b0f1d] via-[#3a1526] to-[#4a1c31]">
         <Footer />
       </div>
     </div>

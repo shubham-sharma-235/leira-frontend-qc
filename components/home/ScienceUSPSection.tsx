@@ -50,7 +50,7 @@ const token = {
   darkPink: "#999",
   sand: "#E4DCCE",
   pink: "#fe3ca2",
-} as const;
+} as const; 
 
 const displayFont =
   'var(--font-display, ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif)';
