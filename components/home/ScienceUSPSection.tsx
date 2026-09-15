@@ -50,7 +50,7 @@ const token = {
   darkPink: "#999",
   sand: "#E4DCCE",
   pink: "#fe3ca2",
-} as const; 
+} as const;
 
 const displayFont =
   'var(--font-display, ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif)';
@@ -212,7 +212,7 @@ function UspItem({
         "group relative flex flex-col items-center text-center",
 
         isSlide
-          ? "w-[240px] shrink-0 snap-start sm:w-[260px]"
+          ? "w-[240px] shrink-0 snap-center sm:w-[260px]"
           : "mx-auto w-full max-w-[20rem] lg:mx-0 lg:max-w-[17rem]",
 
         !isSlide && (isLeft ? "lg:items-end lg:text-right" : "lg:items-start lg:text-left"),
@@ -345,7 +345,7 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
 
       slideIndexRef.current = (slideIndexRef.current + 1) % usps.length;
       const card = el.children[slideIndexRef.current] as HTMLElement | undefined;
-      card?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+      card?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
     };
 
     const id = window.setInterval(advance, 3000);
@@ -411,7 +411,7 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
               role="list"
               onTouchStart={pauseAutoAdvance}
               onPointerDown={pauseAutoAdvance}
-              className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-0 pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-[calc(50%-120px)] pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] sm:-mx-8 sm:px-[calc(50%-130px)] [&::-webkit-scrollbar]:hidden"
             >
               {usps.map((usp, index) => (
                 <UspItem key={usp.title} usp={usp} side={index % 2 === 0 ? "left" : "right"} index={index} variant="slide" />
