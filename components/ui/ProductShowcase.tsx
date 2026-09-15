@@ -322,12 +322,12 @@ export default function ProductShowcase() {
                     Mobile: horizontal drag/swipe row, one card mostly
                     in frame with the next peeking in to invite scrolling.
                     sm: and up: back to the original grid, untouched. */}
-                <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-6 pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+                <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pl-8 pr-6 overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pl-0 lg:grid-cols-3">
                     {products.map((product, index) => (
                         <RevealCard
                             key={product.id}
                             delay={index * 250}
-                            className="w-[78%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-align-none"
+                            className="w-[68%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-align-none"
                         >
                             <ProductCard product={product} onAddToCart={handleAddToCart} />
                         </RevealCard>
@@ -348,12 +348,12 @@ export default function ProductShowcase() {
                 {/* ---------------- combos ----------------
                     Same mobile drag-row treatment, slightly narrower per
                     card since there are 4 to imply more content off-screen. */}
-                <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-6 pb-2 overscroll-x-contain touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+                <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pl-8 pr-6 overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pl-0 lg:grid-cols-4">
                     {combos.map((combo, index) => (
                         <RevealCard
                             key={combo.id}
                             delay={index * 200}
-                            className="w-[68%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-align-none"
+                            className="w-[58%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-align-none"
                         >
                             <ProductCard product={combo} onAddToCart={handleAddToCart} />
                         </RevealCard>
