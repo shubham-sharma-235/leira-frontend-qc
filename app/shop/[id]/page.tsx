@@ -210,7 +210,7 @@ function normalizeShopHref(href: string): string {
 
 const USPS = [
     { label: "Alcohol-free", icon: Droplet, tint: "#ec4899" },
-    { label: "pH-balanced", icon: Scale, tint: "#d8b06a" },
+    { label: "pH-balanced", icon: Scale, tint: "#ec4899" },
     { label: "Dermatologist tested", icon: Stethoscope, tint: "#b23a63" },
     { label: "100% natural oils", icon: Leaf, tint: "#7a9b5c" },
 ];
@@ -227,12 +227,12 @@ const SPECS = [
 const INGREDIENTS = [
     { name: "Damask Rose", tint: "#b23a63", note: "Anti-inflammatory, softening, deeply hydrating." },
     { name: "Jasmine", tint: "#ec4899", note: "Calming, antibacterial, naturally uplifting." },
-    { name: "Ylang Ylang", tint: "#d8b06a", note: "Balancing, antioxidant-rich, quietly grounding." },
+    { name: "Ylang Ylang", tint: "#ec4899", note: "Balancing, antioxidant-rich, quietly grounding." },
 ];
 
 const NOTES = [
     { tier: "Top note", icon: Sun, tint: "#ec4899", body: "The first impression — light and immediate, fading within minutes." },
-    { tier: "Heart note", icon: Flower2, tint: "#d8b06a", body: "The scent's true character, emerging as the top note settles." },
+    { tier: "Heart note", icon: Flower2, tint: "#ec4899", body: "The scent's true character, emerging as the top note settles." },
     { tier: "Base note", icon: Moon, tint: "#7a2c4e", body: "The lasting trace that stays close to skin through the day." },
 ];
 
@@ -254,7 +254,7 @@ const OFFERS = [
 const BENEFITS = [
     { title: "Natural essence", description: "100% natural, skin-friendly essential oils.", icon: Leaf, tint: "#7a9b5c" },
     { title: "External use only", description: "Made exclusively for the outer intimate area.", icon: ShieldCheck, tint: "#b23a63" },
-    { title: "pH-balanced", description: "Works with your skin's natural balance.", icon: Scale, tint: "#d8b06a" },
+    { title: "pH-balanced", description: "Works with your skin's natural balance.", icon: Scale, tint: "#ec4899" },
     { title: "Dermatologist tested", description: "Verified gentle for daily intimate use.", icon: Stethoscope, tint: "#ec4899" },
 ];
 
@@ -332,7 +332,7 @@ function HowToUseSteps() {
         <div ref={ref} className="relative">
             <span
                 aria-hidden
-                className="pointer-events-none absolute left-[12%] right-[12%] top-9 hidden h-px bg-gradient-to-r from-[#ec4899]/40 via-[#d8b06a]/60 to-[#ec4899]/40 md:block"
+                className="pointer-events-none absolute left-[12%] right-[12%] top-9 hidden h-px bg-gradient-to-r from-[#ec4899]/40 via-[#ec4899]/60 to-[#ec4899]/40 md:block"
             />
             <ol className="grid grid-cols-1 gap-y-10 md:grid-cols-4 md:gap-x-5 md:gap-y-0">
                 {USAGE_STEPS.map((step, i) => (
@@ -357,12 +357,12 @@ function HowToUseSteps() {
                         {i < USAGE_STEPS.length - 1 && (
                             <span
                                 aria-hidden
-                                className="absolute left-[30px] top-[60px] block h-9 w-px bg-gradient-to-b from-[#d8b06a]/50 to-transparent md:hidden"
+                                className="absolute left-[30px] top-[60px] block h-9 w-px bg-gradient-to-b from-[#ec4899]/50 to-transparent md:hidden"
                             />
                         )}
 
                         <div className="pt-0.5 md:pt-4">
-                            <span className="hidden text-[10px] font-light uppercase tracking-[0.18em] text-[#d8b06a] md:block">
+                            <span className="hidden text-[10px] font-light uppercase tracking-[0.18em] text-[#ec4899] md:block">
                                 Step {step.n}
                             </span>
                             <h4 className={cn("font-serif text-[15.5px] font-light leading-tight md:mt-1.5", INK)}>
@@ -572,7 +572,7 @@ function PackSelector({ product, currentPrice }: { product: { name: string; pric
     const duos = useMemo(() => relevantDuos(product.name), [product.name]);
     return (
         <div className={cn("mt-6 border-t pt-6", HAIR)}>
-            <span className="text-[11px] uppercase tracking-[0.2em] text-[#d8b06a]">Choose your set</span>
+            <span className="text-[11px] uppercase tracking-[0.2em] text-[#ec4899]">Choose your set</span>
             <div className="mt-3 grid gap-2.5">
                 <div className="flex items-center justify-between rounded-[12px] border-2 border-[#ec4899] bg-[#ec4899]/[0.06] px-4 py-3.5">
                     <div>
@@ -597,8 +597,8 @@ function PackSelector({ product, currentPrice }: { product: { name: string; pric
                 ))}
 
                 <Link href={TRIO_HREF}
-                    className="relative flex items-center justify-between overflow-hidden rounded-[12px] border-2 border-[#d8b06a] bg-gradient-to-br from-[#fdf3e0] to-[#fdeef4] px-4 py-3.5 transition-transform duration-300 hover:-translate-y-0.5">
-                    <span className="absolute -right-1 -top-1 rounded-bl-[10px] bg-[#d8b06a] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white">Best value</span>
+                    className="relative flex items-center justify-between overflow-hidden rounded-[12px] border-2 border-[#ec4899] bg-gradient-to-br from-[#fdf3e0] to-[#fdeef4] px-4 py-3.5 transition-transform duration-300 hover:-translate-y-0.5">
+                    <span className="absolute -right-1 -top-1 rounded-bl-[10px] bg-[#ec4899] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white">Best value</span>
                     <div>
                         <p className={cn("font-serif text-[15px] font-normal", INK)}>Complete Trio — all 3</p>
                         <p className="text-[11.5px] font-medium text-[#a8823f]">Save ₹4,048</p>
@@ -731,7 +731,7 @@ function ShareRow({ productName, price }: { productName: string; price: string }
     type="button"
     onClick={nativeShare}
     aria-label="Share on Instagram"
-    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5     hover:border-[#d8b06a]/60 hover:bg-[#7a2c4e] hover:text-white"
+    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5     hover:border-[#ec4899]/60 hover:bg-[#7a2c4e] hover:text-white"
   >
     <svg
       viewBox="0 0 24 24"
@@ -770,7 +770,7 @@ function ShareRow({ productName, price }: { productName: string; price: string }
     type="button"
     onClick={copyLink}
     aria-label="Copy link"
-    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b06a]/60 hover:text-[#a8823f]"
+    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ec4899]/60 hover:text-[#a8823f]"
   >
     <AnimatePresence mode="wait" initial={false}>
       {copied ? (

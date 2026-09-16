@@ -103,7 +103,7 @@ export default function ThankYouContent(props: {
 
                         {orderNumber && (
                             <div className={`mx-auto mt-8 inline-flex flex-col items-center gap-1 border-t border-b ${HAIR} px-8 py-4`}>
-                                <span className="text-[10.5px] uppercase tracking-[0.22em] text-[#d8b06a]">Order ID</span>
+                                <span className="text-[10.5px] uppercase tracking-[0.22em] text-[#ec4899]">Order ID</span>
                                 <span className={`font-serif text-[20px] font-light tabular-nums ${INK}`}>{orderNumber}</span>
                             </div>
                         )}
@@ -118,7 +118,7 @@ export default function ThankYouContent(props: {
                     >
                         {NEXT_STEPS.map((step) => (
                             <div key={step.n} className="text-center sm:text-left">
-                                <span className="text-[11px] tracking-[0.2em] text-[#d8b06a]">{step.n}</span>
+                                <span className="text-[11px] tracking-[0.2em] text-[#ec4899]">{step.n}</span>
                                 <p className={`mt-2 font-serif text-[17px] font-light ${INK}`}>{step.title}</p>
                                 <p className={`mt-1.5 text-[13px] font-light leading-[1.7] ${BODY}`}>{step.body}</p>
                             </div>

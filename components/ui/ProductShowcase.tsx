@@ -220,7 +220,7 @@ function ProductCard({
 
             {/* ---- details ---- */}
             <div className="relative px-4 pb-5 pt-5 text-center sm:px-6 sm:pb-8 sm:pt-7 lg:px-8">
-                <div className="mx-auto mb-3 h-px w-6 bg-[#d8b06a] sm:mb-5 sm:w-7" />
+                <div className="mx-auto mb-3 h-px w-6 bg-[#ec4899] sm:mb-5 sm:w-7" />
 
                 <h3 className="font-serif text-[17px] font-light leading-tight tracking-[-0.01em] text-[#7a2c4e] transition-colors duration-300 sm:group-hover:text-[#ec4899] sm:text-[27px] sm:leading-none sm:tracking-[-0.015em]">
                     {product.name}
@@ -310,7 +310,7 @@ export default function ProductShowcase() {
                         <em className="not-italic text-[#ec4899]">beautifully considered.</em>
                     </h2>
 
-                    <span aria-hidden className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#d8b06a] to-transparent" />
+                    <span aria-hidden className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent" />
 
                     <p className="mx-auto mt-6 max-w-xl text-[14px] leading-[1.9] tracking-[0.01em] text-[#6b5560] sm:text-[15px]">
                         Infused with pure essential oils, each fragrance is thoughtfully created to keep you

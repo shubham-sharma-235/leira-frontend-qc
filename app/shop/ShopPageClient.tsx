@@ -244,8 +244,8 @@ function UspTicker() {
                         }}
                         className="absolute inset-0 flex items-center justify-center"
                     >
-                        <span className="inline-flex h-[28px] items-center justify-center rounded-full border border-[#d8b06a]/40 bg-[#fff8e8] px-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9a7025] shadow-[0_3px_12px_-8px_rgba(154,112,37,0.5)]">
-                            <span className="mr-1.5 h-1 w-1 rounded-full bg-[#d8b06a]" />
+                        <span className="inline-flex h-[28px] items-center justify-center rounded-full border border-[#ec4899]/40 bg-[#fff8e8] px-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9a7025] shadow-[0_3px_12px_-8px_rgba(154,112,37,0.5)]">
+                            <span className="mr-1.5 h-1 w-1 rounded-full bg-[#ec4899]" />
                             {USP_ROTATION[index]}
                         </span>
                     </motion.div>
@@ -761,7 +761,7 @@ export default function ShopPageClient({
                         <Reveal delay={0.16}>
                             <span
                                 aria-hidden
-                                className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#d8b06a] to-transparent"
+                                className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent"
                             />
                         </Reveal>
                 

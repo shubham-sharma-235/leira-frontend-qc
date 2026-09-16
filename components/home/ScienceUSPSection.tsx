@@ -403,11 +403,17 @@ export default function ScienceUSPSection({ blendVideo = true }: ScienceUSPSecti
     `}</style>
       <div className="mx-auto w-full max-w-[1240px]">
         <header className="mx-auto mb-16 max-w-3xl text-center md:mb-20">
-          <div className="flex items-center justify-center gap-4">
+          {/* <div className="flex items-center justify-center gap-4">
             <span className="h-px w-8 bg-[#B39A70]" />
-            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#7b1d4e]">Why Choose Us</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-[#7b1d4e]"></p>
             <span className="h-px w-8 bg-[#B39A70]" />
-          </div>
+          </div>  */}
+
+          <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
+            <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />
+            Why Choose Us
+          </span>
+
           
           <h2
             id="science-usp-heading"

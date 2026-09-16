@@ -191,7 +191,7 @@ function Chapter({
         <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />
         {label}
       </span>
-      <span className="font-serif text-[15px] tracking-[0.1em] text-[#d8b06a]">{index}</span>
+      <span className="font-serif text-[15px] tracking-[0.1em] text-[#ec4899]">{index}</span>
     </Reveal>
   );
 }
@@ -205,7 +205,7 @@ function GoldRule({ className = "" }: { className?: string }) {
       initial={{ scaleX: 0 }}
       animate={shown ? { scaleX: 1 } : { scaleX: 0 }}
       transition={{ duration: 1.2, delay: 0.2, ease: EASE }}
-      className={`block h-px origin-left bg-gradient-to-r from-[#d8b06a] to-[#d8b06a]/10 ${className}`}
+      className={`block h-px origin-left bg-gradient-to-r from-[#ec4899] to-[#ec4899]/10 ${className}`}
     />
   );
 }
@@ -256,7 +256,7 @@ function TheGap() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            <p className="mt-8 text-[12px] uppercase tracking-[0.22em] text-[#d8b06a]">
+            <p className="mt-8 text-[12px] uppercase tracking-[0.22em] text-[#ec4899]">
               What existed was
             </p>
           </Reveal>
@@ -354,7 +354,7 @@ function WhatMakesItDifferent() {
 
         <div className="mt-14 grid gap-12 md:mt-20 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-20">
           <Wipe
-            className="relative h-[46vh] overflow-hidden rounded-[22px] shadow-[0_44px_84px_-56px_rgba(122,44,78,0.6)] outline outline-1 outline-offset-[14px] outline-[#d8b06a]/[0.45] lg:sticky lg:top-28 lg:h-[70vh] lg:self-start"
+            className="relative h-[46vh] overflow-hidden rounded-[22px] shadow-[0_44px_84px_-56px_rgba(122,44,78,0.6)] outline outline-1 outline-offset-[14px] outline-[#ec4899]/[0.45] lg:sticky lg:top-28 lg:h-[70vh] lg:self-start"
           >
             <Image
               src="/images/about3.png"
@@ -519,7 +519,7 @@ function Closing() {
             </a>
             <a
               href="/contact"
-              className="border-b border-[#d8b06a]/70 pb-1 font-serif text-[21px] text-white transition-colors duration-300 hover:border-[#f9a8d4] hover:text-[#f9a8d4]"
+              className="border-b border-[#ec4899]/70 pb-1 font-serif text-[21px] text-white transition-colors duration-300 hover:border-[#f9a8d4] hover:text-[#f9a8d4]"
             >
               Talk to us
             </a>
@@ -549,7 +549,7 @@ function ScentRibbon() {
   return (
     <div
       aria-hidden
-      className="relative isolate [overflow:clip] border-y border-[#d8b06a]/25 bg-[#fdeef4] py-5"
+      className="relative isolate [overflow:clip] border-y border-[#ec4899]/25 bg-[#fdeef4] py-5"
     >
       <style
         dangerouslySetInnerHTML={{

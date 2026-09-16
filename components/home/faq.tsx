@@ -138,7 +138,7 @@ export default function Faq() {
           --pink-soft: #f9a8d4;
           --rose-ink: #7a2c4e;
           --body-ink: #6b5560;
-          --gold: #d8b06a;
+          --gold: #ec4899;
           --hair: rgba(122, 44, 78, 0.14);
 
           position: relative;

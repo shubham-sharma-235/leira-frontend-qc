@@ -19,7 +19,7 @@ const CSS = `
   --pink-soft: #f9a8d4;
   --rose-ink: #7a2c4e;
   --body-ink: #6b5560;
-  --gold: #d8b06a;
+  --gold: #ec4899;
   --hair: rgba(122, 44, 78, 0.14);
 
   position: relative;
@@ -145,7 +145,7 @@ const CSS = `
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(216, 176, 106, 0.95);
+  color: #7a2c4e;
   font-family: var(--font-serif);
 }
 .ctVal {

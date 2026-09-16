@@ -21,7 +21,7 @@ const PRODUCTS: Record<
     "ylang-ylang": {
         name: "Leira Ylang Ylang",
         poetic: "Exotic Bliss",
-        accent: "#d8b06a",
+        accent: "#ec4899",
         line: "Bold, warm and quietly confident — for the days that ask more of you.",
         href: "/shop/ylang-ylang",
     },
@@ -201,7 +201,7 @@ export default function ScentFinderQuiz() {
                             </>
                         ) : resultData ? (
                             <div className="text-center">
-                                <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#d8b06a]">Your match</span>
+                                <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">Your match</span>
 
                                 <div
                                     className="mx-auto mt-4 flex h-16 w-16 items-center justify-center rounded-[50%_50%_50%_0] shadow-[0_18px_34px_-16px_rgba(122,44,78,0.5)]"

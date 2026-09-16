@@ -355,7 +355,7 @@ export default function ContactPage() {
       <MiniNavbar />
       <main className="min-h-screen bg-white leira-underlap-nav-spacer">
         {/* ============ 1 · masthead + message form + details ============ */}
-        <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fffdfc] via-[#fff7fa] to-[#fdf1f5] px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24 lg:px-12">
+        <section className="relative isolate [overflow:clip] bg-[linear-gradient(180deg,#fffdfc_0%,#fff7fa_50%,#fdf1f5_100%)] px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24 lg:px-12">
           <Grain />
           <motion.span
             aria-hidden
@@ -391,7 +391,7 @@ export default function ContactPage() {
             <Reveal delay={0.5} onMount>
               <span
                 aria-hidden
-                className="mx-auto mt-8 block h-px w-16 bg-gradient-to-r from-transparent via-[#d8b06a] to-transparent"
+                className="mx-auto mt-8 block h-px w-16 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent"
               />
             </Reveal>
           </div>
@@ -400,7 +400,7 @@ export default function ContactPage() {
             {/* details ledger */}
             <div className="lg:sticky lg:top-28 lg:self-start">
               <Reveal>
-                <p className="text-[12px] uppercase tracking-[0.22em] text-[#d8b06a]">
+                <p className="text-[12px] uppercase tracking-[0.22em] text-[#ec4899]">
                   Contact details
                 </p>
               </Reveal>
@@ -412,7 +412,7 @@ export default function ContactPage() {
                     delay={0.1 + i * 0.08}
                     className="border-b border-[#7a2c4e]/[0.12] py-5"
                   >
-                    <dt className="text-[10.5px] uppercase tracking-[0.22em] text-[#d8b06a]">
+                    <dt className="text-[10.5px] uppercase tracking-[0.22em] text-[#ec4899]">
                       {d.key}
                     </dt>
                     <dd className="mt-2 font-serif text-[clamp(18px,1.6vw,23px)] leading-[1.42] text-[#7a2c4e]">
@@ -546,7 +546,7 @@ export default function ContactPage() {
             </p>
             <span
               aria-hidden
-              className="mx-auto mt-8 block h-px w-16 bg-gradient-to-r from-transparent via-[#d8b06a] to-transparent"
+              className="mx-auto mt-8 block h-px w-16 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent"
             />
           </Reveal>
         </section>

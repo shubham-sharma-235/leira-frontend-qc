@@ -225,7 +225,7 @@ const VARIANTS: Variant[] = [
     name: "Leira Ylang Ylang",
     poetic: "Exotic Bliss",
     headline: "Private area & bikini care",
-    accent: "#d8b06a",
+    accent: "#ec4899",
     tone: "plum",
     reverse: true,
     lead: "A bold, sensual intimate perfume for your private area — crafted with rich Cananga Odorata (Ylang Ylang) essential oil.",
@@ -395,7 +395,7 @@ function VariantSection({ v }: { v: Variant }) {
 
             <Reveal delay={0.5}>
               <p className={`mt-7 border-t pt-5 text-[13px] font-light leading-[1.75] ${t.hair} ${t.body}`}>
-                <span className="uppercase tracking-[0.2em]" style={{ color: dark ? "#d8b06a" : v.accent }}>
+                <span className="uppercase tracking-[0.2em]" style={{ color: dark ? "#ec4899" : v.accent }}>
                   Perfect for
                 </span>
                 <span className="mt-2 block">{v.perfectFor}</span>
@@ -467,7 +467,7 @@ function VariantSection({ v }: { v: Variant }) {
                 <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-2">
                   <span
                     className="text-[11px] leading-[1.75] tracking-[0.16em]"
-                    style={{ color: dark ? "#d8b06a" : v.accent }}
+                    style={{ color: dark ? "#ec4899" : v.accent }}
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -498,7 +498,7 @@ function VariantSection({ v }: { v: Variant }) {
                   className={`block h-1.5 w-1.5 rotate-45 border-b border-r transition-transform duration-500 ${
                     expanded ? "-translate-y-0.5 rotate-[225deg]" : ""
                   }`}
-                  style={{ borderColor: dark ? "#d8b06a" : v.accent }}
+                  style={{ borderColor: dark ? "#ec4899" : v.accent }}
                 />
               </button>
             </Reveal>
@@ -514,7 +514,7 @@ function VariantSection({ v }: { v: Variant }) {
    ================================================================== */
 const MATCH = [
   { label: "Everyday freshness", name: "Leira Jasmine", body: "Best for sensitive skin and daily bikini area care.", accent: "#ec4899", slug: "jasmine" },
-  { label: "Bold confidence", name: "Leira Ylang Ylang", body: "Best for private area confidence and intimate occasions.", accent: "#d8b06a", slug: "ylang-ylang" },
+  { label: "Bold confidence", name: "Leira Ylang Ylang", body: "Best for private area confidence and intimate occasions.", accent: "#ec4899", slug: "ylang-ylang" },
   { label: "Nourishing recovery", name: "Leira Damask Rose", body: "Best for sensitive area care and post-menstruation recovery.", accent: "#b23a63", slug: "damask-rose" },
 ];
 

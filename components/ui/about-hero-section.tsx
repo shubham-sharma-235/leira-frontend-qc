@@ -99,7 +99,7 @@ export function AboutHeroSection({
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 1.2, delay: 0.55, ease: EASE }}
-            className="mx-auto mt-8 block h-px w-16 bg-gradient-to-r from-transparent via-[#d8b06a] to-transparent"
+            className="mx-auto mt-8 block h-px w-16 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent"
           />
         </Reveal>
       </div>
@@ -169,7 +169,7 @@ export function AboutHeroSection({
 
         <div className="lg:pt-1">
           <Reveal delay={0.2}>
-            <p className="border-l-2 border-[#d8b06a] pl-6 font-serif text-[clamp(20px,2.3vw,30px)] font-light italic leading-[1.42] text-[#7a2c4e]">
+            <p className="border-l-2 border-[#ec4899] pl-6 font-serif text-[clamp(20px,2.3vw,30px)] font-light italic leading-[1.42] text-[#7a2c4e]">
               Because every part of you deserves self-care. Not just the visible parts.
             </p>
           </Reveal>
@@ -185,7 +185,7 @@ export function AboutHeroSection({
                 transition={{ duration: 0.75, delay: 0.35 + i * 0.09, ease: EASE }}
                 className="flex items-baseline gap-5 border-b border-[#7a2c4e]/[0.12] py-3.5"
               >
-                <dt className="text-[10.5px] tracking-[0.2em] text-[#d8b06a]">0{i + 1}</dt>
+                <dt className="text-[10.5px] tracking-[0.2em] text-[#ec4899]">0{i + 1}</dt>
                 <dd className="font-serif text-[17px] text-[#7a2c4e] md:text-[19px]">{fact}</dd>
               </motion.div>
             ))}

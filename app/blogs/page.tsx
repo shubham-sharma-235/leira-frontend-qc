@@ -282,11 +282,11 @@ export default function BlogPage() {
                       <div className="mt-4 flex flex-1 flex-col">
                         <div className={cn("flex items-center gap-4 text-[11px] font-light", BODY)}>
                           <span className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 text-[#d8b06a]" strokeWidth={1.6} />
+                            <Calendar className="h-3.5 w-3.5 text-[#ec4899]" strokeWidth={1.6} />
                             {post.date}
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5 text-[#d8b06a]" strokeWidth={1.6} />
+                            <Clock className="h-3.5 w-3.5 text-[#ec4899]" strokeWidth={1.6} />
                             {post.readTime}
                           </span>
                         </div>

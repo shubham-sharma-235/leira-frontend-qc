@@ -393,7 +393,7 @@ export default function CollaborationPage() {
                 </a>
                 <a
                   href="mailto:support@leiraindia.com"
-                  className="border-b border-[#d8b06a]/70 pb-1 font-serif text-[20px] text-[#7a2c4e] transition-colors duration-300 hover:border-[#ec4899] hover:text-[#ec4899]"
+                  className="border-b border-[#ec4899]/70 pb-1 font-serif text-[20px] text-[#7a2c4e] transition-colors duration-300 hover:border-[#ec4899] hover:text-[#ec4899]"
                 >
                   Or email us directly
                 </a>
@@ -480,7 +480,7 @@ export default function CollaborationPage() {
                   delay={i * 0.08}
                   className="border-b border-white/[0.14] py-7 md:py-9"
                 >
-                  <span className="text-[11px] tracking-[0.2em] text-[#d8b06a]">{o.n}</span>
+                  <span className="text-[11px] tracking-[0.2em] text-[#ec4899]">{o.n}</span>
                   <dt className="mt-2 font-serif text-[clamp(19px,2vw,27px)] font-normal leading-[1.28] text-white">
                     {o.title}
                   </dt>
@@ -508,10 +508,10 @@ export default function CollaborationPage() {
                   {i < STEPS.length - 1 && (
                     <span
                       aria-hidden
-                      className="absolute right-[-16px] top-4 hidden h-px w-8 bg-gradient-to-r from-[#d8b06a]/70 to-transparent md:block"
+                      className="absolute right-[-16px] top-4 hidden h-px w-8 bg-gradient-to-r from-[#ec4899]/70 to-transparent md:block"
                     />
                   )}
-                  <span className="font-serif text-[15px] tracking-[0.1em] text-[#d8b06a]">
+                  <span className="font-serif text-[15px] tracking-[0.1em] text-[#ec4899]">
                     {s.n}
                   </span>
                   <h3 className="mt-3 font-serif text-[clamp(20px,2vw,27px)] font-light leading-[1.25] text-[#7a2c4e]">
@@ -548,7 +548,7 @@ export default function CollaborationPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.4}>
-                <p className="mt-6 border-l-2 border-[#d8b06a] pl-5 text-[13px] font-light leading-[1.8] text-[#6b5560]/80">
+                <p className="mt-6 border-l-2 border-[#ec4899] pl-5 text-[13px] font-light leading-[1.8] text-[#6b5560]/80">
                   Your details are used to assess and contact you about a collaboration. We
                   don&apos;t add applicants to a marketing list.
                 </p>

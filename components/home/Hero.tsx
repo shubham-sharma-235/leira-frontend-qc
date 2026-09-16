@@ -93,7 +93,7 @@ const CSS = `
   --pink-soft: #f9a8d4;
   --rose-ink: #7a2c4e;
   --body-ink: #6b5560;
-  --gold: #d8b06a;
+  --gold: #ec4899;
   --seam-color: #fffdfc;
 
   --sticky-top: 0px;
@@ -439,7 +439,7 @@ const CSS = `
   --pink-soft: #f9a8d4;
   --rose-ink: #7a2c4e;
   --body-ink: #6b5560;
-  --gold: #d8b06a;
+  --gold: #ec4899;
   --hair: rgba(122, 44, 78, 0.12);
   --ap: 0;
 
@@ -639,7 +639,7 @@ const CSS = `
   font-size: 11.5px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(216, 176, 106, 0.95);
+  color: #7a2c4e;
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 0.7s ease 0.85s, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.85s;

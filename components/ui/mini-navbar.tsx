@@ -12,6 +12,11 @@ import { blogAPI } from '@/lib/api';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+/* Unique namespace so page-level CSS/IDs do not collide with this navbar. */
+const NAV_ROOT_ID = 'qc-leira-mini-navbar-v5';
+const NAV_DRAWER_ID = 'qc-leira-mini-navbar-v5-drawer';
+const NAV_HEIGHT_VAR = '--qc-leira-mini-navbar-v5-h';
+
 /* Palette pulled from the hero: blush ground, plum headline, dusty rose hairline. */
 const PLUM = '#7b2e45';
 const INK = '#4a1c2e';
@@ -25,7 +30,7 @@ const ANNOUNCEMENTS = [
 ];
 
 /** Display face — same serif voice as the hero headline. */
-const DISPLAY = 'var(--font-display, "Cormorant Garamond", ui-serif, Georgia, serif)';
+const DISPLAY = '"Cormorant Garamond", ui-serif, Georgia, serif';
 
 const EditorialNavLink = ({
   href,
@@ -39,12 +44,12 @@ const EditorialNavLink = ({
   <Link
     href={href}
     aria-current={isActive ? 'page' : undefined}
-    className="group relative block whitespace-nowrap py-1 focus:outline-none"
+    className="qc-leira-mini-navbar-v5__link group relative block whitespace-nowrap py-1 !no-underline focus:outline-none"
   >
     <span
-      style={{ fontFamily: DISPLAY }}
-      className={`block text-[15px] font-semibold leading-none tracking-[0.02em] transition-colors duration-300 ${
-        isActive ? 'text-[#7b2e45]' : 'text-[#4a1c2e] group-hover:text-[#7b2e45]'
+      style={{ fontFamily: DISPLAY, fontWeight: 300, fontStyle: 'normal', textTransform: 'none' }}
+      className={`qc-leira-mini-navbar-v5__link-label block !text-[15px] !font-semibold !leading-none !tracking-[0.02em] transition-colors duration-300 ${
+        isActive ? '!text-[#7b2e45]' : '!text-[#4a1c2e] group-hover:!text-[#7b2e45]'
       }`}
     >
       {children}
@@ -52,21 +57,21 @@ const EditorialNavLink = ({
 
     <span
       aria-hidden
-      className="pointer-events-none absolute inset-x-0 -bottom-1 h-px origin-right scale-x-0 bg-[#c9a2ae] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:origin-left group-hover:scale-x-100 motion-reduce:transition-none"
+      className="qc-leira-mini-navbar-v5__link-hover-line pointer-events-none absolute inset-x-0 -bottom-1 h-px origin-right scale-x-0 bg-[#c9a2ae] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:origin-left group-hover:scale-x-100 motion-reduce:transition-none"
     />
 
     {isActive && (
       <motion.span
-        layoutId="leira-nav-active"
+        layoutId="qc-leira-mini-navbar-v5-active-link"
         aria-hidden
-        className="absolute inset-x-0 -bottom-1 h-px bg-[#7b2e45]"
+        className="qc-leira-mini-navbar-v5__active-line absolute inset-x-0 -bottom-1 h-px bg-[#7b2e45]"
         transition={{ type: 'spring', stiffness: 420, damping: 34 }}
       />
     )}
 
     <span
       aria-hidden
-      className="pointer-events-none absolute -inset-x-2 -inset-y-1.5 rounded ring-0 ring-[#7b2e45]/35 transition-shadow group-focus-visible:ring-2"
+      className="qc-leira-mini-navbar-v5__focus-ring pointer-events-none absolute -inset-x-2 -inset-y-1.5 rounded ring-0 ring-[#7b2e45]/35 transition-shadow group-focus-visible:ring-2"
     />
   </Link>
 );
@@ -121,8 +126,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
     if (!el) return;
     const root = document.documentElement;
     const apply = () => {
-      root.style.setProperty('--leira-nav-h', `${el.offsetHeight}px`);
-      root.style.setProperty('--leira-mini-nav-h', '0px');
+      root.style.setProperty(NAV_HEIGHT_VAR, `${el.offsetHeight}px`);
     };
     apply();
     const ro = new ResizeObserver(apply);
@@ -258,12 +262,12 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
   };
 
   const iconBtn =
-    'group relative flex h-9 w-9 items-center justify-center rounded-full text-[#7b2e45]/85 transition-colors duration-300 hover:text-[#4a1c2e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7b2e45]/35';
+    'qc-leira-mini-navbar-v5__icon-btn group relative flex h-9 w-9 items-center justify-center rounded-full text-[#7b2e45]/85 transition-colors duration-300 hover:text-[#4a1c2e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7b2e45]/35';
 
   const IconHalo = () => (
     <span
       aria-hidden
-      className="pointer-events-none absolute inset-0 scale-50 rounded-full bg-white/55 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100 motion-reduce:transition-none"
+      className="qc-leira-mini-navbar-v5__icon-halo pointer-events-none absolute inset-0 scale-50 rounded-full bg-white/55 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100 motion-reduce:transition-none"
     />
   );
 
@@ -287,7 +291,10 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
           duration: reduceMotion ? 0 : isPastHero ? 0.55 : 0.7,
           ease: EASE,
         }}
-        className={`inset-x-0 top-0 z-50 flex w-full flex-col transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ease-out ${
+        id={NAV_ROOT_ID}
+        data-qc-leira-navbar="root"
+        style={{ fontWeight: 400 }}
+        className={`qc-leira-mini-navbar-v5 inset-x-0 top-0 z-50 flex w-full flex-col transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ease-out ${
           isPastHero
             ? 'fixed border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 shadow-[0_14px_45px_-28px_rgba(74,28,46,0.45)] backdrop-blur-xl supports-[backdrop-filter]:bg-[#fdeef0]/82'
             : 'absolute border-b border-transparent bg-transparent shadow-none'
@@ -296,7 +303,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         {scrim && !isPastHero && (
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 -bottom-8 top-0 bg-gradient-to-b from-white/45 via-white/15 to-transparent"
+            className="qc-leira-mini-navbar-v5__scrim pointer-events-none absolute inset-x-0 -bottom-8 top-0 bg-gradient-to-b from-white/45 via-white/15 to-transparent"
           />
         )}
 
@@ -306,9 +313,9 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
             initial={reduceMotion ? false : { opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.08, ease: EASE }}
-            className="relative z-10 px-4 pt-3 sm:px-6"
+            className="qc-leira-mini-navbar-v5__announcement relative z-10 px-4 pt-3 sm:px-6"
           >
-            <div className="mx-auto h-4 max-w-[92%] text-center">
+            <div className="qc-leira-mini-navbar-v5__announcement-inner mx-auto h-4 max-w-[92%] text-center">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.p
                   key={noteIndex}
@@ -316,8 +323,8 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -5 }}
                   transition={{ duration: reduceMotion ? 0 : 0.45, ease: EASE }}
-                  className="truncate text-[11px] italic leading-4 tracking-[0.03em] text-[#7b2e45]/90"
-                  style={{ fontFamily: DISPLAY }}
+                  className="qc-leira-mini-navbar-v5__announcement-text truncate !text-[11px] !font-normal italic !leading-4 !tracking-[0.03em] !text-[#7b2e45]/90"
+                  style={{ fontFamily: DISPLAY, fontWeight: 400 }}
                 >
                   {ANNOUNCEMENTS[noteIndex]}
                 </motion.p>
@@ -327,9 +334,9 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         )}
 
         {/* Links left, wordmark centre, icons right */}
-        <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-[1480px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-10">
+        <div className="qc-leira-mini-navbar-v5__inner relative z-10 mx-auto grid w-full min-w-0 max-w-[1760px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-10 2xl:px-12">
           {/* left */}
-          <div className="flex min-w-0 items-center justify-start">
+          <div className="qc-leira-mini-navbar-v5__left flex min-w-0 items-center justify-start">
             <motion.button
               type="button"
               onClick={() => setIsOpen((v) => !v)}
@@ -340,6 +347,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               className={`${iconBtn} -ml-1.5 xl:hidden`}
               aria-label={isOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isOpen}
+              aria-controls={NAV_DRAWER_ID}
             >
               <IconHalo />
               <span className="relative flex h-3.5 w-[19px] flex-col justify-center gap-[6px]">
@@ -356,7 +364,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               </span>
             </motion.button>
 
-            <nav className="hidden min-w-0 items-center gap-x-6 xl:flex 2xl:gap-x-8">
+            <nav id="qc-leira-mini-navbar-v5-desktop-links" className="qc-leira-mini-navbar-v5__desktop-nav hidden min-w-0 items-center gap-x-6 xl:flex 2xl:gap-x-8">
               {navLinksData.map((link, index) => (
                 <motion.div
                   key={link.href}
@@ -384,15 +392,15 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
             initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.5, delay: 0.06, ease: EASE }}
-            className="group relative z-20 flex shrink-0 items-center justify-center"
+            className="qc-leira-mini-navbar-v5__logo-wrap group relative z-20 flex shrink-0 items-center justify-center"
           >
-            <Link href="/" aria-label="Leira — home" className="relative block overflow-hidden">
+            <Link href="/" aria-label="Leira — home" className="qc-leira-mini-navbar-v5__logo-link relative block overflow-hidden !no-underline">
               <Image
                 src="/images/logo.png"
                 alt="Leira"
                 width={160}
                 height={44}
-                className="h-8 w-auto object-contain transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:transition-none sm:h-9"
+                className="qc-leira-mini-navbar-v5__logo h-8 w-auto object-contain transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:transition-none sm:h-9"
                 priority
                 unoptimized
               />
@@ -408,7 +416,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
             initial={reduceMotion ? false : { opacity: 0, x: 8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.45, delay: 0.12, ease: EASE }}
-            className="flex min-w-0 items-center justify-end gap-1"
+            id="qc-leira-mini-navbar-v5-actions" className="qc-leira-mini-navbar-v5__actions flex min-w-0 items-center justify-end gap-1"
           >
             <Link href="/shop" className={iconBtn} aria-label="Search the shop">
               <IconHalo />
@@ -418,7 +426,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
             {!authReady ? (
               <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-[#7b2e45]/10" aria-hidden />
             ) : user ? (
-              <div className="flex items-center [&_button]:h-9 [&_button]:w-9 [&_button]:min-w-0 [&_button]:rounded-full [&_button]:border-[#c9a2ae]/50 [&_button]:bg-white/45 [&_button]:p-0 [&_button]:shadow-none [&_button]:backdrop-blur-sm">
+              <div className="qc-leira-mini-navbar-v5__profile flex items-center [&_button]:h-9 [&_button]:w-9 [&_button]:min-w-0 [&_button]:rounded-full [&_button]:border-[#c9a2ae]/50 [&_button]:bg-white/45 [&_button]:p-0 [&_button]:shadow-none [&_button]:backdrop-blur-sm">
                 <ProfileDropdown
                   data={{ name: displayName, email: user.email || '', avatar: undefined }}
                   onLogout={handleLogout}
@@ -468,7 +476,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-40 bg-[#4a1c2e]/20 backdrop-blur-[2px] xl:hidden"
+              id="qc-leira-mini-navbar-v5-overlay" className="qc-leira-mini-navbar-v5__overlay fixed inset-0 z-40 bg-[#4a1c2e]/20 backdrop-blur-[2px] xl:hidden"
             />
             <motion.div
               key="drawer"
@@ -476,10 +484,12 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               animate={{ opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)' }}
               exit={{ opacity: 0, y: -10, clipPath: 'inset(0 0 100% 0)' }}
               transition={{ duration: 0.4, ease: EASE }}
-              style={{ top: 'var(--leira-nav-h, 76px)' }}
-              className="fixed inset-x-0 z-40 max-h-[calc(140vh-var(--leira-nav-h,76px))] overflow-y-auto border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 px-5 pb-8 pt-5 shadow-[0_28px_70px_-40px_rgba(74,28,46,0.55)] backdrop-blur-xl xl:hidden"
+              id={NAV_DRAWER_ID}
+              data-qc-leira-navbar="drawer"
+              style={{ top: `var(${NAV_HEIGHT_VAR}, 76px)` }}
+              className="qc-leira-mini-navbar-v5__drawer fixed inset-x-0 z-40 max-h-[calc(140vh-var(--qc-leira-mini-navbar-v5-h,76px))] overflow-y-auto border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 px-5 pb-8 pt-5 shadow-[0_28px_70px_-40px_rgba(74,28,46,0.55)] backdrop-blur-xl xl:hidden"
             >
-              <nav className="flex flex-col">
+              <nav id="qc-leira-mini-navbar-v5-mobile-links" className="qc-leira-mini-navbar-v5__mobile-nav flex flex-col">
                 {navLinksData.map((link, index) => {
                   const isActive = isActiveHref(link.href);
                   return (
@@ -492,13 +502,13 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                       <Link
                         href={link.href}
                         onClick={() => setIsOpen(false)}
-                        className={`flex items-center justify-between border-b border-[#c9a2ae]/30 py-3.5 transition-colors ${
-                          isActive ? 'text-[#7b2e45]' : 'text-[#4a1c2e]'
+                        className={`qc-leira-mini-navbar-v5__mobile-link flex items-center justify-between border-b border-[#c9a2ae]/30 py-3.5 !no-underline transition-colors ${
+                          isActive ? '!text-[#7b2e45]' : '!text-[#4a1c2e]'
                         }`}
                       >
                         <span
-                          style={{ fontFamily: DISPLAY }}
-                          className="text-[22px] font-semibold leading-none"
+                          style={{ fontFamily: DISPLAY, fontWeight: 600, fontStyle: 'normal', textTransform: 'none' }}
+                          className="qc-leira-mini-navbar-v5__mobile-link-label !text-[22px] !font-semibold !leading-none"
                         >
                           {link.label}
                         </span>
@@ -515,7 +525,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.28, duration: 0.35, ease: EASE }}
-                className="mt-7 flex flex-col gap-4"
+                className="qc-leira-mini-navbar-v5__mobile-account mt-7 flex flex-col gap-4"
               >
                 <button
                   type="button"
@@ -523,7 +533,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                     setIsOpen(false);
                     openCart();
                   }}
-                  className="flex items-center justify-between border-b border-[#c9a2ae]/30 pb-3.5 text-left"
+                  className="qc-leira-mini-navbar-v5__mobile-bag flex items-center justify-between border-b border-[#c9a2ae]/30 pb-3.5 text-left"
                 >
                   <span
                     style={{ fontFamily: DISPLAY }}
@@ -544,7 +554,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                     <Link
                       href="/profile"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-3 py-1"
+                      className="qc-leira-mini-navbar-v5__profile-link flex items-center gap-3 py-1 !no-underline"
                     >
                       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#9a6274] to-[#4a1c2e] text-xs font-semibold text-white">
                         {initial}
@@ -567,7 +577,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                           key={item.href}
                           href={item.href}
                           onClick={() => setIsOpen(false)}
-                          className="rounded-full border border-[#c9a2ae]/50 px-4 py-1.5 text-[12px] text-[#9a6274] transition-colors hover:border-[#7b2e45] hover:text-[#7b2e45]"
+                          className="qc-leira-mini-navbar-v5__profile-pill rounded-full border border-[#c9a2ae]/50 px-4 py-1.5 text-[12px] text-[#9a6274] !no-underline transition-colors hover:border-[#7b2e45] hover:text-[#7b2e45]"
                         >
                           {item.label}
                         </Link>
@@ -580,7 +590,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                         handleLogout();
                         setIsOpen(false);
                       }}
-                      className="flex items-center gap-2 py-1 text-[13px] text-[#9a6274] transition-colors hover:text-[#7b2e45]"
+                      className="qc-leira-mini-navbar-v5__logout flex items-center gap-2 py-1 text-[13px] text-[#9a6274] transition-colors hover:text-[#7b2e45]"
                     >
                       <LogOut className="h-3.5 w-3.5 stroke-[1.25]" /> Log out
                     </button>
@@ -591,7 +601,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                       type="button"
                       onClick={goToSignup}
                       style={{ fontFamily: DISPLAY }}
-                      className="rounded-full bg-[#7b2e45] px-6 py-3 text-[15px] tracking-[0.02em] text-[#fdeef0] transition-colors hover:bg-[#4a1c2e]"
+                      className="qc-leira-mini-navbar-v5__signup rounded-full bg-[#7b2e45] px-6 py-3 !text-[15px] !font-normal !tracking-[0.02em] !text-[#fdeef0] transition-colors hover:bg-[#4a1c2e]"
                     >
                       Create account
                     </button>
@@ -599,7 +609,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                       type="button"
                       onClick={goToLogin}
                       style={{ fontFamily: DISPLAY }}
-                      className="rounded-full border border-[#c9a2ae]/60 px-6 py-3 text-[15px] tracking-[0.02em] text-[#7b2e45] transition-colors hover:border-[#7b2e45]"
+                      className="qc-leira-mini-navbar-v5__login rounded-full border border-[#c9a2ae]/60 px-6 py-3 !text-[15px] !font-normal !tracking-[0.02em] !text-[#7b2e45] transition-colors hover:border-[#7b2e45]"
                     >
                       Log in
                     </button>
