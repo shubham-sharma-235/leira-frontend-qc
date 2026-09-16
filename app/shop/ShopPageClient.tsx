@@ -739,14 +739,14 @@ export default function ShopPageClient({
                 {/* ---------------- masthead ---------------- */}
                 <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-5 pb-12 pt-14 text-center sm:px-8 md:pb-16 md:pt-20 lg:px-12">
                     <Grain />
-
+                
                     <div className="mx-auto max-w-2xl">
                         <Reveal>
                             <span className="text-[11px] font-light uppercase tracking-[0.3em] text-[#ec4899]/75">
                                 Our collection
                             </span>
                         </Reveal>
-
+                
                         <Reveal delay={0.08}>
                             <h1
                                 className={cn(
@@ -757,14 +757,14 @@ export default function ShopPageClient({
                                 Shop Leira
                             </h1>
                         </Reveal>
-
+                
                         <Reveal delay={0.16}>
                             <span
                                 aria-hidden
                                 className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#d8b06a] to-transparent"
                             />
                         </Reveal>
-
+                
                         <Reveal delay={0.22}>
                             <p
                                 className={cn(
@@ -778,6 +778,19 @@ export default function ShopPageClient({
                                 balanced, made for sensitive
                                 skin.
                             </p>
+                        </Reveal>
+                
+                        {/* Product highlight */}
+                        <Reveal delay={0.28}>
+                            <div className="mt-6 text-center">
+                                <h2 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-[#171717] sm:text-[28px]">
+                                    India's First Vulva Perfume
+                                </h2>
+                
+                                <p className="mt-2 text-[21px] font-semibold leading-tight tracking-[-0.02em] text-[#e6007e] sm:text-[25px]">
+                                    Jasmine, Damask Rose &amp; Ylang Ylang
+                                </p>
+                            </div>
                         </Reveal>
                     </div>
                 </section>
