@@ -18,7 +18,7 @@ const COLLAGE_IMAGES = [
   "/new-images/ls-4.jpg",
   "/new-images/pd-3.jpg",
   "/new-images/ls-5.jpg",
-  "/new-images/pd-2.jpg",
+  "/new-images/pd-2.JPG",
   "/new-images/ls-7.jpg",
   "/new-images/ls-12.jpeg",
   "/new-images/ls-14.jpeg",
@@ -27,7 +27,7 @@ const COLLAGE_IMAGES = [
 const REVEAL_IMAGE = "/graphics/g1.png";
 const ABOUT_IMAGE = "/graphics/g2.png";
 /* second, smaller frame in the about collage */
-const ABOUT_IMAGE_2 = "/new-images/pd-2.jpg";
+const ABOUT_IMAGE_2 = "/new-images/pd-2.JPG";
 
 /* ------------------------------------------------------------------
    TIMING
