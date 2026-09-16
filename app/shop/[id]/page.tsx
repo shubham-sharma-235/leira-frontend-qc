@@ -623,34 +623,163 @@ function ShareRow({ productName, price }: { productName: string; price: string }
     };
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("mr-1 text-[11px] uppercase tracking-[0.16em]", BODY)}>Share this scent</span>
-            {links.map((l) => (
-                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={`Share on ${l.label}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = l.color)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-                    <span className="text-[11px] font-semibold">{l.label.charAt(0)}</span>
-                </a>
-            ))}
-            {/* Instagram — opens the native share sheet (covers IG directly on
-                mobile) or copies the link on desktop, since no direct web
-                share-intent URL exists for Instagram. */}
-            <button type="button" onClick={nativeShare} aria-label="Share on Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-white transition-all duration-300 hover:-translate-y-0.5"
-                style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }}>
-                <span className="text-[11px] font-semibold">IG</span>
-            </button>
-            <button type="button" onClick={copyLink} aria-label="Copy link"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b06a]/60 hover:text-[#a8823f]">
-                <AnimatePresence mode="wait" initial={false}>
-                    {copied ? (
-                        <motion.span key="check" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}><Check className="h-[14px] w-[14px]" strokeWidth={1.8} /></motion.span>
-                    ) : (
-                        <motion.span key="copy" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}><Copy className="h-[14px] w-[14px]" strokeWidth={1.7} /></motion.span>
-                    )}
-                </AnimatePresence>
-            </button>
-        </div>
+  <span
+    className={cn(
+      "mr-1 text-[11px] uppercase tracking-[0.16em]",
+      BODY
+    )}
+  >
+    Share this scent
+  </span>
+
+  {links.map((l) => (
+    <a
+      key={l.label}
+      href={l.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Share on ${l.label}`}
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = l.color;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = "transparent";
+      }}
+    >
+      {l.label.toLowerCase() === "facebook" && (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-[15px] w-[15px]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M14 8h3V4h-3c-2.76 0-5 2.24-5 5v3H6v4h3v8h4v-8h3.5l.5-4H13V9c0-.55.45-1 1-1Z" />
+        </svg>
+      )}
+
+      {(l.label.toLowerCase() === "twitter" ||
+        l.label.toLowerCase() === "x") && (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-[14px] w-[14px]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M18.244 2H21.5l-7.11 8.13L22.75 22h-6.6l-5.17-6.76L5.06 22H1.8l7.6-8.69L1.25 2H8l4.67 6.17L18.244 2Zm-1.14 17.85h1.8L6.98 4.03H5.05L17.104 19.85Z" />
+        </svg>
+      )}
+
+      {l.label.toLowerCase() === "pinterest" && (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-[15px] w-[15px]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M12 2C6.48 2 2 6.15 2 11.27c0 3.8 2.15 7.1 5.36 8.73-.07-.74-.01-1.63.18-2.34l1.01-4.28s-.26-.52-.26-1.29c0-1.21.7-2.12 1.57-2.12.74 0 1.1.55 1.1 1.21 0 .74-.47 1.84-.71 2.86-.2.85.43 1.54 1.27 1.54 1.52 0 2.69-1.6 2.69-3.91 0-2.04-1.47-3.46-3.57-3.46-2.43 0-3.85 1.82-3.85 3.7 0 .73.28 1.51.64 1.94.07.08.08.15.06.24l-.24.95c-.04.15-.13.19-.29.12-1.08-.5-1.76-2.06-1.76-3.31 0-2.69 1.95-5.16 5.63-5.16 2.96 0 5.26 2.11 5.26 4.93 0 2.94-1.85 5.3-4.42 5.3-.86 0-1.67-.45-1.95-.98l-.53 2.03c-.19.74-.7 1.67-1.04 2.24.78.24 1.61.37 2.46.37 5.52 0 10-4.15 10-9.27S17.52 2 12 2Z" />
+        </svg>
+      )}
+
+      {l.label.toLowerCase() === "whatsapp" && (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-[15px] w-[15px]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M20.52 3.48A11.87 11.87 0 0 0 12.06 0C5.49 0 .15 5.34.15 11.91c0 2.1.55 4.15 1.6 5.96L.05 24l6.27-1.65a11.9 11.9 0 0 0 5.74 1.46h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.45-8.42ZM12.07 21.8a9.88 9.88 0 0 1-5.04-1.38l-.36-.21-3.72.98.99-3.63-.24-.37a9.86 9.86 0 0 1-1.51-5.28c0-5.47 4.45-9.92 9.93-9.92 2.65 0 5.14 1.03 7.01 2.91a9.84 9.84 0 0 1 2.9 7.02c-.01 5.46-4.46 9.88-9.96 9.88Zm5.43-7.41c-.3-.15-1.77-.87-2.05-.97-.28-.1-.49-.15-.7.15-.21.3-.8.97-.98 1.17-.18.2-.36.22-.66.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.74-1.64-2.03-.17-.3-.02-.46.13-.61.13-.13.3-.36.45-.54.15-.18.2-.31.3-.51.1-.2.05-.38-.03-.53-.08-.15-.7-1.68-.96-2.3-.25-.6-.51-.52-.7-.53h-.59c-.2 0-.53.07-.81.38-.28.3-1.06 1.04-1.06 2.54s1.09 2.95 1.24 3.15c.15.2 2.15 3.28 5.2 4.6.73.32 1.3.51 1.74.65.73.23 1.4.2 1.93.12.59-.09 1.77-.72 2.02-1.41.25-.69.25-1.28.17-1.4-.08-.12-.28-.19-.59-.34Z" />
+        </svg>
+      )}
+
+      {l.label.toLowerCase() === "linkedin" && (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-[15px] w-[15px]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM2.75 9.5h4.45V21H2.75V9.5ZM9.25 9.5h4.27v1.57h.06c.59-1.12 2.04-2.3 4.2-2.3 4.49 0 5.32 2.95 5.32 6.78V21h-4.45v-4.84c0-1.15-.02-2.63-1.6-2.63-1.6 0-1.84 1.25-1.84 2.54V21H9.25V9.5Z" />
+        </svg>
+      )}
+    </a>
+  ))}
+
+  {/* Instagram */}
+  <button
+    type="button"
+    onClick={nativeShare}
+    aria-label="Share on Instagram"
+    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5     hover:border-[#d8b06a]/60 hover:bg-[#7a2c4e] hover:text-white"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      className="h-[15px] w-[15px]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="5"
+      />
+  
+      <circle
+        cx="12"
+        cy="12"
+        r="4"
+      />
+  
+      <circle
+        cx="17.5"
+        cy="6.5"
+        r="1"
+        fill="currentColor"
+        stroke="none"
+      />
+    </svg>
+  </button>
+
+  {/* Copy Link */}
+  <button
+    type="button"
+    onClick={copyLink}
+    aria-label="Copy link"
+    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7a2c4e]/15 text-[#7a2c4e]/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b06a]/60 hover:text-[#a8823f]"
+  >
+    <AnimatePresence mode="wait" initial={false}>
+      {copied ? (
+        <motion.span
+          key="check"
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.6, opacity: 0 }}
+        >
+          <Check
+            className="h-[14px] w-[14px]"
+            strokeWidth={1.8}
+          />
+        </motion.span>
+      ) : (
+        <motion.span
+          key="copy"
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.6, opacity: 0 }}
+        >
+          <Copy
+            className="h-[14px] w-[14px]"
+            strokeWidth={1.7}
+          />
+        </motion.span>
+      )}
+    </AnimatePresence>
+  </button>
+</div>
     );
 }
 
@@ -820,9 +949,9 @@ export default function ProductDetailPage() {
             <MiniNavbar />
 
             {/* ================= hero — 40% image / 60% info ================= */}
-            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12">
+            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12 pt-12">
                 <Grain />
-                <div className="mx-auto max-w-7xl">
+                <div className="mx-auto max-w-8xl">
                     <div className="mt-8 grid gap-10 lg:grid-cols-[76px_2fr_3fr] lg:gap-10">
                         {images.length > 1 && (
                             <div className="hidden flex-col gap-3 lg:flex lg:sticky lg:self-start" style={{ top: stickyTop }}>
@@ -836,7 +965,7 @@ export default function ProductDetailPage() {
                             </div>
                         )}
 
-                        <div className="lg:sticky lg:self-start" style={{ top: stickyTop }}>
+                        <div className="lg:sticky lg:self-start mt-4" style={{ top: stickyTop }}>
                             <div className="relative aspect-[3/4] overflow-hidden rounded-[24px] bg-[#f7e6ee] shadow-[0_44px_84px_-56px_rgba(122,44,78,0.55)] lg:min-h-[560px]">
                                 <AnimatePresence mode="wait">
                                     <motion.div key={activeImage} initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} className="absolute inset-0">
@@ -872,9 +1001,9 @@ export default function ProductDetailPage() {
                         </div>
 
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE }}>
-                            <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
+                            {/* <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
                                 <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]" />Leira exclusive
-                            </span>
+                            </span> */}
 
                             <h1 className={cn("mt-4 font-serif text-[clamp(30px,3.6vw,44px)] font-light leading-[1.1] tracking-tight", INK)}>{product.name}</h1>
                             {benefitH2 && <p className="mt-2 max-w-[42ch] font-serif text-[16px] font-light italic text-[#7a2c4e]/55">{benefitH2}</p>}
