@@ -16,7 +16,7 @@ const COLLAGE_IMAGES = [
   "/new-images/ls-2.jpg",
   "/new-images/ls-3.jpg",
   "/new-images/ls-4.jpg",
-  "/new-images/pd-3.jpg",
+  "/new-images/pd-3.JPG",
   "/new-images/ls-5.jpg",
   "/new-images/pd-2.JPG",
   "/new-images/ls-7.jpg",
