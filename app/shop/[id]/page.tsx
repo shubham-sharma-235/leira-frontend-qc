@@ -1248,34 +1248,154 @@ export default function ProductDetailPage() {
             </section>
 
             {/* ================= explore ================= */}
-            <section className={cn("relative isolate [overflow:clip] px-5 py-16 sm:px-8 md:py-20 lg:px-12", BLUSH)} aria-labelledby="explore-leira-heading">
-                <Grain />
-                <div className="mx-auto max-w-7xl">
-                    <Reveal>
-                        <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">The collection</span>
-                        <h2 id="explore-leira-heading" className={cn("mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]", INK)}>Explore more from Leira</h2>
-                    </Reveal>
-                    <div className="mt-8 grid gap-px overflow-hidden rounded-[20px] border border-[#7a2c4e]/[0.1] bg-[#7a2c4e]/[0.08] sm:grid-cols-2 xl:grid-cols-4">
-                        {getFlagshipSiblingsExcluding({ canonicalPath: getProductPath(product), urlParam: currentParam, slugFromProduct: toSlug(product.id || product.name || "") }).map((item) => (
-                            <Link key={item.href} href={item.href} className="group flex flex-col justify-between bg-[#fffdfc] p-6 transition-colors duration-500 hover:bg-[#fff5f9]">
-                                <div>
-                                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#ec4899]">Fragrance</span>
-                                    <p className={cn("mt-2.5 font-serif text-[19px] font-light leading-[1.25]", INK)}>{item.label}</p>
-                                    <p className={cn("mt-1.5 text-[12.5px] font-light leading-[1.65]", BODY)}>{item.line}</p>
-                                </div>
-                                <span className="mt-5 inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-[#7a2c4e]/70 group-hover:text-[#ec4899]">View product <Mark className="transition-transform duration-500 group-hover:translate-x-1" /></span>
-                            </Link>
-                        ))}
-                        <Link href="/benefits" className="group flex flex-col justify-between bg-[#fff5f9] p-6 transition-colors duration-500 hover:bg-[#fdeef4]">
-                            <div>
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-[#ec4899]">Learn</span>
-                                <p className={cn("mt-2.5 font-serif text-[19px] font-light leading-[1.25]", INK)}>Why Leira — benefits</p>
-                                <p className={cn("mt-1.5 text-[12.5px] font-light leading-[1.65]", BODY)}>Safety, ingredients, and how it fits your routine.</p>
-                            </div>
-                            <span className="mt-5 inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-[#7a2c4e]/70 group-hover:text-[#ec4899]">Read benefits <Mark className="transition-transform duration-500 group-hover:translate-x-1" /></span>
-                        </Link>
+            <section
+              className={cn(
+                "relative isolate [overflow:clip] px-5 py-16 sm:px-8 md:py-20 lg:px-12",
+                BLUSH
+              )}
+              aria-labelledby="explore-leira-heading"
+            >
+              <Grain />
+            
+              <div className="mx-auto max-w-7xl">
+                <Reveal>
+                  <span className="text-[10.5px] uppercase tracking-[0.24em] text-[#ec4899]">
+                    The collection
+                  </span>
+            
+                  <h2
+                    id="explore-leira-heading"
+                    className={cn(
+                      "mt-3 font-serif text-[clamp(24px,3vw,36px)] font-light leading-[1.15]",
+                      INK
+                    )}
+                  >
+                    Explore more from Leira
+                  </h2>
+                </Reveal>
+            
+                <div className="mt-8 grid gap-px overflow-hidden rounded-[20px] border border-[#7a2c4e]/[0.1] bg-[#7a2c4e]/[0.08] sm:grid-cols-2 xl:grid-cols-4">
+            
+                  {getFlagshipSiblingsExcluding({
+                    canonicalPath: getProductPath(product),
+                    urlParam: currentParam,
+                    slugFromProduct: toSlug(
+                      product?.id || product?.name || ""
+                    ),
+                  }).map((item) => {
+                    const imagePath = pickShopCardPath(item);
+            
+                    const imageUrl = imagePath
+                      ? resolveMediaUrl(imagePath)
+                      : "/images/placeholder.png";
+            
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="group flex flex-col overflow-hidden bg-[#fffdfc] transition-colors duration-500 hover:bg-[#fff5f9]"
+                      >
+                        {/* Product Image */}
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#f6f4f2]">
+                          <SafeImg
+                            src={imageUrl}
+                            alt={item.label}
+                            label={item.label}
+                            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+                          />
+            
+                          {/* Image overlay */}
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#7a2c4e]/10 via-transparent to-transparent opacity-60" />
+            
+                          {/* Category */}
+                          <span className="absolute left-5 top-5 rounded-full bg-white/85 px-3 py-1.5 text-[9px] uppercase tracking-[0.2em] text-[#7a2c4e] backdrop-blur-sm">
+                            Fragrance
+                          </span>
+                        </div>
+            
+                        {/* Content */}
+                        <div className="flex flex-1 flex-col justify-between p-6">
+                          <div>
+                            <p
+                              className={cn(
+                                "font-serif text-[19px] font-light leading-[1.25]",
+                                INK
+                              )}
+                            >
+                              {item.label}
+                            </p>
+            
+                            <p
+                              className={cn(
+                                "mt-1.5 text-[12.5px] font-light leading-[1.65]",
+                                BODY
+                              )}
+                            >
+                              {item.line}
+                            </p>
+                          </div>
+            
+                          <span className="mt-5 inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-[#7a2c4e]/70 transition-colors duration-300 group-hover:text-[#ec4899]">
+                            View product
+            
+                            <Mark className="transition-transform duration-500 group-hover:translate-x-1" />
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+            
+                  {/* Benefits Card */}
+                  <Link
+                    href="/benefits"
+                    className="group flex flex-col overflow-hidden bg-[#fff5f9] transition-colors duration-500 hover:bg-[#fdeef4]"
+                  >
+                    {/* Benefits Image */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#fbeef3]">
+                      <img
+                        src="/images/leira-benefits.webp"
+                        alt="Discover the benefits of Leira"
+                        className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+                      />
+            
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#7a2c4e]/10 via-transparent to-transparent" />
+            
+                      <span className="absolute left-5 top-5 rounded-full bg-white/85 px-3 py-1.5 text-[9px] uppercase tracking-[0.2em] text-[#7a2c4e] backdrop-blur-sm">
+                        Learn
+                      </span>
                     </div>
+            
+                    {/* Content */}
+                    <div className="flex flex-1 flex-col justify-between p-6">
+                      <div>
+                        <p
+                          className={cn(
+                            "font-serif text-[19px] font-light leading-[1.25]",
+                            INK
+                          )}
+                        >
+                          Why Leira — benefits
+                        </p>
+            
+                        <p
+                          className={cn(
+                            "mt-1.5 text-[12.5px] font-light leading-[1.65]",
+                            BODY
+                          )}
+                        >
+                          Safety, ingredients, and how it fits your routine.
+                        </p>
+                      </div>
+            
+                      <span className="mt-5 inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-[#7a2c4e]/70 transition-colors duration-300 group-hover:text-[#ec4899]">
+                        Read benefits
+            
+                        <Mark className="transition-transform duration-500 group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
                 </div>
+              </div>
             </section>
 
             {/* ================= reviews ================= */}

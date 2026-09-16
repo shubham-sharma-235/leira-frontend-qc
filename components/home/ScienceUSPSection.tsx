@@ -24,11 +24,11 @@ type Usp = {
 };
 
 const usps: Usp[] = [
-  { title: "Clinically Backed", description: "Carefully formulated ingredients supported by scientific research.", icon: FlaskConical },
+  { title: "pH Balanced", description: "Formulated to maintain your skin’s natural pH balance.", icon: FlaskConical },
+  { title: "Dermatology Tested", description: "Carefully tested for skin compatibility and everyday use.", icon: Gem },
   { title: "Premium Ingredients", description: "Thoughtfully selected ingredients with exceptional quality.", icon: Leaf },
   { title: "High Absorption", description: "Designed for efficient absorption and everyday use.", icon: Droplets },
   { title: "Clean Formula", description: "A carefully considered formula without unnecessary additions.", icon: Feather },
-  { title: "Visible Results", description: "Designed to support healthier-looking skin, hair and overall wellness.", icon: Gem },
   { title: "Advanced Formula", description: "Modern formulation combining science and premium ingredients.", icon: Atom },
   { title: "Everyday Wellness", description: "Simple nutrition designed to fit naturally into your daily routine.", icon: Sun },
   { title: "Quality Assured", description: "Produced with rigorous quality and consistency standards.", icon: ShieldCheck },
