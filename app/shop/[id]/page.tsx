@@ -30,6 +30,7 @@ import {
     RotateCcw,
 } from "lucide-react";
 
+import { resolveMediaUrl } from "@/lib/mediaUrl";
 import { MiniNavbar } from "@/components/ui/mini-navbar";
 import Footer from "@/components/Footer";
 import { useProduct } from "@/hooks/useProduct";
@@ -184,6 +185,26 @@ function isLoggedInCustomer(): boolean {
         return !!user && user.role !== "admin";
     } catch {
         return false;
+    }
+}
+
+/**
+ * Normalises both internal and absolute Leira product URLs to their pathname.
+ * This lets the "Explore more" cards match discovery links such as
+ * "/shop/ylang-ylang" and "https://leiraindia.com/shop/jasmine" back to
+ * the real product objects returned by useProducts().
+ */
+function normalizeShopHref(href: string): string {
+    const value = String(href || "").trim();
+    if (!value) return "";
+
+    try {
+        const url = new URL(value, "https://leiraindia.com");
+        const pathname = url.pathname.replace(/\/+$/, "");
+        return pathname || "/";
+    } catch {
+        const pathname = value.split(/[?#]/)[0].replace(/\/+$/, "");
+        return pathname || "/";
     }
 }
 
@@ -1283,12 +1304,44 @@ export default function ProductDetailPage() {
                       product?.id || product?.name || ""
                     ),
                   }).map((item) => {
-                    const imagePath = pickShopCardPath(item);
-            
+                    /*
+                     * getFlagshipSiblingsExcluding() returns lightweight
+                     * navigation-card data ({ href, label, line }), not a
+                     * ProductImageFields object. Match the card back to the
+                     * real product before calling pickShopCardPath().
+                     */
+                    const itemPath = normalizeShopHref(item.href);
+
+                    const siblingProduct = allProducts.find((candidate) => {
+                      const candidatePath = normalizeShopHref(
+                        getProductPath(candidate)
+                      );
+
+                      const samePath = candidatePath === itemPath;
+                      const sameName =
+                        toSlug(candidate?.name || "") ===
+                        toSlug(item.label || "");
+
+                      return samePath || sameName;
+                    });
+
+                    const imagePath = siblingProduct
+                      ? pickShopCardPath(siblingProduct)
+                      : "";
+
+                    const fallbackProductImage =
+                      siblingProduct &&
+                      Array.isArray(siblingProduct.images) &&
+                      siblingProduct.images.length > 0
+                        ? siblingProduct.images[0]
+                        : "";
+
                     const imageUrl = imagePath
                       ? resolveMediaUrl(imagePath)
-                      : "/images/placeholder.png";
-            
+                      : fallbackProductImage
+                        ? resolveMediaUrl(fallbackProductImage)
+                        : "/images/placeholder.png";
+
                     return (
                       <Link
                         key={item.href}

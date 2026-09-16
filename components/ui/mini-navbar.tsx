@@ -43,8 +43,8 @@ const EditorialNavLink = ({
   >
     <span
       style={{ fontFamily: DISPLAY }}
-      className={`block text-[15px] leading-none tracking-[0.02em] transition-colors duration-300 ${
-        isActive ? 'text-[#7b2e45]' : 'text-[#9a6274] group-hover:text-[#7b2e45]'
+      className={`block text-[15px] font-semibold leading-none tracking-[0.02em] transition-colors duration-300 ${
+        isActive ? 'text-[#7b2e45]' : 'text-[#4a1c2e] group-hover:text-[#7b2e45]'
       }`}
     >
       {children}
@@ -87,11 +87,15 @@ function getStoredUser(): LoggedUser {
 }
 
 /**
- * Transparent, in-flow header. It sits on top of the hero rather than floating
- * over the whole page, so the hero colour reads straight through it.
+ * Hero state:
+ * - transparent + absolute over the first viewport
+ * - scrolls away naturally with the hero
  *
- * `scrim` adds a barely-there wash behind the bar — turn it on for pages whose
- * first section is photography rather than a flat colour.
+ * Sticky state:
+ * - after 100vh, it comes back fixed
+ * - light-pink glassmorphism background stays on for the rest of the page
+ *
+ * `scrim` is only used while the navbar is transparent over the hero.
  */
 export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
   const pathname = usePathname();
@@ -103,6 +107,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
   const [authReady, setAuthReady] = useState(false);
   const [showBlogsLink, setShowBlogsLink] = useState(false);
   const [noteIndex, setNoteIndex] = useState(0);
+  const [isPastHero, setIsPastHero] = useState(false);
 
   const headerRef = useRef<HTMLElement | null>(null);
   const { items: cartItems } = useCart();
@@ -123,6 +128,29 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
     const ro = new ResizeObserver(apply);
     ro.observe(el);
     return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let rafId = 0;
+
+    const updateNavbarState = () => {
+      window.cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        setIsPastHero(window.scrollY >= window.innerHeight);
+      });
+    };
+
+    updateNavbarState();
+    window.addEventListener('scroll', updateNavbarState, { passive: true });
+    window.addEventListener('resize', updateNavbarState);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', updateNavbarState);
+      window.removeEventListener('resize', updateNavbarState);
+    };
   }, []);
 
   useEffect(() => {
@@ -210,6 +238,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
       { label: 'Contact', href: '/contact' },
       { label: 'Collaboration', href: '/collaboration' },
       { label: 'Benefits', href: '/benefits' },
+      { label: 'Blogs', href: '/blogs' },
       ...(showBlogsLink ? [{ label: 'Blogs', href: '/blogs' }] : []),
     ],
     [showBlogsLink],
@@ -241,39 +270,61 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
   return (
     <>
       <motion.header
+        key={isPastHero ? 'sticky-navbar' : 'hero-navbar'}
         ref={(node) => {
           headerRef.current = node;
         }}
-        initial={{ opacity: 0, y: -12 }}
+        initial={
+          reduceMotion
+            ? false
+            : {
+                opacity: 0,
+                y: isPastHero ? -28 : -12,
+              }
+        }
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: EASE }}
-        className="fixed inset-x-0 top-0 z-50 flex w-full flex-col bg-transparent"
+        transition={{
+          duration: reduceMotion ? 0 : isPastHero ? 0.55 : 0.7,
+          ease: EASE,
+        }}
+        className={`inset-x-0 top-0 z-50 flex w-full flex-col transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ease-out ${
+          isPastHero
+            ? 'fixed border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 shadow-[0_14px_45px_-28px_rgba(74,28,46,0.45)] backdrop-blur-xl supports-[backdrop-filter]:bg-[#fdeef0]/82'
+            : 'absolute border-b border-transparent bg-transparent shadow-none'
+        }`}
       >
-        {scrim && (
+        {scrim && !isPastHero && (
           <span
             aria-hidden
             className="pointer-events-none absolute inset-x-0 -bottom-8 top-0 bg-gradient-to-b from-white/45 via-white/15 to-transparent"
           />
         )}
 
-        {/* Announcement — a line of type, not a coloured band */}
-        <div className="relative z-10 px-4 pt-3 sm:px-6">
-          <div className="mx-auto h-4 max-w-[92%] text-center">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.p
-                key={noteIndex}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="truncate text-[11px] italic leading-4 tracking-[0.03em] text-[#9a6274]/85"
-                style={{ fontFamily: DISPLAY }}
-              >
-                {ANNOUNCEMENTS[noteIndex]}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-        </div>
+        {/* Announcement is hero-only. It is completely removed after 100vh. */}
+        {!isPastHero && (
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.08, ease: EASE }}
+            className="relative z-10 px-4 pt-3 sm:px-6"
+          >
+            <div className="mx-auto h-4 max-w-[92%] text-center">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.p
+                  key={noteIndex}
+                  initial={reduceMotion ? false : { opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -5 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.45, ease: EASE }}
+                  className="truncate text-[11px] italic leading-4 tracking-[0.03em] text-[#7b2e45]/90"
+                  style={{ fontFamily: DISPLAY }}
+                >
+                  {ANNOUNCEMENTS[noteIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
 
         {/* Links left, wordmark centre, icons right */}
         <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-[1480px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-10">
@@ -282,6 +333,9 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
             <motion.button
               type="button"
               onClick={() => setIsOpen((v) => !v)}
+              initial={reduceMotion ? false : { opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.4, delay: 0.1, ease: EASE }}
               whileTap={{ scale: 0.94 }}
               className={`${iconBtn} -ml-1.5 xl:hidden`}
               aria-label={isOpen ? 'Close menu' : 'Open menu'}
@@ -303,20 +357,35 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
             </motion.button>
 
             <nav className="hidden min-w-0 items-center gap-x-6 xl:flex 2xl:gap-x-8">
-              {navLinksData.map((link) => (
-                <EditorialNavLink
+              {navLinksData.map((link, index) => (
+                <motion.div
                   key={link.href}
-                  href={link.href}
-                  isActive={isActiveHref(link.href)}
+                  initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.4,
+                    delay: reduceMotion ? 0 : 0.08 + index * 0.04,
+                    ease: EASE,
+                  }}
                 >
-                  {link.label}
-                </EditorialNavLink>
+                  <EditorialNavLink
+                    href={link.href}
+                    isActive={isActiveHref(link.href)}
+                  >
+                    {link.label}
+                  </EditorialNavLink>
+                </motion.div>
               ))}
             </nav>
           </div>
 
           {/* centre — wordmark */}
-          <div className="group relative z-20 flex shrink-0 items-center justify-center">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.5, delay: 0.06, ease: EASE }}
+            className="group relative z-20 flex shrink-0 items-center justify-center"
+          >
             <Link href="/" aria-label="Leira — home" className="relative block overflow-hidden">
               <Image
                 src="/images/logo.png"
@@ -332,10 +401,15 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                 className="pointer-events-none absolute inset-y-0 -left-full w-1/2 skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/70 to-transparent transition-[left] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:left-[150%] motion-reduce:hidden"
               />
             </Link>
-          </div>
+          </motion.div>
 
           {/* right */}
-          <div className="flex min-w-0 items-center justify-end gap-1">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.45, delay: 0.12, ease: EASE }}
+            className="flex min-w-0 items-center justify-end gap-1"
+          >
             <Link href="/shop" className={iconBtn} aria-label="Search the shop">
               <IconHalo />
               <Search className="relative h-[17px] w-[17px] stroke-[1.25] transition-transform duration-300 group-hover:scale-110" />
@@ -380,7 +454,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                 </AnimatePresence>
               )}
             </button>
-          </div>
+          </motion.div>
         </div>
       </motion.header>
 
@@ -403,7 +477,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               exit={{ opacity: 0, y: -10, clipPath: 'inset(0 0 100% 0)' }}
               transition={{ duration: 0.4, ease: EASE }}
               style={{ top: 'var(--leira-nav-h, 76px)' }}
-              className="fixed inset-x-0 z-40 max-h-[calc(100vh-var(--leira-nav-h,76px))] overflow-y-auto border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 px-5 pb-8 pt-5 shadow-[0_28px_70px_-40px_rgba(74,28,46,0.55)] backdrop-blur-xl xl:hidden"
+              className="fixed inset-x-0 z-40 max-h-[calc(140vh-var(--leira-nav-h,76px))] overflow-y-auto border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 px-5 pb-8 pt-5 shadow-[0_28px_70px_-40px_rgba(74,28,46,0.55)] backdrop-blur-xl xl:hidden"
             >
               <nav className="flex flex-col">
                 {navLinksData.map((link, index) => {
@@ -419,10 +493,13 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                         href={link.href}
                         onClick={() => setIsOpen(false)}
                         className={`flex items-center justify-between border-b border-[#c9a2ae]/30 py-3.5 transition-colors ${
-                          isActive ? 'text-[#7b2e45]' : 'text-[#9a6274]'
+                          isActive ? 'text-[#7b2e45]' : 'text-[#4a1c2e]'
                         }`}
                       >
-                        <span style={{ fontFamily: DISPLAY }} className="text-[22px] leading-none">
+                        <span
+                          style={{ fontFamily: DISPLAY }}
+                          className="text-[22px] font-semibold leading-none"
+                        >
                           {link.label}
                         </span>
                         {isActive && (
