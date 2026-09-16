@@ -336,10 +336,14 @@ export default function ProductShowcase() {
 
                 {/* ---------------- header 2 — combos ---------------- */}
                 <div className="mt-14 px-5 text-center sm:px-0 md:mt-16">
-                    <span className="inline-flex items-center gap-2.5 rounded-full bg-[#d8b06a]/15 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#a8823f]">
-                        <i aria-hidden className="block h-1.5 w-1.5 rounded-full bg-[#d8b06a]" />
+                    <span className="inline-flex items-center gap-2.5 rounded-full bg-[#ec4899]/10 px-4 py-1.5 text-[10.5px] uppercase tracking-[0.26em] text-[#ec4899]">
+                        <i
+                            aria-hidden
+                            className="block h-1.5 w-1.5 rounded-full bg-[#ec4899]"
+                        />
                         Save more, together
                     </span>
+                
                     <h3 className="mt-4 font-serif text-[1.6rem] font-light leading-[1.15] text-[#7a2c4e] sm:text-[2rem]">
                         Signature combos
                     </h3>
