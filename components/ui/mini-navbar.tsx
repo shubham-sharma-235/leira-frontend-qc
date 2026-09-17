@@ -347,7 +347,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         className={`qc-leira-mini-navbar-v5 inset-x-0 top-0 z-50 flex w-full flex-col transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ease-out ${
           isPastHero
             ? 'fixed border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 shadow-[0_14px_45px_-28px_rgba(74,28,46,0.45)] backdrop-blur-xl supports-[backdrop-filter]:bg-[#fdeef0]/82'
-            : 'absolute border-b border-transparent bg-transparent shadow-none'
+            : 'absolute border-b border-transparent bg-[#fdf1f5] shadow-none'
         }`}
       >
         {scrim && !isPastHero && (
