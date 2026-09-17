@@ -970,7 +970,7 @@ export default function ProductDetailPage() {
             <MiniNavbar />
 
             {/* ================= hero — 40% image / 60% info ================= */}
-            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12 pt-12">
+            <main className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-4 pb-16 pt-6 sm:px-8 md:pb-24 lg:px-12 pt-12 pb-0">
                 <Grain />
                 <div className="mx-auto max-w-8xl">
                     <div className="mt-8 grid gap-10 lg:grid-cols-[76px_2fr_3fr] lg:gap-10">
@@ -1050,7 +1050,7 @@ export default function ProductDetailPage() {
                                 <span className="mt-1.5 block text-[11.5px] font-light text-[#6b5560]/60">Inclusive of taxes</span>
                             </div>
 
-                            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                            <div className="mt-6 flex flex-row gap-3 sm:flex-row">
                                 <div className={cn("flex h-14 items-center rounded-full border bg-white/70", HAIR)}>
                                     <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="flex h-full w-12 items-center justify-center text-[#7a2c4e]/60 hover:text-[#ec4899]" aria-label="Decrease quantity"><Minus className="h-4 w-4" strokeWidth={1.6} /></button>
                                     <span className={cn("min-w-9 text-center font-serif text-[18px] tabular-nums", INK)}>{quantity}</span>
@@ -1079,12 +1079,6 @@ export default function ProductDetailPage() {
                                         <li key={offer} className={cn("text-[12.5px] font-light leading-[1.5]", BODY)}>{offer}</li>
                                     ))}
                                 </ul>
-                            </div>
-
-                            {/* delivery / returns — same minimal treatment, right below offers */}
-                            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] font-light text-[#6b5560]/75">
-                                <span className="flex items-center gap-1.5"><Truck className="h-[13px] w-[13px] text-[#7a2c4e]/50" strokeWidth={1.6} />Free shipping over ₹999</span>
-                                <span className="flex items-center gap-1.5"><RotateCcw className="h-[13px] w-[13px] text-[#7a2c4e]/50" strokeWidth={1.6} />7-day easy returns</span>
                             </div>
                         </motion.div>
                     </div>

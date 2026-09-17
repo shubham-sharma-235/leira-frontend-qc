@@ -796,7 +796,7 @@ export default function ShopPageClient({
                 </section>
 
                 {/* ---------------- grid ---------------- */}
-                <section className="bg-[#fffdfc] px-5 pb-20 pt-12 sm:px-8 md:pb-28 md:pt-16 lg:px-12">
+                <section className="bg-[#fffdfc] px-5 pb-20 pt-0 sm:px-8 md:pb-28 md:pt-16 lg:px-12">
                     <div className="mx-auto max-w-6xl">
                         {loading ? (
                             <div className="flex flex-col items-center py-20 text-center">
@@ -831,7 +831,7 @@ export default function ShopPageClient({
                                 </Link>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 items-stretch gap-x-6 gap-y-12 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
+                            <div className="grid grid-cols-1 items-stretch gap-x-6 gap-y-12 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
                                 {shopProducts.map(
                                     (product, index) => {
                                         const pid =

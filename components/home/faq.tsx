@@ -439,6 +439,9 @@ export default function Faq() {
             padding-right: 8px;
             padding-left: calc(clamp(14px, 2vw, 26px) + 20px);
           }
+          .contact{
+            font-size: 14px!important;
+          }
         }
 
         @media (max-width: 520px) {

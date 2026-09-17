@@ -493,7 +493,7 @@ const CSS = `
     max-height: 28vh;
   }
   .huPane {
-    min-height: clamp(250px, 40vh, 330px);
+    min-height: 200px;
   }
   .huName {
     max-width: none;
