@@ -764,22 +764,7 @@ export default function ShopPageClient({
                                 className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent"
                             />
                         </Reveal>
-                
-                        <Reveal delay={0.22}>
-                            <p
-                                className={cn(
-                                    "mx-auto mt-5 max-w-[48ch] text-[14.5px] font-light leading-[1.8]",
-                                    BODY
-                                )}
-                            >
-                                India's first vulva perfume.
-                                Three essential oil intimate
-                                perfumes. Alcohol free, pH
-                                balanced, made for sensitive
-                                skin.
-                            </p>
-                        </Reveal>
-                
+                                        
                         {/* Product highlight */}
                         <Reveal delay={0.28}>
                             <div className="mt-6 text-center">
@@ -792,6 +777,21 @@ export default function ShopPageClient({
                                 </p>
                             </div>
                         </Reveal>
+                
+                        <Reveal delay={0.22}>
+                            <p
+                                className={cn(
+                                    "mx-auto mt-5 max-w-[48ch] text-[14.5px] font-light leading-[1.8]",
+                                    BODY
+                                )}
+                            >
+                                Three essential oil intimate
+                                perfumes. Alcohol free, pH
+                                balanced, made for sensitive
+                                skin.
+                            </p>
+                        </Reveal>
+
                     </div>
                 </section>
 

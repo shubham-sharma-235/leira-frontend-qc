@@ -305,9 +305,9 @@ export default function ProductShowcase() {
                     </span>
 
                     <h2 className="mt-6 font-serif text-[2.5rem] font-light leading-[1.08] tracking-[-0.02em] text-[#7a2c4e] sm:text-[3.2rem] md:text-[2rem] lg:text-[3rem]">
-                        Intimate care,
+                        Intimate Odour Meet,
                         <br />
-                        <em className="not-italic text-[#ec4899]">beautifully considered.</em>
+                        <em className="not-italic text-[#ec4899]"> a Gentle Solution.</em>
                     </h2>
 
                     <span aria-hidden className="mx-auto mt-6 block h-px w-14 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent" />

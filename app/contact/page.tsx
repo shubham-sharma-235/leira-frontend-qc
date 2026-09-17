@@ -400,7 +400,7 @@ export default function ContactPage() {
             {/* details ledger */}
             <div className="lg:sticky lg:top-28 lg:self-start">
               <Reveal>
-                <p className="text-[12px] uppercase tracking-[0.22em] text-[#ec4899]">
+                <p className="font-serif text-[12px] uppercase tracking-[0.22em] text-[#ec4899]">
                   Contact details
                 </p>
               </Reveal>
@@ -412,10 +412,10 @@ export default function ContactPage() {
                     delay={0.1 + i * 0.08}
                     className="border-b border-[#7a2c4e]/[0.12] py-5"
                   >
-                    <dt className="text-[10.5px] uppercase tracking-[0.22em] text-[#ec4899]">
+                    <dt className="font-serif text-[10.5px] uppercase tracking-[0.22em] text-[#ec4899]">
                       {d.key}
                     </dt>
-                    <dd className="mt-2 font-serif text-[clamp(18px,1.6vw,23px)] leading-[1.42] text-[#7a2c4e]">
+                    <dd className="mt-2 font-sans text-[clamp(18px,1.6vw,18px)] leading-[1.42] text-[#7a2c4e]">
                       {d.value}
                     </dd>
                   </Reveal>

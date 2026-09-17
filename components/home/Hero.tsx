@@ -1234,14 +1234,14 @@ export default function LeiraHero({
             <div className="text">
               <h2 className="heading">
                 <span className="line" style={{ "--l": 0 } as React.CSSProperties}>
-                  <span>Intimate Odour, Meet</span>
+                  <span>Discover Leira | Natural</span>
                 </span>
                 <span className="line" style={{ "--l": 1 } as React.CSSProperties}>
-                  <span>Intimate Perfume for</span>
+                  <span> Intimate Perfume for</span>
                 </span>
                 <span className="line" style={{ "--l": 2 } as React.CSSProperties}>
                   <span>
-                    <em>Women</em>.
+                    <em> Women</em>.
                   </span> 
                 </span>
               </h2>
