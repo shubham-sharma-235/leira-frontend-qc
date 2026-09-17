@@ -768,11 +768,11 @@ export default function ShopPageClient({
                         {/* Product highlight */}
                         <Reveal delay={0.28}>
                             <div className="mt-6 text-center">
-                                <h2 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-[#171717] sm:text-[28px]">
+                                <h2 className="text-[24px] leading-tight tracking-[-0.02em] text-[#171717] sm:text-[28px]">
                                     India's First Vulva Perfume
                                 </h2>
                 
-                                <p className="mt-2 text-[21px] font-semibold leading-tight tracking-[-0.02em] text-[#e6007e] sm:text-[25px]">
+                                <p className="mt-2 text-[21px] leading-tight tracking-[-0.02em] text-[#e6007e] sm:text-[25px]">
                                     Jasmine, Damask Rose &amp; Ylang Ylang
                                 </p>
                             </div>

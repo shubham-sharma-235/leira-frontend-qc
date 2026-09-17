@@ -8,6 +8,7 @@ type Review = {
   scent: string;
   rating: number;
   quote: string;
+  image: string;
 };
 
 /* Replace these with your real, verified customer reviews before publishing. */
@@ -17,6 +18,8 @@ const REVIEWS: Review[] = [
     city: "Mumbai",
     scent: "Damask Rose",
     rating: 5,
+    image:
+      "https://images.unsplash.com/photo-1726076583859-3651d36c587e?auto=format&fit=crop&w=160&h=160&q=85",
     quote:
       "I was nervous about using anything scented there. Two drops after my shower and it just felt clean — no burning, no heaviness, and the rose stays soft all day.",
   },
@@ -25,6 +28,8 @@ const REVIEWS: Review[] = [
     city: "Bengaluru",
     scent: "Jasmine",
     rating: 5,
+    image:
+      "https://images.unsplash.com/photo-1624610806703-99c0852c31c0?auto=format&fit=crop&w=160&h=160&q=85",
     quote:
       "Bengaluru humidity used to mean checking myself every few hours. I stopped doing that. It's a small thing, but it changed how I get through a workday.",
   },
@@ -33,6 +38,8 @@ const REVIEWS: Review[] = [
     city: "New Delhi",
     scent: "Ylang Ylang",
     rating: 5,
+    image:
+      "https://images.unsplash.com/photo-1769275061786-c33ab1a284c8?auto=format&fit=crop&w=160&h=160&q=85",
     quote:
       "The dropper is what sold me. Nothing spills, nothing is wasted, and it feels like a proper ritual rather than another product on the shelf.",
   },
@@ -41,14 +48,18 @@ const REVIEWS: Review[] = [
     city: "Hyderabad",
     scent: "Damask Rose",
     rating: 5,
+    image:
+      "https://images.unsplash.com/photo-1771992224087-c1f910e71ac8?auto=format&fit=crop&w=160&h=160&q=85",
     quote:
-      "My skin reacts to almost everything, so I patch tested on my hip for two days first. No redness at all. I've been using it every morning since.",
+      "My skin reacts to almost everything, so I patch tested. No redness at all. I've been using it every morning since.",
   },
   {
     name: "Simran B.",
     city: "Chandigarh",
     scent: "Jasmine",
     rating: 4,
+    image:
+      "https://images.unsplash.com/photo-1759840278511-f73a3d62fb9f?auto=format&fit=crop&w=160&h=160&q=85",
     quote:
       "It's expensive for what it is, and I still bought a second bottle. The scent is genuinely lovely and it lasts far longer than I expected it to.",
   },
@@ -173,13 +184,12 @@ export default function Testimonials() {
                   className={`avatar${i === index ? " on" : ""}`}
                   onClick={() => go(i)}
                 >
-                  <svg className="ring" viewBox="0 0 44 44" aria-hidden="true">
-                    <circle className="ringTrack" cx="22" cy="22" r="20.5" />
-                    {i === index && !paused && (
-                      <circle key={index} className="ringFill" cx="22" cy="22" r="20.5" />
-                    )}
-                  </svg>
-                  <span className="initials">{r.name.charAt(0)}</span>
+                  <img
+                    src={r.image}
+                    alt=""
+                    className="avatarImage"
+                    loading="lazy"
+                  />
                 </button>
               </li>
             ))}
@@ -437,35 +447,62 @@ export default function Testimonials() {
 
         .avatar {
           position: relative;
-          display: grid;
-          place-items: center;
-          width: 44px;
-          height: 44px;
+          display: block;
+          width: 52px;
+          height: 52px;
           padding: 0;
-          border: 0;
+          border: none !important;
+          outline: none;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.8);
+          overflow: hidden;
+          background: transparent;
           cursor: pointer;
-          color: rgba(122, 44, 78, 0.45);
-          font: inherit;
-          transition: color 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-            background 0.4s ease;
-          border: none!important;
+          opacity: 0.62;
+          transform: scale(0.94);
+          transition:
+            opacity 0.4s ease,
+            transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 0.4s ease;
         }
+        
         .avatar:hover {
-          color: var(--rose-ink);
-          transform: translateY(-2px);
+          opacity: 1;
+          transform: translateY(-2px) scale(1);
         }
+        
         .avatar.on {
-          color: #fff;
-          background: linear-gradient(150deg, var(--pink-soft), var(--pink));
-          box-shadow: 0 10px 22px -12px rgba(236, 72, 153, 0.7);
+          opacity: 1;
+          transform: scale(1);
+          box-shadow:
+            0 10px 26px -12px rgba(236, 72, 153, 0.75);
         }
+        
+        .avatarImage {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          filter: saturate(0.92);
+          transition:
+            transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+            filter 0.4s ease;
+        }
+        
+        .avatar:hover .avatarImage {
+          transform: scale(1.06);
+          filter: saturate(1);
+        }
+        
+        .avatar.on .avatarImage {
+          filter: saturate(1);
+        }
+        
         .avatar:focus-visible {
-          outline: 1px solid var(--gold);
-          outline-offset: 3px;
+          outline: 1px solid var(--pink);
+          outline-offset: 4px;
         }
-
+        
         .initials {
           font-family: var(--font-serif, "Cormorant Garamond", Georgia, serif);
           font-size: 18px;

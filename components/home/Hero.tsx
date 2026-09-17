@@ -130,6 +130,7 @@ const CSS = `
   min-height: 540px;
   overflow: hidden;
   isolation: isolate;
+  // margin-top: 2rem;
 }
 
 .collage {
@@ -339,23 +340,23 @@ const CSS = `
      matches the CARDS array order, so nth-of-type(N) = array index N-1
      regardless of which entries are hidden. */
   .card:nth-of-type(1) {
-    top: 6% !important;
+    top: 16% !important;
     left: 4% !important;
     width: 30vw !important;
   }
   .card:nth-of-type(3) {
-    top: 6% !important;
+    top: 16% !important;
     left: 62% !important;
     width: 30vw !important;
   }
   .card:nth-of-type(5) {
-    top: 40% !important;
-    left: 2% !important;
+    top: 42% !important;
+    left: 4% !important;
     width: 26vw !important;
   }
   .card:nth-of-type(6) {
-    top: 40% !important;
-    left: 68% !important;
+    top: 44% !important;
+    left: 66% !important;
     width: 26vw !important;
   }
   .card:nth-of-type(8) {

@@ -48,7 +48,7 @@ const EditorialNavLink = ({
   >
     <span
       style={{ fontFamily: DISPLAY, fontWeight: 300, fontStyle: 'normal', textTransform: 'none' }}
-      className={`qc-leira-mini-navbar-v5__link-label block !text-[15px] !font-semibold !leading-none !tracking-[0.02em] transition-colors duration-300 ${
+      className={`qc-leira-mini-navbar-v5__link-label block !text-[15px] !font-light !leading-none !tracking-[0.02em] transition-colors duration-300 ${
         isActive ? '!text-[#7b2e45]' : '!text-[#4a1c2e] group-hover:!text-[#7b2e45]'
       }`}
     >
@@ -115,6 +115,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
   const [isPastHero, setIsPastHero] = useState(false);
 
   const headerRef = useRef<HTMLElement | null>(null);
+  const drawerRef = useRef<HTMLDivElement | null>(null);
   const { items: cartItems } = useCart();
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -124,15 +125,32 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
     if (typeof window === 'undefined') return;
     const el = headerRef.current;
     if (!el) return;
+
     const root = document.documentElement;
+    let rafId = 0;
+
     const apply = () => {
-      root.style.setProperty(NAV_HEIGHT_VAR, `${el.offsetHeight}px`);
+      window.cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        const currentHeader = headerRef.current;
+        if (!currentHeader) return;
+        const height = Math.ceil(currentHeader.getBoundingClientRect().height);
+        root.style.setProperty(NAV_HEIGHT_VAR, `${height}px`);
+      });
     };
+
     apply();
+
     const ro = new ResizeObserver(apply);
     ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    window.addEventListener('resize', apply);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      ro.disconnect();
+      window.removeEventListener('resize', apply);
+    };
+  }, [isPastHero]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -211,6 +229,19 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
     };
   }, [isOpen]);
 
+  /* Always open the mobile drawer at its real first item. This is especially
+     important after the header changes from hero -> sticky while the page is
+     scrolled, otherwise the first link can sit underneath the fixed header. */
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return;
+
+    const rafId = window.requestAnimationFrame(() => {
+      drawerRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+
+    return () => window.cancelAnimationFrame(rafId);
+  }, [isOpen, isPastHero]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsOpen(false);
     window.addEventListener('keydown', onKey);
@@ -273,6 +304,25 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
 
   return (
     <>
+      <style jsx global>{`
+        /* Keep the desktop nav exactly in the light editorial style, regardless
+           of page-level typography rules. */
+        #${NAV_ROOT_ID} .qc-leira-mini-navbar-v5__link-label {
+          font-family: ${DISPLAY} !important;
+          font-weight: 300 !important;
+          font-style: normal !important;
+          font-synthesis: none;
+        }
+
+        #${NAV_ROOT_ID} .qc-leira-mini-navbar-v5__announcement-text,
+        #${NAV_DRAWER_ID} .qc-leira-mini-navbar-v5__mobile-link-label,
+        #${NAV_DRAWER_ID} .qc-leira-mini-navbar-v5__signup,
+        #${NAV_DRAWER_ID} .qc-leira-mini-navbar-v5__login {
+          font-weight: 400 !important;
+          font-synthesis: none;
+        }
+      `}</style>
+
       <motion.header
         key={isPastHero ? 'sticky-navbar' : 'hero-navbar'}
         ref={(node) => {
@@ -334,7 +384,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         )}
 
         {/* Links left, wordmark centre, icons right */}
-        <div className="qc-leira-mini-navbar-v5__inner relative z-10 mx-auto grid w-full min-w-0 max-w-[1760px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-10 2xl:px-12">
+        <div className="qc-leira-mini-navbar-v5__inner relative z-10 mx-auto grid w-full min-w-0 max-w-[1760px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-6 min-[1366px]:px-8 2xl:px-12">
           {/* left */}
           <div className="qc-leira-mini-navbar-v5__left flex min-w-0 items-center justify-start">
             <motion.button
@@ -344,7 +394,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.4, delay: 0.1, ease: EASE }}
               whileTap={{ scale: 0.94 }}
-              className={`${iconBtn} -ml-1.5 xl:hidden`}
+              className={`${iconBtn} -ml-1.5 min-[1200px]:hidden`}
               aria-label={isOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isOpen}
               aria-controls={NAV_DRAWER_ID}
@@ -364,7 +414,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               </span>
             </motion.button>
 
-            <nav id="qc-leira-mini-navbar-v5-desktop-links" className="qc-leira-mini-navbar-v5__desktop-nav hidden min-w-0 items-center gap-x-6 xl:flex 2xl:gap-x-8">
+            <nav id="qc-leira-mini-navbar-v5-desktop-links" className="qc-leira-mini-navbar-v5__desktop-nav hidden min-w-0 items-center gap-x-4 min-[1200px]:flex min-[1366px]:gap-x-6 2xl:gap-x-8">
               {navLinksData.map((link, index) => (
                 <motion.div
                   key={link.href}
@@ -466,7 +516,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
         </div>
       </motion.header>
 
-      {/* Menu — below xl */}
+      {/* Menu — only below 1200px viewport width */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -476,7 +526,7 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => setIsOpen(false)}
-              id="qc-leira-mini-navbar-v5-overlay" className="qc-leira-mini-navbar-v5__overlay fixed inset-0 z-40 bg-[#4a1c2e]/20 backdrop-blur-[2px] xl:hidden"
+              id="qc-leira-mini-navbar-v5-overlay" className="qc-leira-mini-navbar-v5__overlay fixed inset-0 z-40 bg-[#4a1c2e]/20 backdrop-blur-[2px] min-[1200px]:hidden"
             />
             <motion.div
               key="drawer"
@@ -484,10 +534,11 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
               animate={{ opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)' }}
               exit={{ opacity: 0, y: -10, clipPath: 'inset(0 0 100% 0)' }}
               transition={{ duration: 0.4, ease: EASE }}
+              ref={drawerRef}
               id={NAV_DRAWER_ID}
               data-qc-leira-navbar="drawer"
               style={{ top: `var(${NAV_HEIGHT_VAR}, 76px)` }}
-              className="qc-leira-mini-navbar-v5__drawer fixed inset-x-0 z-40 max-h-[calc(140vh-var(--qc-leira-mini-navbar-v5-h,76px))] overflow-y-auto border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 px-5 pb-8 pt-5 shadow-[0_28px_70px_-40px_rgba(74,28,46,0.55)] backdrop-blur-xl xl:hidden"
+              className="qc-leira-mini-navbar-v5__drawer fixed inset-x-0 z-40 max-h-[calc(100dvh-var(--qc-leira-mini-navbar-v5-h,76px))] overflow-y-auto border-b border-[#c9a2ae]/35 bg-[#fdeef0]/92 px-5 pb-8 pt-5 shadow-[0_28px_70px_-40px_rgba(74,28,46,0.55)] backdrop-blur-xl min-[1200px]:hidden"
             >
               <nav id="qc-leira-mini-navbar-v5-mobile-links" className="qc-leira-mini-navbar-v5__mobile-nav flex flex-col">
                 {navLinksData.map((link, index) => {
@@ -507,8 +558,8 @@ export function MiniNavbar({ scrim = false }: { scrim?: boolean }) {
                         }`}
                       >
                         <span
-                          style={{ fontFamily: DISPLAY, fontWeight: 600, fontStyle: 'normal', textTransform: 'none' }}
-                          className="qc-leira-mini-navbar-v5__mobile-link-label !text-[22px] !font-semibold !leading-none"
+                          style={{ fontFamily: DISPLAY, fontWeight: 400, fontStyle: 'normal', textTransform: 'none' }}
+                          className="qc-leira-mini-navbar-v5__mobile-link-label !text-[22px] !font-normal !leading-none"
                         >
                           {link.label}
                         </span>
