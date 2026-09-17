@@ -862,7 +862,13 @@ const CSS = `
     grid-template-columns: 1fr;
   }
   .artSecond {
-    width: 40%;
+    width: 44vw;
+  }
+  .artSecondWrap {
+    right: 16%;
+  }
+  .aboutWrap {
+    grid-gap: 16px;
   }
 }
 

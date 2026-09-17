@@ -112,6 +112,7 @@ const CSS = `
 .in .huHead {
   opacity: 1;
   transform: none;
+  margin-top: 26px;
 }
 
 .huTag {
