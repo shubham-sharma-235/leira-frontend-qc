@@ -60,7 +60,7 @@ export function AboutHeroSection({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-5 pb-16 pt-20 sm:px-8 md:pb-24 md:pt-28 lg:px-12 pt-16">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc] px-5 pb-16 pt-20 sm:px-8 md:pb-24 md:pt-28 lg:px-12 pt-16 mt-6">
       {/* soft drifting glow */}
       <motion.div
         aria-hidden

@@ -128,7 +128,7 @@ const CSS = `
   margin: 0;
   font-family: var(--font-serif);
   font-weight: 300;
-  font-size: clamp(30px, 4vw, 54px);
+  font-size: clamp(34px, 4vw, 54px);
   line-height: 1.1;
   letter-spacing: -0.014em;
   color: var(--rose-ink);

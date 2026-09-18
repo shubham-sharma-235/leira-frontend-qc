@@ -355,7 +355,7 @@ export default function ContactPage() {
       <MiniNavbar />
       <main className="min-h-screen bg-white leira-underlap-nav-spacer">
         {/* ============ 1 · masthead + message form + details ============ */}
-        <section className="relative isolate [overflow:clip] bg-[linear-gradient(180deg,#fffdfc_0%,#fff7fa_50%,#fdf1f5_100%)] px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24 lg:px-12">
+        <section className="relative isolate [overflow:clip] bg-gradient-to-b from-[#fdf1f5] via-[#fff7fa] to-[#fffdfc]  px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24 lg:px-12">
           <Grain />
           <motion.span
             aria-hidden

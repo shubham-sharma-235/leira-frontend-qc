@@ -38,7 +38,7 @@ const leftUsps = usps.slice(0, 4);
 const rightUsps = usps.slice(4, 8);
 
 const VIDEO_SRC =
-  "https://bodicine.com/cdn/shop/videos/c/vp/013193b14f894ad3a55118e99796113e/013193b14f894ad3a55118e99796113e.HD-1080p-7.2Mbps-73028510.mp4?v=0";
+  "/videos/product-showcase.mp4";
 
 /* ------------------------------------------------------------------ */
 /* Design tokens                                                      */

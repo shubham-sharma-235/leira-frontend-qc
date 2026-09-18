@@ -322,7 +322,7 @@ export default function ProductShowcase() {
                     Mobile: horizontal drag/swipe row, one card mostly
                     in frame with the next peeking in to invite scrolling.
                     sm: and up: back to the original grid, untouched. */}
-                <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pl-8 pr-6 overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pl-0 lg:grid-cols-3">
+                <div className="ml-0.5 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pl-8 pr-6 overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pl-0 lg:grid-cols-3">
                     {products.map((product, index) => (
                         <RevealCard
                             key={product.id}
@@ -352,7 +352,7 @@ export default function ProductShowcase() {
                 {/* ---------------- combos ----------------
                     Same mobile drag-row treatment, slightly narrower per
                     card since there are 4 to imply more content off-screen. */}
-                <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pl-8 pr-6 overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pl-0 lg:grid-cols-4">
+                <div className="ml-0.5 -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pl-8 pr-6 overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pl-0 lg:grid-cols-4">
                     {combos.map((combo, index) => (
                         <RevealCard
                             key={combo.id}
@@ -365,7 +365,7 @@ export default function ProductShowcase() {
                 </div>
 
                 {/* ---------------- bottom cta ---------------- */}
-                <div className="mt-14 flex justify-center md:mt-16">
+                <div className="mt-8 flex justify-center md:mt-16">
                     <button className="group inline-flex items-center gap-4 border-b border-[#7a2c4e]/25 pb-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7a2c4e] transition-all duration-300 sm:hover:gap-6 sm:hover:text-[#ec4899]">
                         <span>Explore the collection</span>
                         <svg
